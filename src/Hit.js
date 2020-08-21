@@ -79,9 +79,9 @@ function Hit(props) {
         } break;
   
         case "spectrum":
-        case "article": {
+        case "article": 
             source = <a target="_blank" rel="noopener noreferrer" href={data.source}>{props.hit.title}</a>;
-        } break;
+        break;
   
         default: break;
     }
