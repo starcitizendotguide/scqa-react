@@ -53,7 +53,7 @@ function timeDelta(timestamp, date) {
     } else {
         return <i className="fas fa-hourglass-end green-text tooltipped" data-tooltip="This answer is younger than 1 year, and is probably still correct."> {date}</i>;
     }
-  
+
 }
   
 function Hit(props) {
