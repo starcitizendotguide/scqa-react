@@ -8,15 +8,18 @@ class DebouncedSearchBox extends React.Component {
     };
   
     onChangeDebounced = event => {
-      const { refine, delay } = this.props;
-      const value = event.currentTarget.value;
-  
-      clearTimeout(this.timerId);
-      this.timerId = setTimeout(() => refine(value), delay);
-  
-      this.setState(() => ({
-        value
-      }));
+        const { refine, delay, onSearch } = this.props;
+        const value = event.currentTarget.value;
+
+        clearTimeout(this.timerId);
+        this.timerId = setTimeout(() => {
+            refine(value);
+            onSearch();
+        }, delay);
+
+        this.setState(() => ({
+            value
+        }));
     };
   
     render() {

@@ -112,7 +112,7 @@ class App extends Component {
             { this.state.objectID !== null ? <Configure filters={`objectID:${this.state.objectID}`} /> : null }
             <div className="container">
               <InformationCard>
-                <DSearchBox delay={250} onChange={() => this.setState({ objectID: null })} autoFocus={true}/>
+                <DSearchBox delay={250} onSearch={() => this.setState({ objectID: null })} autoFocus={true}/>
               </InformationCard>
               <Hits hitComponent={Hit} />
             </div>
