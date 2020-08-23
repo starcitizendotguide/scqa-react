@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef, useLayoutEffect} from 'react';
 
 import CopyToClipboard from './CopyToClipboard';
 import M from 'materialize-css';
@@ -43,11 +43,11 @@ function openVideoModal(data_source, data_time) {
     instance.open();
 }
   
-function timeDelta(timestamp, date) {
+function timeDelta(timestamp, date, ref) {
     let delta = Date.now()/1000 - timestamp;
     let year_in_seconds = 60 * 60 * 24 * 365;
     if(delta > 2 * year_in_seconds) {
-    return <i className="fas fa-hourglass-end red-text tooltipped" data-tooltip="This answer is older than 2 years, and might be out of date."> {date}</i>;
+        return <i className="fas fa-hourglass-end red-text tooltipped" data-tooltip="This answer is older than 2 years, and might be out of date."> {date}</i>;
     } else if(delta > 1 * year_in_seconds) {
         return <i className="fas fa-hourglass-end yellow-text tooltipped" data-tooltip="This answer is older than 1 year, and might be out of date."> {date}</i>;
     } else {
@@ -59,10 +59,23 @@ function timeDelta(timestamp, date) {
 function Hit(props) {
 
     useEffect(() => {
-        // TODO this is not ideal because we init every tooltiped element every time we render
-        // a hit, we wanna change this to do it only if we haven't done it for this component yet... probably
-        M.Tooltip.init(document.querySelectorAll('.tooltipped'), {});
-    });
+        let timeoutId = setTimeout(function() {
+            console.log("hey");
+            M.Tooltip.init(refErrorNotice.current, {});
+            M.Tooltip.init(refTranscript.current, {});
+            M.Tooltip.init(refPermaLink.current, {});
+            M.Tooltip.init(refTimeDelta.current, {});
+        }, 500);
+
+        return () => {
+            clearTimeout(timeoutId);
+        };
+    }, []);
+
+    const refErrorNotice = useRef();
+    const refTranscript = useRef();
+    const refPermaLink = useRef();
+    const refTimeDelta = useRef();
   
     const data = props.hit;
     var source = 'UNKNOWN';
@@ -75,7 +88,7 @@ function Hit(props) {
             source = <button onClick={() => openVideoModal(data.source, data.time)} className="link-like">{title}</button>;
             var parser = document.createElement('a');
             parser.href = data.transcript;
-            transcript = <a target="_blank" rel="noopener noreferrer" href={data.transcript} className="tooltipped right icon-padding" data-tooltip={"Transcribed by " + parser.hostname}><i className="fas fa-scroll"></i></a>;
+            transcript = <a target="_blank" ref={refTranscript} rel="noopener noreferrer" href={data.transcript} className="tooltipped right icon-padding" data-tooltip={"Transcribed by " + parser.hostname}><i className="fas fa-scroll"></i></a>;
         } break;
   
         case "spectrum":
@@ -88,6 +101,7 @@ function Hit(props) {
   
     let error_notice = <CopyToClipboard copyValue={data.objectID}> 
                             <button  
+                                ref={refErrorNotice}
                                 className="tooltipped right icon-padding link-like" 
                                 data-tooltip={"If you have spotted an error please provide this ID: " + data.objectID + "<br/><i>(Click to copy)</i>"}>
                                 <i className="fas fa-fingerprint"></i>
@@ -96,6 +110,7 @@ function Hit(props) {
   
     let perma_link = <CopyToClipboard copyValue={`${window.location.origin.toString()}/#${data.objectID}`}>
          <button  
+            ref={refPermaLink}
             className="tooltipped right icon-padding link-like" 
             data-tooltip={"Perma link <br/><i>(Click to copy)</i>"}>
             <i className="fas fa-link"></i>
@@ -108,7 +123,7 @@ function Hit(props) {
             <h5 className="title">{props.hit.question}</h5>
             <blockquote dangerouslySetInnerHTML={{__html: data.answer}}></blockquote>
             <p className="grey-text text-darken-1">
-                - asked{data.user && (' by ' + data.user)} in {source} on {timeDelta(data.published_at_timestamp, data.published_at)}
+                - asked{data.user && (' by ' + data.user)} in {source} on {timeDelta(data.published_at_timestamp, data.published_at, refTimeDelta)}
                 {error_notice}
                 {transcript}
                 {perma_link}
