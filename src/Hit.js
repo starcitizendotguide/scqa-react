@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useLayoutEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 
 import CopyToClipboard from './CopyToClipboard';
 import M from 'materialize-css';
@@ -60,9 +60,8 @@ function Hit(props) {
 
     useEffect(() => {
         let timeoutId = setTimeout(function() {
-            console.log("hey");
             M.Tooltip.init(refErrorNotice.current, {});
-            M.Tooltip.init(refTranscript.current, {});
+            if (refTranscript.current) M.Tooltip.init(refTranscript.current, {});
             M.Tooltip.init(refPermaLink.current, {});
             M.Tooltip.init(refTimeDelta.current, {});
         }, 500);

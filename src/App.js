@@ -4,18 +4,21 @@ import qs from 'qs';
 import {
   InstantSearch,
   Hits,
-  SearchBox,
-  Configure
+  Configure,
+  connectSearchBox
 } from 'react-instantsearch-dom';
 
 
 import InformationCard from './InformationCard';
 import Hit from './Hit';
+import DebouncedSearchBox from './DebouncedSearchBox';
 
 import M from 'materialize-css';
 import './styles/App.scss';
 import video_background from './styles/assets/background.webm';
 import video_poster from './styles/assets/header.webp';
+
+const DSearchBox = connectSearchBox(DebouncedSearchBox);
 
 // create the client
 const searchClient = algoliasearch(
@@ -106,10 +109,10 @@ class App extends Component {
             onSearchStateChange={this.onSearchStateChange}
             createURL={createURL}
           >
-            { this.state.objectID !== null && <Configure filters={`objectID:${this.state.objectID}`} /> }
+            { this.state.objectID !== null ? <Configure filters={`objectID:${this.state.objectID}`} /> : null }
             <div className="container">
               <InformationCard>
-                <SearchBox onChange={() => this.setState({ objectID: null })} autoFocus={true}/>
+                <DSearchBox delay={250} onChange={() => this.setState({ objectID: null })} autoFocus={true}/>
               </InformationCard>
               <Hits hitComponent={Hit} />
             </div>
