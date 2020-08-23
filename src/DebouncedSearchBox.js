@@ -24,9 +24,10 @@ class DebouncedSearchBox extends React.Component {
   
       return (
         <input
-          value={value}
-          onChange={this.onChangeDebounced}
-          placeholder="Search for products..."
+            className="ais-SearchBox"
+            value={value}
+            onChange={this.onChangeDebounced}
+            placeholder="What are you looking for?"
         />
       );
     }
