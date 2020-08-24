@@ -14,9 +14,9 @@ import Hit from './Hit';
 import DebouncedSearchBox from './DebouncedSearchBox';
 
 import M from 'materialize-css';
-import './styles/App.scss';
-import video_background from './styles/assets/background.webm';
-import video_poster from './styles/assets/header.webp';
+import './../styles/App.scss';
+import video_background from './../styles/assets/background.webm';
+import video_poster from './../styles/assets/header.webp';
 
 const DSearchBox = connectSearchBox(DebouncedSearchBox);
 

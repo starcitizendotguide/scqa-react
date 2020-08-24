@@ -46,12 +46,19 @@ function openVideoModal(data_source, data_time) {
 function timeDelta(timestamp, date, ref) {
     let delta = Date.now()/1000 - timestamp;
     let year_in_seconds = 60 * 60 * 24 * 365;
-    if(delta > 2 * year_in_seconds) {
-        return <i className="fas fa-hourglass-end red-text tooltipped" data-tooltip="This answer is older than 2 years, and might be out of date."> {date}</i>;
+
+    if(delta > 3 * year_in_seconds) {
+        return <i   ref={ref}
+                    className="fas fa-hourglass-end red-text tooltipped"
+                    data-tooltip="This answer is older than 3 years."> {date}</i>;
     } else if(delta > 1 * year_in_seconds) {
-        return <i className="fas fa-hourglass-end yellow-text tooltipped" data-tooltip="This answer is older than 1 year, and might be out of date."> {date}</i>;
+        return <i   ref={ref}
+                    className="fas fa-hourglass-end yellow-text tooltipped"
+                    data-tooltip="This answer is older than 1 year."> {date}</i>;
     } else {
-        return <i className="fas fa-hourglass-end green-text tooltipped" data-tooltip="This answer is younger than 1 year, and is probably still correct."> {date}</i>;
+        return <i   ref={ref}
+                    className="fas fa-hourglass-end green-text tooltipped"
+                    data-tooltip="This answer is younger than 1 year"> {date}</i>;
     }
 
 }
@@ -98,23 +105,6 @@ function Hit(props) {
         default: break;
     }
   
-    let error_notice = <CopyToClipboard copyValue={data.objectID}> 
-                            <button  
-                                ref={refErrorNotice}
-                                className="tooltipped right icon-padding link-like" 
-                                data-tooltip={"If you have spotted an error please provide this ID: " + data.objectID + "<br/><i>(Click to copy)</i>"}>
-                                <i className="fas fa-fingerprint"></i>
-                            </button>
-                        </CopyToClipboard>;
-  
-    let perma_link = <CopyToClipboard copyValue={`${window.location.origin.toString()}/#${data.objectID}`}>
-         <button  
-            ref={refPermaLink}
-            className="tooltipped right icon-padding link-like" 
-            data-tooltip={"Perma link <br/><i>(Click to copy)</i>"}>
-            <i className="fas fa-link"></i>
-        </button>
-    </CopyToClipboard>
     return (
       <div>
         <div className="card hoverable">
@@ -122,10 +112,24 @@ function Hit(props) {
             <h5 className="title">{props.hit.question}</h5>
             <blockquote dangerouslySetInnerHTML={{__html: data.answer}}></blockquote>
             <p className="grey-text text-darken-1">
-                - asked{data.user && (' by ' + data.user)} in {source} on {timeDelta(data.published_at_timestamp, data.published_at, refTimeDelta)}
-                {error_notice}
+                - asked{data.user ? ` by ${data.user}` : null} in {source} on {timeDelta(data.published_at_timestamp, data.published_at, refTimeDelta)}
+                <CopyToClipboard copyValue={data.objectID}> 
+                            <button  
+                                ref={refErrorNotice}
+                                className="tooltipped right icon-padding link-like" 
+                                data-tooltip={`If you have spotted an error please provide this ID: ${data.objectID}<br/><i>(Click to copy)</i>`}>
+                                <i className="fas fa-fingerprint"></i>
+                            </button>
+                        </CopyToClipboard>
                 {transcript}
-                {perma_link}
+                <CopyToClipboard copyValue={`${window.location.origin.toString()}/#${data.objectID}`}>
+                    <button  
+                        ref={refPermaLink}
+                        className="tooltipped right icon-padding link-like" 
+                        data-tooltip={"Perma link <br/><i>(Click to copy)</i>"}>
+                        <i className="fas fa-link"></i>
+                    </button>
+                </CopyToClipboard>
             </p>
           </div>
         </div>
