@@ -97,14 +97,32 @@ function Hit(props) {
             transcript = <a target="_blank" ref={refTranscript} rel="noopener noreferrer" href={data.transcript} className="tooltipped right icon-padding" data-tooltip={"Transcribed by " + parser.hostname}><i className="fas fa-scroll"></i></a>;
         } break;
   
+        case "monthly_report":
         case "spectrum":
         case "article": 
             source = <a target="_blank" rel="noopener noreferrer" href={data.source}>{props.hit.title}</a>;
         break;
+
   
         default: break;
     }
+
+    let introduction_text = 'N/A';
   
+    switch(data.type) {
+        case "youtube": 
+        case "spectrum":
+        case "article": 
+            introduction_text = `asked ${ data.user ? `by ${data.user}` : null}`;
+        break;
+
+        case "monthly_report":
+            introduction_text = `published`
+        break;
+
+        default: break;
+    }
+
     return (
       <div>
         <div className="card hoverable">
@@ -112,7 +130,7 @@ function Hit(props) {
             <h5 className="title">{props.hit.question}</h5>
             <blockquote dangerouslySetInnerHTML={{__html: data.answer}}></blockquote>
             <p className="grey-text text-darken-1">
-                - asked{data.user ? ` by ${data.user}` : null} in {source} on {timeDelta(data.published_at_timestamp, data.published_at, refTimeDelta)}
+                - {introduction_text} in {source} on {timeDelta(data.published_at_timestamp, data.published_at, refTimeDelta)}
                 <CopyToClipboard copyValue={data.objectID}> 
                             <button  
                                 ref={refErrorNotice}
