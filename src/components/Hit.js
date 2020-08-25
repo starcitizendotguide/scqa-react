@@ -113,7 +113,7 @@ function Hit(props) {
         case "youtube": 
         case "spectrum":
         case "article": 
-            introduction_text = `asked ${ data.user ? `by ${data.user}` : null}`;
+            introduction_text = `asked ${ data.user ? `by ${data.user}` : ''}`;
         break;
 
         case "monthly_report":
