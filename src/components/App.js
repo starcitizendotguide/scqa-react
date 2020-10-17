@@ -30,11 +30,29 @@ const createURL = state => `?question=${encodeURIComponent(state.query)}`;
 const searchStateToUrl = (props, searchState) =>
   searchState ? `${props.location.pathname}${createURL(searchState)}` : '';
 
+const getHashFromUrl = function() {
+  let hash = window.location.hash.split('#')[1];
+
+  if(hash === undefined || hash === null) {
+    return null;
+  } 
+
+  return hash;
+
+}
+
 const urlToSearchState = location => {
 
   // We have to check whether or not the ?question= even exists, otherwise we get an "undefined" in our search bar...
   let parsed = qs.parse(location.search.slice(1));
   if(parsed['question'] === undefined) {
+    return { question: '', query: '', page: "1" };
+  }
+
+  // BUG-FIX: For some reason some URLs that had an object id and search paramters failed to resolve when the search paramters
+  // where still present, and I think that is because they caused some issue because those URLs were generated with the old
+  // version of this website that was written in Vue... Anyway, this should fix it. 
+  if(getHashFromUrl() !== null) {
     return { question: '', query: '', page: "1" };
   }
 
@@ -85,12 +103,13 @@ class App extends Component {
       }
     });
     this.registerTooltips();
-    let hash = window.location.hash.split('#')[1];
+    let hash = getHashFromUrl();
 
-    if(hash === undefined || hash === null) {
+    if(hash === null) {
       return;
     } 
 
+    window.history.replaceState({}, document.title, "/#" + hash);
     this.setState({ objectID: parseInt(hash) });
   }
 
@@ -99,6 +118,7 @@ class App extends Component {
   }
 
   render() {
+    console.log(this.state.objectID);
     return (
       <>
         <div className="ais-InstantSearch">
