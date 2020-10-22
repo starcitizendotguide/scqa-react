@@ -63,7 +63,7 @@ function timeDelta(timestamp, date, ref) {
 
 }
   
-function Hit(props) {
+function Hit(data) {
 
     useEffect(() => {
         let timeoutId = setTimeout(function() {
@@ -83,7 +83,6 @@ function Hit(props) {
     const refPermaLink = useRef();
     const refTimeDelta = useRef();
   
-    const data = props.hit;
     var source = 'UNKNOWN';
     var transcript = '';
   
@@ -91,7 +90,7 @@ function Hit(props) {
   
         case "youtube": {
             const title = (data.title == null ? data.source : data.title);
-            source = <button onClick={() => openVideoModal(data.source, data.time)} className="link-like">{title}</button>;
+            source = <button onClick={() => openVideoModal(data.source, data.time)} className="link-like">{data.title}</button>;
             var parser = document.createElement('a');
             parser.href = data.transcript;
             transcript = <a target="_blank" ref={refTranscript} rel="noopener noreferrer" href={data.transcript} className="tooltipped right icon-padding" data-tooltip={"Transcribed by " + parser.hostname}><i className="fas fa-scroll"></i></a>;
@@ -100,7 +99,7 @@ function Hit(props) {
         case "monthly_report":
         case "spectrum":
         case "article": 
-            source = <a target="_blank" rel="noopener noreferrer" href={data.source}>{props.hit.title}</a>;
+            source = <a target="_blank" rel="noopener noreferrer" href={data.source}>{data.title}</a>;
         break;
 
   
@@ -127,7 +126,7 @@ function Hit(props) {
       <div>
         <div className="card hoverable">
           <div className="card-content">
-            <h5 className="title">{props.hit.question}</h5>
+            <h5 className="title">{data.question}</h5>
             <blockquote dangerouslySetInnerHTML={{__html: data.answer}}></blockquote>
             <p className="grey-text text-darken-1">
                 - {introduction_text} in {source} on {timeDelta(data.published_at_timestamp, data.published_at, refTimeDelta)}

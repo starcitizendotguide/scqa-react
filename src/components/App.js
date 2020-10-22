@@ -5,13 +5,14 @@ import {
   InstantSearch,
   Hits,
   Configure,
-  connectSearchBox
+  connectSearchBox,
+  connectStateResults,
 } from 'react-instantsearch-dom';
 
 
 import InformationCard from './InformationCard';
-import Hit from './Hit';
 import DebouncedSearchBox from './DebouncedSearchBox';
+import Hit from './Hit';
 
 import M from 'materialize-css';
 import './../styles/App.scss';
@@ -19,6 +20,7 @@ import video_background from './../styles/assets/background.webm';
 import video_poster from './../styles/assets/header.webp';
 
 const DSearchBox = connectSearchBox(DebouncedSearchBox);
+
 
 // create the client
 const searchClient = algoliasearch(
@@ -60,6 +62,40 @@ const urlToSearchState = location => {
   let question = decodeURIComponent(parsed.question);
   return { question: encodeURIComponent(question), query: question, page: "1" };
 }
+
+// --- custom search results with loading indicator...
+const LoadingIndicator = connectStateResults(({ allSearchResults, searching, isSearchStalled, error }) => {
+
+  if(searching) {
+    return <div>
+      <div className="card hoverable">
+          <div className="card-content">
+            <p className="grey-text text-darken-1">Searching... <i className="fas fa-spin fa-spinner"></i></p>
+          </div>
+        </div>
+    </div>;
+  } else if(isSearchStalled) {
+    return <div>
+      <div className="card hoverable">
+          <div className="card-content">
+            <p className="grey-text text-darken-1">Searching stalled. There might be an issue with the internet connection.</p>
+          </div>
+        </div>
+    </div>; 
+  } else {
+    return (
+      <div>
+        {
+          allSearchResults.hits.map(element => (
+            <Hit key={element.objectID} {...element} />
+          ))
+        }
+      </div>
+    );
+  }
+
+  return null;  
+});
 
 class App extends Component {
 
@@ -118,7 +154,6 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.state.objectID);
     return (
       <>
         <div className="ais-InstantSearch">
@@ -134,10 +169,12 @@ class App extends Component {
               <InformationCard>
                 <DSearchBox delay={250} onSearch={() => this.setState({ objectID: null })} autoFocus={true}/>
               </InformationCard>
-              <Hits hitComponent={Hit} />
+              <LoadingIndicator>
+              </LoadingIndicator>
             </div>
           </InstantSearch>
         </div>
+
 
         <div id="video-modal" className="modal">
             <div id="video-modal-content" className="modal-content"> </div>
