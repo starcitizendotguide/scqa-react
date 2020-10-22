@@ -90,7 +90,7 @@ function Hit(data) {
   
         case "youtube": {
             const title = (data.title == null ? data.source : data.title);
-            source = <button onClick={() => openVideoModal(data.source, data.time)} className="link-like">{data.title}</button>;
+            source = <button onClick={() => openVideoModal(data.source, data.time)} className="link-like">{title}</button>;
             var parser = document.createElement('a');
             parser.href = data.transcript;
             transcript = <a target="_blank" ref={refTranscript} rel="noopener noreferrer" href={data.transcript} className="tooltipped right icon-padding" data-tooltip={"Transcribed by " + parser.hostname}><i className="fas fa-scroll"></i></a>;

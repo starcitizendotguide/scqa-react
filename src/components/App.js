@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import qs from 'qs';
 import {
   InstantSearch,
-  Hits,
   Configure,
   connectSearchBox,
   connectStateResults,
@@ -94,7 +93,6 @@ const LoadingIndicator = connectStateResults(({ allSearchResults, searching, isS
     );
   }
 
-  return null;  
 });
 
 class App extends Component {
