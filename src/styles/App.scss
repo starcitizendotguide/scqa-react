@@ -87,6 +87,13 @@ blockquote {
 
 .card-content {
     background-color: #1f2831;
+
+    img {
+        display: block;
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
 
 .right {
