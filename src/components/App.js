@@ -7,7 +7,7 @@ import {
   connectSearchBox,
   connectStateResults,
 } from 'react-instantsearch-dom';
-
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import InformationCard from './InformationCard';
 import DebouncedSearchBox from './DebouncedSearchBox';
@@ -117,10 +117,7 @@ class App extends Component {
     clearTimeout(this.debouncedSetState);
 
     this.debouncedSetState = setTimeout(() => {
-      this.props.history.push(
-        searchStateToUrl(this.props, searchState),
-        searchState
-      );
+      this.props.navigation(searchStateToUrl(this.props, searchState));
     }, 400);
 
     this.setState({ searchState });
@@ -188,4 +185,11 @@ class App extends Component {
   }
 };
 
-export default App;
+const WrappedApp = props => {
+  const navigation = useNavigate();
+  const location = useLocation();
+
+  return <App navigation={navigation} location={location} {...props} />
+}
+
+export default WrappedApp;
