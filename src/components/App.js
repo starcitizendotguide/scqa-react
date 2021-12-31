@@ -12,8 +12,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import InformationCard from './InformationCard';
 import DebouncedSearchBox from './DebouncedSearchBox';
 import Hit from './Hit';
+import VideoModal from './VideoModal';
 
-import M from 'materialize-css';
 import './../styles/App.scss';
 import video_background from './../styles/assets/background.webm';
 import video_poster from './../styles/assets/header.webp';
@@ -63,13 +63,12 @@ const urlToSearchState = location => {
 }
 
 // --- custom search results with loading indicator...
-const LoadingIndicator = connectStateResults(({ allSearchResults, searching, isSearchStalled, error }) => {
-
+const SearchResults = connectStateResults(({ allSearchResults, searching, isSearchStalled, error, videoModal }) => {
   if(searching) {
     return <div>
       <div className="card hoverable">
           <div className="card-content">
-            <p className="grey-text text-darken-1">Searching... <i className="fas fa-spin fa-spinner"></i></p>
+            <p className="grey-text text-darken-1">Searching <i className="fas fa-spin fa-spinner"></i></p>
           </div>
         </div>
     </div>;
@@ -77,7 +76,7 @@ const LoadingIndicator = connectStateResults(({ allSearchResults, searching, isS
     return <div>
       <div className="card hoverable">
           <div className="card-content">
-            <p className="grey-text text-darken-1">Searching stalled. There might be an issue with the internet connection.</p>
+            <p className="grey-text text-darken-1">Searching stalled. There might be an issue with your internet connection.</p>
           </div>
         </div>
     </div>; 
@@ -86,7 +85,7 @@ const LoadingIndicator = connectStateResults(({ allSearchResults, searching, isS
       <div>
         {
           allSearchResults.hits.map(element => (
-            <Hit key={element.objectID} {...element} />
+            <Hit key={element.objectID} videoModal={videoModal} {...element} />
           ))
         }
       </div>
@@ -102,6 +101,12 @@ class App extends Component {
     lastLocation: this.props.location,
     objectID: null,
   };
+
+  constructor(props) {
+    super(props);
+
+    this.videoModal = React.createRef();
+  }
 
   static getDerivedStateFromProps(props, state) {
     if (props.location !== state.lastLocation) {
@@ -126,26 +131,14 @@ class App extends Component {
   };
 
   componentDidMount() {
-
-    M.Modal.init(document.querySelectorAll('.modal'), {
-      onCloseStart: function (element) {
-          // When video modal is closed stop playing the video
-          document.getElementById('video-modal-content').innerHTML = '';
-      }
-    });
-    this.registerTooltips();
     let hash = getHashFromUrl();
 
     if(hash === null) {
       return;
-    } 
+    }    
 
     window.history.replaceState({}, document.title, "/#" + hash);
     this.setState({ objectID: parseInt(hash) });
-  }
-
-  registerTooltips() {
-    M.Tooltip.init(document.querySelectorAll('.tooltipped'), {});
   }
 
   render() {
@@ -164,16 +157,13 @@ class App extends Component {
               <InformationCard>
                 <DSearchBox delay={250} onSearch={() => this.setState({ objectID: null })} autoFocus={true}/>
               </InformationCard>
-              <LoadingIndicator>
-              </LoadingIndicator>
+              <SearchResults videoModal={this.videoModal} />
             </div>
           </InstantSearch>
         </div>
 
 
-        <div id="video-modal" className="modal">
-            <div id="video-modal-content" className="modal-content"> </div>
-        </div>
+        <VideoModal ref={this.videoModal} />
 
         <div className="video-container">
           <video autoPlay={true} muted={true} loop={true} poster={video_poster}>

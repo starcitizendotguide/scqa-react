@@ -1,23 +1,41 @@
-@import '~materialize-css/sass/materialize.scss';
+@import 'bulma/bulma.css';
+@import '~@creativebulma/bulma-tooltip/dist/bulma-tooltip.min.css';
 @import '~@fortawesome/fontawesome-free/css/all.min.css';
 
 html, .ais-SearchBox-input {
-    color: #DEE2E6;
+    color: #DEE2E6 !important;
+}
+
+a {
+    color: #039be5;
+}
+
+.ais-SearchBox {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #DEE2E6;
+    border-radius: 0;
+    box-shadow: none;
+    box-sizing: content-box;
+    font-size: 16px;
+    height: 3rem;
+    margin: 0 0 8px;
+    outline: none;
+    padding: 0;
+    transition: box-shadow .3s, border .3s;
+    width: 100%;
+}
+
+.ais-SearchBox:hover {
+    border-bottom: 1px solid #26a69a;
 }
 
 .ais-SearchBox-submit, .ais-SearchBox-reset {
     display: none;
 }
 
-@media (max-width: 757px) {
-    .video-container {
-        display: none;
-    }
-    body {
-        //background-image: url('~./assets/header.webp');
-        background-attachment: fixed;
-        background-size: cover;
-    }
+ais-highlight-0000000000 {
+    color: gold;
 }
 
 .video-container {
@@ -30,17 +48,13 @@ html, .ais-SearchBox-input {
     overflow: hidden;
 
     video {
-        min-width: 100%; 
-        min-height: 100%; 
-      
-        width: auto;
-        height: auto;
-      
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%,-50%);
-      }
+        object-fit: cover;
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
 }
 
 .ais-SearchBox {
@@ -48,8 +62,7 @@ html, .ais-SearchBox-input {
     max-width: none;
 }
 
-::-moz-placeholder,
-.title {
+::-moz-placeholder {
     opacity: 1;
 }
 
@@ -85,8 +98,20 @@ blockquote {
     border-left: 5px solid #DEE2E6;
 }
 
-.card-content {
+.card-header-title {
     background-color: #01182a;
+    color: #58b4f6;
+    align-items: normal !important;
+    display: block !important;
+    font-size: 1.64rem;
+    font-weight: 400;
+}
+
+.card-content {
+    margin-top: 0;
+    background-color: #01182a;
+    color: #DEE2E6 !important;
+    padding-top: 0.01rem;
 
     img {
         display: block;
@@ -104,6 +129,18 @@ blockquote {
     }
 }
 
+.container {
+    width: 68%;
+}
+
+.card {
+    transition: box-shadow .25s;
+}
+
+.card:hover {
+    box-shadow: 0 0 11px rgba(0, 0, 0, 0.5); 
+}
+
 .right {
     float: right !important;
 }
@@ -117,7 +154,7 @@ blockquote {
     line-height: 1.5;
     background: none;
     border: none;
-    color: #039be5;
+    color: #039be5 !important;
     text-decoration: none;
     padding: 0;
 
@@ -135,4 +172,8 @@ blockquote {
 .icon-padding {
     padding-left: 5px;
     padding-right: 5px;
+}
+
+.hoverable {
+    transition: box-shadow 0.25s;
 }
