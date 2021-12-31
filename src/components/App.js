@@ -33,7 +33,6 @@ const searchStateToUrl = (props, searchState) =>
 
 const getHashFromUrl = function() {
   let hash = window.location.hash.split('#')[1];
-
   if(hash === undefined || hash === null) {
     return null;
   } 
@@ -138,7 +137,7 @@ class App extends Component {
     }    
 
     window.history.replaceState({}, document.title, "/#" + hash);
-    this.setState({ objectID: parseInt(hash) });
+    this.setState({ objectID: hash });
   }
 
   render() {
