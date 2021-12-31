@@ -27,7 +27,7 @@ const searchClient = algoliasearch(
   'ce0e3984181fb0fc71f26a20c56d9725'
 );
 
-const createURL = state => `?question=${encodeURIComponent(state.query)}`;
+const createURL = state => (state.query.length > 0 ? `?question=${encodeURIComponent(state.query)}` : '');
 const searchStateToUrl = (props, searchState) =>
   searchState ? `${props.location.pathname}${createURL(searchState)}` : '';
 
@@ -124,9 +124,7 @@ class App extends Component {
       this.props.navigation(searchStateToUrl(this.props, searchState));
     }, 400);
 
-    this.setState({ searchState });
-
-    this.registerTooltips();
+    this.setState({ searchState: searchState, objectID: null });
   };
 
   componentDidMount() {
