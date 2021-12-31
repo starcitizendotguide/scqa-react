@@ -55,7 +55,7 @@ function Hit(data) {
             source = <button onClick={() => data.videoModal.current.open(data.source, data.time)} className="link-like">{title}</button>;
             var parser = document.createElement('a');
             parser.href = data.transcript;
-            transcript = <a target="_blank" ref={refTranscript} rel="noopener noreferrer" href={data.transcript} className="tooltipped right icon-padding" data-tooltip={"Transcribed by " + parser.hostname}><i className="fas fa-scroll"></i></a>;
+            transcript = <a target="_blank" ref={refTranscript} rel="noopener noreferrer" href={data.transcript} className="tooltipped right icon-padding link-like is-hidden-mobile" data-tooltip={"Transcribed by " + parser.hostname}><i className="fas fa-scroll"></i></a>;
         } break;
   
         case "monthly_report":
@@ -97,7 +97,7 @@ function Hit(data) {
                 <CopyToClipboard copyValue={data.objectID}> 
                             <button  
                                 ref={refErrorNotice}
-                                className="right icon-padding link-like has-tooltip-multiline" 
+                                className="right icon-padding link-like has-tooltip-multiline is-hidden-mobile" 
                                 data-tooltip={`If you have spotted an error please provide this ID: ${data.objectID} (Click to copy) `}>
                                 <i className="fas fa-fingerprint"></i>
                             </button>

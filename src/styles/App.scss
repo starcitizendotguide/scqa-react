@@ -10,6 +10,15 @@ a {
     color: #039be5;
 }
 
+.container {
+    width: 68%;
+}
+@media only screen and (max-width: 810px) {
+    .container {
+        width: 100%;
+    }
+} 
+
 .ais-SearchBox {
     background: transparent;
     border: none;
@@ -129,10 +138,6 @@ blockquote {
     }
 }
 
-.container {
-    width: 68%;
-}
-
 .card {
     transition: box-shadow .25s;
 }
@@ -151,6 +156,7 @@ blockquote {
 }
 
 .link-like {
+    font-size: inherit;
     line-height: 1.5;
     background: none;
     border: none;
@@ -159,7 +165,7 @@ blockquote {
     padding: 0;
 
     &:hover {
-        color: #DEE2E6;
+        color: #26a69a;
         cursor: pointer;
     }
 

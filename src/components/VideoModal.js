@@ -62,7 +62,7 @@ class VideoModal extends React.Component {
             <div className={`modal ${this.state.youtubeUrl !== null ? 'is-active' : ''}`} onClick={() => this.closeClickEvent()}
                 onKeyDown={() => console.log("key down")}>
                 <div className="modal-conten">
-                    {this.state.youtubeUrl !== null && <iframe width="853" height="480" src={this.state.youtubeUrl}
+                    {this.state.youtubeUrl !== null && <iframe title="yt-video-modal" width="853" height="480" src={this.state.youtubeUrl}
                         frameBorder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>}
                 </div>
                 <button className="modal-close is-large" aria-label="close" onClick={this.closeClickEvent}></button>
