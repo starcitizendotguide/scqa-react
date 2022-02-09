@@ -27,6 +27,7 @@ function timeDelta(timestamp, date, ref) {
 }
 
 function Hit(data) {
+    console.log(data)
     useEffect(() => {
         let timeoutId = setTimeout(function() {
             //M.Tooltip.init(refErrorNotice.current, {});
@@ -84,14 +85,21 @@ function Hit(data) {
         default: break;
     }
 
+    let question_html = data.question;
+    let answer_html = data.answer;
+    /*if(data.hasOwnProperty('_highlightResult')) {
+        question_html = data._highlightResult.question.value;
+        answer_html = data._highlightResult.answer.value;
+    }*/
+
     return (
       <div>
         <div className="card mt-4">
             <div className="card-header">
-                <div className="card-header-title is-size-4 pb-0" dangerouslySetInnerHTML={{__html: data._highlightResult.question.value}}></div>
+                <div className="card-header-title is-size-4 pb-0" dangerouslySetInnerHTML={{__html: question_html}}></div>
             </div>
           <div className="card-content is-radiusless">
-            <blockquote dangerouslySetInnerHTML={{__html: data._highlightResult.answer.value}}></blockquote>
+            <blockquote dangerouslySetInnerHTML={{__html: answer_html}}></blockquote>
             <p className="has-text-grey-light">
                 - {introduction_text} in {source} | {timeDelta(data.published_at_timestamp, data.published_at, refTimeDelta)}
                 <CopyToClipboard copyValue={data.objectID}> 
