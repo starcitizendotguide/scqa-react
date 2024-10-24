@@ -109,6 +109,7 @@ const App = ({ navigation, location }) => {
           initialUiState={searchState}
           onStateChange={handleStateChange}
           createURL={createURL}
+          future={{ preserveSharedStateOnUnmount: true, }}
         >
           {objectID && <Configure filters={`objectID:${objectID}`} />}
           <div className="container">
