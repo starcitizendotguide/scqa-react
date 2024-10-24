@@ -13,9 +13,7 @@
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
 		"react-instantsearch": "^7.13.6",
-		"react-router-dom": "^6.27.0",
-		"react-scripts": "^5.0.1",
-		"sass": "^1.80.4"
+		"react-router-dom": "^6.27.0"
 	},
 	"scripts": {
 		"start": "react-scripts start",
@@ -39,6 +37,8 @@
 		]
 	},
 	"devDependencies": {
-		"@babel/plugin-transform-private-property-in-object": "^7.25.9"
+		"@babel/plugin-proposal-private-property-in-object": "7.21.11",
+		"@babel/plugin-transform-private-property-in-object": "^7.25.9",
+		"react-scripts": "^5.0.1"
 	}
 }
