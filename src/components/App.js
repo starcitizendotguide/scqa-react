@@ -1,16 +1,10 @@
-import algoliasearch from 'algoliasearch/lite';
-import React, { Component } from 'react';
+import { liteClient as algoliasearch } from 'algoliasearch/lite';
+import React, { useState, useEffect, useRef } from 'react';
 import qs from 'qs';
-import {
-  InstantSearch,
-  Configure,
-  connectSearchBox,
-  connectStateResults,
-} from 'react-instantsearch-dom';
+import { InstantSearch, Configure, SearchBox, useInstantSearch } from 'react-instantsearch';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import InformationCard from './InformationCard';
-import DebouncedSearchBox from './DebouncedSearchBox';
 import Hit from './Hit';
 import VideoModal from './VideoModal';
 
@@ -18,165 +12,136 @@ import './../styles/App.scss';
 import video_background from './../styles/assets/background.webm';
 import video_poster from './../styles/assets/header.webp';
 
-const DSearchBox = connectSearchBox(DebouncedSearchBox);
+// Create the Algolia client
+const searchClient = algoliasearch('JXS80KHU8P', 'ce0e3984181fb0fc71f26a20c56d9725');
 
+const createURL = (state) => (state.sc_questions.query ? `?question=${encodeURIComponent(state.sc_questions.query)}` : '');
 
-// create the client
-const searchClient = algoliasearch(
-  'JXS80KHU8P',
-  'ce0e3984181fb0fc71f26a20c56d9725'
-);
+const searchStateToUrl = (location, searchState) =>
+  searchState ? `${location.pathname}${createURL(searchState)}` : '';
 
-const createURL = state => (state.query.length > 0 ? `?question=${encodeURIComponent(state.query)}` : '');
-const searchStateToUrl = (props, searchState) =>
-  searchState ? `${props.location.pathname}${createURL(searchState)}` : '';
+const getHashFromUrl = () => {
+  const hash = window.location.hash.split('#')[1];
+  return hash || null;
+};
 
-const getHashFromUrl = function() {
-  let hash = window.location.hash.split('#')[1];
-  if(hash === undefined || hash === null) {
-    return null;
-  } 
+const urlToSearchState = (location) => {
+  const parsed = qs.parse(location.search.slice(1));
+  if (!parsed.question) return { question: '', sc_questions: { query: '' } };
+  if (getHashFromUrl()) return { question: '', sc_questions: { query: '' } };
+  const question = decodeURIComponent(parsed.question);
+  return { question: encodeURIComponent(question), sc_questions: { query: question } };
+};
 
-  return hash;
+// Custom search results with loading indicator
+const SearchResults = ({ videoModal }) => {
+  const { results, status } = useInstantSearch();
 
-}
-
-const urlToSearchState = location => {
-
-  // We have to check whether or not the ?question= even exists, otherwise we get an "undefined" in our search bar...
-  let parsed = qs.parse(location.search.slice(1));
-  if(parsed['question'] === undefined) {
-    return { question: '', query: '', page: "1" };
-  }
-
-  // BUG-FIX: For some reason some URLs that had an object id and search paramters failed to resolve when the search paramters
-  // where still present, and I think that is because they caused some issue because those URLs were generated with the old
-  // version of this website that was written in Vue... Anyway, this should fix it. 
-  if(getHashFromUrl() !== null) {
-    return { question: '', query: '', page: "1" };
-  }
-
-  // encode the question into our state
-  let question = decodeURIComponent(parsed.question);
-  return { question: encodeURIComponent(question), query: question, page: "1" };
-}
-
-// --- custom search results with loading indicator...
-const SearchResults = connectStateResults(({ allSearchResults, searching, isSearchStalled, error, videoModal }) => {
-  if(searching) {
-    return <div>
-      <div className="card hoverable">
-          <div className="card-content">
-            <p className="grey-text text-darken-1">Searching <i className="fas fa-spin fa-spinner"></i></p>
-          </div>
-        </div>
-    </div>;
-  } else if(isSearchStalled) {
-    return <div>
-      <div className="card hoverable">
-          <div className="card-content">
-            <p className="grey-text text-darken-1">Searching stalled. There might be an issue with your internet connection.</p>
-          </div>
-        </div>
-    </div>; 
-  } else {
+  if (status === 'loading') {
     return (
-      <div>
-        {
-          allSearchResults.hits.map(element => (
-            <Hit key={element.objectID} videoModal={videoModal} {...element} />
-          ))
-        }
+      <div className="card hoverable">
+        <div className="card-content">
+          <p className="grey-text text-darken-1">
+            Searching <i className="fas fa-spin fa-spinner"></i>
+          </p>
+        </div>
       </div>
     );
   }
 
-});
-
-class App extends Component {
-
-  state = {
-    searchState: urlToSearchState(this.props.location),
-    lastLocation: this.props.location,
-    objectID: null,
-  };
-
-  constructor(props) {
-    super(props);
-
-    this.videoModal = React.createRef();
-  }
-
-  static getDerivedStateFromProps(props, state) {
-    if (props.location !== state.lastLocation) {
-      return {
-        searchState: urlToSearchState(props.location),
-        lastLocation: props.location,
-      };
-    }
-    return null;
-  }
-
-  onSearchStateChange = searchState => {
-    clearTimeout(this.debouncedSetState);
-
-    this.debouncedSetState = setTimeout(() => {
-      this.props.navigation(searchStateToUrl(this.props, searchState));
-    }, 400);
-
-    this.setState({ searchState: searchState, objectID: null });
-  };
-
-  componentDidMount() {
-    let hash = getHashFromUrl();
-
-    if(hash === null) {
-      return;
-    }    
-
-    window.history.replaceState({}, document.title, "/#" + hash);
-    this.setState({ objectID: hash });
-  }
-
-  render() {
+  if (status === 'stalled' || status === 'error') {
     return (
-      <>
-        <div className="ais-InstantSearch">
-          <InstantSearch 
-            indexName="sc_questions" 
-            searchClient={searchClient}
-            searchState={this.state.searchState}
-            onSearchStateChange={this.onSearchStateChange}
-            createURL={createURL}
-          >
-            { this.state.objectID !== null ? <Configure filters={`objectID:${this.state.objectID}`} /> : null }
-            <div className="container">
-              <InformationCard>
-                <DSearchBox delay={250} onSearch={() => this.setState({ objectID: null })} autoFocus={true}/>
-              </InformationCard>
-              <SearchResults videoModal={this.videoModal} />
-            </div>
-          </InstantSearch>
+      <div className="card hoverable">
+        <div className="card-content">
+          <p className="grey-text text-darken-1">
+            Searching stalled. There might be an issue with your internet connection.
+          </p>
         </div>
-
-
-        <VideoModal ref={this.videoModal} />
-
-        <div className="video-container">
-          <video autoPlay={true} muted={true} loop={true} poster={video_poster}>
-              <source src={video_background} type="video/webm" />
-          </video>
-        </div>
-      </>
+      </div>
     );
   }
+
+  return (
+    <div>
+      {results.hits.map((element) => (
+        <Hit key={element.objectID} videoModal={videoModal} {...element} />
+      ))}
+    </div>
+  );
 };
 
-const WrappedApp = props => {
-  const navigation = useNavigate();
+const App = ({ navigation, location }) => {
+  const [searchState, setSearchState] = useState(urlToSearchState(location));
+  const [objectID, setObjectID] = useState(null);
+  const videoModal = useRef(null);
+
+  useEffect(() => {
+    const hash = getHashFromUrl();
+    if (hash) {
+      window.history.replaceState({}, document.title, `/#${hash}`);
+      setObjectID(hash);
+    }
+  }, []);
+
+  useEffect(() => {
+    setSearchState(urlToSearchState(location));
+    if (objectID !== null) {
+      setObjectID(null);
+    }
+  }, [location]);
+
+  const handleStateChange = ({ uiState, setUiState }) => {
+    clearTimeout(handleStateChange.debouncedSetState);
+
+    handleStateChange.debouncedSetState = setTimeout(() => {
+      navigation(searchStateToUrl(location, uiState));
+    }, 400);
+
+    setUiState(uiState);
+  };
+
+  return (
+    <>
+      <div className="ais-InstantSearch">
+        <InstantSearch
+          indexName="sc_questions"
+          searchClient={searchClient}
+          initialUiState={searchState}
+          onStateChange={handleStateChange}
+          createURL={createURL}
+        >
+          {objectID && <Configure filters={`objectID:${objectID}`} />}
+          <div className="container">
+            <InformationCard>
+              <SearchBox placeholder="What are you looking for?" queryHook={queryHook} autoFocus />
+            </InformationCard>
+            <SearchResults videoModal={videoModal} />
+          </div>
+        </InstantSearch>
+      </div>
+
+      <VideoModal ref={videoModal} />
+
+      <div className="video-container">
+        <video autoPlay muted loop poster={video_poster}>
+          <source src={video_background} type="video/webm" />
+        </video>
+      </div>
+    </>
+  );
+};
+
+// Use a debounced query hook to manage user input
+const queryHook = (query, search) => {
+  clearTimeout(queryHook.timerId);
+  queryHook.timerId = setTimeout(() => search(query), 200);
+};
+
+const WrappedApp = (props) => {
+  const navigate = useNavigate();
   const location = useLocation();
 
-  return <App navigation={navigation} location={location} {...props} />
-}
+  return <App navigation={navigate} location={location} {...props} />;
+};
 
 export default WrappedApp;

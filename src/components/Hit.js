@@ -27,7 +27,6 @@ function timeDelta(timestamp, date, ref) {
 }
 
 function Hit(data) {
-    console.log(data)
     useEffect(() => {
         let timeoutId = setTimeout(function() {
             //M.Tooltip.init(refErrorNotice.current, {});
