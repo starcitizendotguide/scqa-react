@@ -183,3 +183,10 @@ blockquote {
 .hoverable {
     transition: box-shadow 0.25s;
 }
+
+em {
+    font-style: normal;
+    text-decoration: underline;
+    text-decoration-color: #ffe100cc;
+    font-weight: 500;
+}

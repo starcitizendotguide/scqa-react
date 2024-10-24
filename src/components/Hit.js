@@ -1,129 +1,107 @@
-import React, {useEffect, useRef} from 'react';
-
+import React, { useEffect, useRef } from 'react';
 import CopyToClipboard from './CopyToClipboard';
-  
-      
-function timeDelta(timestamp, date, ref) {
-    
-    return <span ref={ref}> {date}</span>;
 
-    /*let delta = Date.now()/1000 - timestamp;
-    let year_in_seconds = 60 * 60 * 24 * 365;
+function TimeDelta({ timestamp, date, ref }) {
+    const delta = Date.now() / 1000 - timestamp;
+    const yearInSeconds = 60 * 60 * 24 * 365;
 
-    if(delta > 3 * year_in_seconds) {
-        return <i   ref={ref}
-                    className="fas fa-hourglass-end red-text tooltipped"
-                    data-tooltip="This answer is older than 3 years."> {date}</i>;
-    } else if(delta > 1 * year_in_seconds) {
-        return <i   ref={ref}
-                    className="fas fa-hourglass-end yellow-text tooltipped"
-                    data-tooltip="This answer is older than 1 year."> {date}</i>;
-    } else {
-        return <i   ref={ref}
-                    className="fas fa-hourglass-end green-text tooltipped"
-                    data-tooltip="This answer is younger than 1 year"> {date}</i>;
-    }*/
+    const getClassAndTooltip = () => {
+        if (delta > 3 * yearInSeconds) {
+            return { className: 'red-text', tooltip: 'This answer is older than 3 years.' };
+        } else if (delta > 1 * yearInSeconds) {
+            return { className: 'yellow-text', tooltip: 'This answer is older than 1 year.' };
+        } else {
+            return { className: 'green-text', tooltip: 'This answer is younger than 1 year.' };
+        }
+    };
 
-}
-
-function Hit(data) {
-    useEffect(() => {
-        let timeoutId = setTimeout(function() {
-            //M.Tooltip.init(refErrorNotice.current, {});
-            //if (refTranscript.current) M.Tooltip.init(refTranscript.current, {});
-            //M.Tooltip.init(refPermaLink.current, {});
-            //M.Tooltip.init(refTimeDelta.current, {});
-        }, 500);
-
-        return () => {
-            clearTimeout(timeoutId);
-        };
-    }, []);
-
-    const refErrorNotice = useRef();
-    const refTranscript = useRef();
-    const refPermaLink = useRef();
-    const refTimeDelta = useRef();
-  
-    var source = 'UNKNOWN';
-    var transcript = '';
-  
-    switch(data.type) {
-  
-        case "youtube": {
-            const title = (data.title == null ? data.source : data.title);
-            source = <button onClick={() => data.videoModal.current.open(data.source, data.time)} className="link-like">{title}</button>;
-            var parser = document.createElement('a');
-            parser.href = data.transcript;
-            transcript = <a target="_blank" ref={refTranscript} rel="noopener noreferrer" href={data.transcript} className="tooltipped right icon-padding link-like is-hidden-mobile" data-tooltip={"Transcribed by " + parser.hostname}><i className="fas fa-scroll"></i></a>;
-        } break;
-  
-        case "monthly_report":
-        case "spectrum":
-        case "article": 
-            source = <a target="_blank" className="link-like" rel="noopener noreferrer" href={data.source}>{data.title}</a>;
-        break;
-
-  
-        default: break;
-    }
-
-    let introduction_text = 'N/A';
-  
-    switch(data.type) {
-        case "youtube": 
-        case "spectrum":
-        case "article": 
-            introduction_text = `asked ${ data.user ? `by ${data.user}` : ''}`;
-        break;
-
-        case "monthly_report":
-            introduction_text = `published`
-        break;
-
-        default: break;
-    }
-
-    let question_html = data.question;
-    let answer_html = data.answer;
-    /*if(data.hasOwnProperty('_highlightResult')) {
-        question_html = data._highlightResult.question.value;
-        answer_html = data._highlightResult.answer.value;
-    }*/
+    const { className, tooltip } = getClassAndTooltip();
 
     return (
-      <div>
-        <div className="card mt-4">
-            <div className="card-header">
-                <div className="card-header-title is-size-4 pb-0" dangerouslySetInnerHTML={{__html: question_html}}></div>
-            </div>
-          <div className="card-content is-radiusless">
-            <blockquote dangerouslySetInnerHTML={{__html: answer_html}}></blockquote>
-            <p className="has-text-grey-light">
-                - {introduction_text} in {source} | {timeDelta(data.published_at_timestamp, data.published_at, refTimeDelta)}
-                <CopyToClipboard copyValue={data.objectID}> 
-                            <button  
-                                ref={refErrorNotice}
-                                className="right icon-padding link-like has-tooltip-multiline is-hidden-mobile" 
-                                data-tooltip={`If you have spotted an error please provide this ID: ${data.objectID} (Click to copy) `}>
-                                <i className="fas fa-fingerprint"></i>
-                            </button>
-                        </CopyToClipboard>
-                {transcript}
-                <CopyToClipboard copyValue={`${window.location.origin.toString()}/#${data.objectID}`}>
-                    <button  
-                        ref={refPermaLink}
-                        className="right icon-padding link-like has-tooltip-multiline" 
-                        data-tooltip={"Perma link \n (Click to copy)"}>
-                        <i className="fas fa-link"></i>
-                    </button>
-                </CopyToClipboard>
-            </p>
-          </div>
-        </div>
-      </div>
+        <i ref={ref} className={`fas fa-hourglass-end ${className} tooltipped`} data-tooltip={tooltip}>
+            {date}
+        </i>
     );
 }
 
-  
-  export default Hit;
+function Hit(data) {
+
+    const { type, title, source, transcript: transcriptUrl, published_at_timestamp, published_at, objectID, user, question, answer, _highlightResult } = data;
+
+    let sourceElement;
+    let transcriptElement;
+    let introductionText = 'N/A';
+
+    switch (type) {
+        case 'youtube':
+            const videoTitle = title || source;
+            sourceElement = (
+                <button onClick={() => data.videoModal.current.open(source, data.time)} className="link-like">
+                    {videoTitle}
+                </button>
+            );
+            const parser = document.createElement('a');
+            parser.href = transcriptUrl;
+            transcriptElement = (
+                <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={transcriptUrl}
+                    className="tooltipped right icon-padding link-like is-hidden-mobile"
+                    data-tooltip={`Transcribed by ${parser.hostname}`}
+                >
+                    <i className="fas fa-scroll"></i>
+                </a>
+            );
+            introductionText = user ? `asked by ${user}` : introductionText;
+            break;
+
+        case 'monthly_report':
+        case 'spectrum':
+        case 'article':
+            sourceElement = (
+                <a target="_blank" className="link-like" rel="noopener noreferrer" href={source}>
+                    {title}
+                </a>
+            );
+            introductionText = type === 'monthly_report' ? 'published' : `asked ${user ? `by ${user}` : ''}`;
+            break;
+
+        default:
+            break;
+    }
+
+    const questionHtml = _highlightResult?.question?.value || question;
+    const answerHtml = _highlightResult?.answer?.value || answer;
+
+    return (
+        <div className="card mt-4">
+            <div className="card-header">
+                <div className="card-header-title is-size-4 pb-0" dangerouslySetInnerHTML={{ __html: questionHtml }}></div>
+            </div>
+            <div className="card-content is-radiusless">
+                <blockquote dangerouslySetInnerHTML={{ __html: answerHtml }}></blockquote>
+                <p className="has-text-grey-light">
+                    - {introductionText} in {sourceElement} | <TimeDelta timestamp={published_at_timestamp} date={published_at} />
+                    <CopyToClipboard copyValue={objectID}>
+                        <button
+                            className="right icon-padding link-like has-tooltip-multiline is-hidden-mobile"
+                            data-tooltip={`If you have spotted an error please provide this ID: ${objectID} (Click to copy)`}>
+                            <i className="fas fa-fingerprint"></i>
+                        </button>
+                    </CopyToClipboard>
+                    {transcriptElement}
+                    <CopyToClipboard copyValue={`${window.location.origin}/#${objectID}`}>
+                        <button
+                            className="right icon-padding link-like has-tooltip-multiline"
+                            data-tooltip="Perma link (Click to copy)">
+                            <i className="fas fa-link"></i>
+                        </button>
+                    </CopyToClipboard>
+                </p>
+            </div>
+        </div>
+    );
+}
+
+export default Hit;
