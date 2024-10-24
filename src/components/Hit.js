@@ -1,4 +1,3 @@
-import React, { useEffect, useRef } from 'react';
 import CopyToClipboard from './CopyToClipboard';
 
 function TimeDelta({ timestamp, date, ref }) {

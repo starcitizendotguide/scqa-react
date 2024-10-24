@@ -88,6 +88,7 @@ const App = ({ navigation, location }) => {
     if (objectID !== null) {
       setObjectID(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   const handleStateChange = ({ uiState, setUiState }) => {
