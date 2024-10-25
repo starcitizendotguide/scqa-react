@@ -1,5 +1,5 @@
 import { liteClient as algoliasearch } from 'algoliasearch/lite';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import qs from 'qs';
 import { InstantSearch, Configure, SearchBox, useInstantSearch } from 'react-instantsearch';
 import { useNavigate, useLocation } from 'react-router-dom';

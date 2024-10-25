@@ -31,7 +31,8 @@ function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResul
 					<p>
 						-
 						<a
-							target="_blank"
+							target="_blank" 
+							rel="noreferrer"
 							href={`https://robertsspaceindustries.com/galactapedia/article/${id}-${slug}`}
 							className="pl-1"
 						>
@@ -91,6 +92,7 @@ function getSourceElement(type, title, source, time) {
 		case 'monthly_report':
 		case 'spectrum':
 		case 'article':
+		case 'twitch':
 			return (
 				<a target="_blank" rel="noopener noreferrer" href={source}>
 					{title}
@@ -122,6 +124,7 @@ function getTranscriptElement(type, transcriptUrl) {
 		return (
 			<a
 				target="_blank"
+				rel="noreferrer"
 				href={transcriptUrl}
 				className="float-right pr-2 group relative"
 				data-tooltip={`Transcribed by ${parser.hostname}`}
