@@ -64,7 +64,7 @@ function Hit(data) {
 
 		let sourceElement;
 		let transcriptElement;
-		let introductionText = 'N/A';
+		let introductionText = null;
 
 		switch (type) {
 			case 'youtube':
@@ -126,24 +126,26 @@ function Hit(data) {
 				<div className='border-b relative mx-4'></div>
 				<div className="p-4 pt-0 text-gray-200">
 					<blockquote dangerouslySetInnerHTML={{ __html: answerHtml }}></blockquote>
-					<p>
-						- {introductionText} in {sourceElement} | <TimeDelta timestamp={published_at_timestamp} date={published_at} />
-						<CopyToClipboard copyValue={objectID}>
-							<Tooltip className='float-right pr-2' message={`If you have spotted an error please provide this ID: ${objectID} (Click to copy)`}>
-								<button className="button-link">
-									<i className="fas fa-fingerprint"></i>
-								</button>
-							</Tooltip>
-						</CopyToClipboard>
-						{transcriptElement}
-						<CopyToClipboard copyValue={`${window.location.origin}/#${objectID}`}>
-							<Tooltip className='float-right pr-2' message='Perma link (Click to copy)'>
-								<button className="button-link">
-									<i className="fas fa-link"></i>
-								</button>
-							</Tooltip>
-						</CopyToClipboard>
-					</p>
+					<div className='flex flex-row justify-between'>
+						<span>- {introductionText && `${introductionText} in`} {sourceElement} | <TimeDelta timestamp={published_at_timestamp} date={published_at} /></span>
+						<div>
+							<CopyToClipboard copyValue={objectID}>
+								<Tooltip className='float-right pr-2' message={`If you have spotted an error please provide this ID: ${objectID} (Click to copy)`}>
+									<button className="button-link">
+										<i className="fas fa-fingerprint"></i>
+									</button>
+								</Tooltip>
+							</CopyToClipboard>
+							{transcriptElement}
+							<CopyToClipboard copyValue={`${window.location.origin}/#${objectID}`}>
+								<Tooltip className='float-right pr-2' message='Perma link (Click to copy)'>
+									<button className="button-link">
+										<i className="fas fa-link"></i>
+									</button>
+								</Tooltip>
+							</CopyToClipboard>
+						</div>
+					</div>
 				</div>
 			</div>
 		);
