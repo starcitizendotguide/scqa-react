@@ -98,6 +98,7 @@ function getSourceElement(type, title, source, time) {
 		case 'monthly_report':
 		case 'spectrum':
 		case 'article':
+		case 'reddit':
 			return (
 				<a target="_blank" rel="noopener noreferrer" href={source}>
 					{title}
@@ -116,6 +117,7 @@ function getIntroductionText(type, user) {
 			return 'published';
 		case 'spectrum':
 		case 'article':
+		case 'reddit':
 			return user ? `asked by ${user}` : '';
 		default:
 			return null;
