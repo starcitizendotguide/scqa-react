@@ -1,9 +1,10 @@
 import { liteClient as algoliasearch } from 'algoliasearch/lite';
 import React, { useState, useEffect } from 'react';
 import qs from 'qs';
-import { InstantSearch, Configure, SearchBox, useInstantSearch } from 'react-instantsearch';
+import { InstantSearch, Configure, useInstantSearch } from 'react-instantsearch';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+import CustomSearchBox from './CustomSearchBox';
 import InformationCard from './InformationCard';
 import Hit from './Hit';
 
@@ -112,7 +113,7 @@ const App = ({ navigation, location }) => {
 					<div className="container">
 						<InformationCard
 							inputBox={
-								<SearchBox placeholder="What are you looking for?" queryHook={queryHook} autoFocus={true} />
+								<CustomSearchBox queryHook={queryHook} />
 							}
 
 							toggles={
