@@ -20,7 +20,7 @@ function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResul
 	return (
 		<Card
 			title={
-				<div
+				<h1
 					className="text-lg text-sc-blue-100 font-semibold"
 					dangerouslySetInnerHTML={{ __html: questionHtml }}
 				/>
