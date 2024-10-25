@@ -129,15 +129,16 @@ function getTranscriptElement(type, transcriptUrl) {
 		const parser = document.createElement('a');
 		parser.href = transcriptUrl;
 		return (
-			<a
-				target="_blank"
-				rel="noreferrer"
-				href={transcriptUrl}
-				className="float-right pr-2 group relative"
-				data-tooltip={`Transcribed by ${parser.hostname}`}
-			>
-				<i className="fas fa-scroll"></i>
-			</a>
+			<Tooltip message={`Transcribed by ${parser.hostname}`}>
+				<a
+					target="_blank"
+					rel="noreferrer"
+					href={transcriptUrl}
+					className="float-right pr-2 group relative"
+				>
+					<i className="fas fa-scroll"></i>
+				</a>
+			</Tooltip>
 		);
 	}
 	return null;
