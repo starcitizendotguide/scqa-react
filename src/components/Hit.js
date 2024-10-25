@@ -6,16 +6,17 @@ import Card from './Card';
 import YouTubeModal from './YouTubeModal';
 import TwitchModal from './TwitchModal';
 
-function Hit({ type, ...data }) {
+function Hit({ type, highlightQuery, ...data }) {
 	if (type === 'galactapedia') {
-		return <GalactapediaHit {...data} />;
+		return <GalactapediaHit highlightQuery={highlightQuery} {...data} />;
 	}
-	return <OtherHit type={type} {...data} />;
+	return <OtherHit type={type} highlightQuery={highlightQuery} {...data} />;
 }
 
-function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResult }) {
-	const questionHtml = _highlightResult?.question?.value || question;
-	const answerHtml = _highlightResult?.answer?.value || answer;
+function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResult, highlightQuery }) {
+
+	const questionHtml = (highlightQuery['highlightQuery'] ? _highlightResult?.question?.value : question);
+	const answerHtml = (highlightQuery['highlightQuery'] ? _highlightResult?.answer?.value : answer);
 
 	return (
 		<Card
@@ -48,9 +49,10 @@ function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResul
 	);
 }
 
-function OtherHit({ type, title, source, transcript, published_at_timestamp, objectID, user, question, answer, _highlightResult, time }) {
-	const questionHtml = _highlightResult?.question?.value || question;
-	const answerHtml = _highlightResult?.answer?.value || answer;
+function OtherHit({ type, title, source, transcript, published_at_timestamp, objectID, user, question, answer, _highlightResult, time, highlightQuery }) {
+	
+	const questionHtml = (highlightQuery['highlightQuery'] ? _highlightResult?.question?.value : question);
+	const answerHtml = (highlightQuery['highlightQuery'] ? _highlightResult?.answer?.value : answer);
 
 	const sourceElement = getSourceElement(type, title, source, time);
 	const introductionText = getIntroductionText(type, user);

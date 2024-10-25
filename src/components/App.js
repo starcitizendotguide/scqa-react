@@ -33,7 +33,7 @@ const urlToSearchState = (location) => {
 };
 
 // Custom search results with loading indicator
-const SearchResults = () => {
+const SearchResults = (highlightQuery) => {
 	const { results, status } = useInstantSearch();
 
 	if (status === 'loading') {
@@ -59,7 +59,7 @@ const SearchResults = () => {
 	return (
 		<div>
 			{results.hits.map((element) => (
-				<Hit key={element.objectID} {...element} />
+				<Hit key={element.objectID} highlightQuery={highlightQuery} {...element} />
 			))}
 		</div>
 	);
@@ -68,6 +68,7 @@ const SearchResults = () => {
 const App = ({ navigation, location }) => {
 	const [searchState, setSearchState] = useState(urlToSearchState(location));
 	const [useGalactapedia, setUseGalactapedia] = useState(false);
+	const [highlightQuery, setHighlightQuery] = useState(true);
 	const [objectID, setObjectID] = useState(null);
 
 	useEffect(() => {
@@ -116,15 +117,24 @@ const App = ({ navigation, location }) => {
 
 							toggles={
 								<div className='mt-2'>
-									<label className="inline-flex items-center cursor-pointer">
-										<input type="checkbox" defaultChecked={useGalactapedia} onClick={event => setUseGalactapedia(!useGalactapedia)} className="sr-only peer" />
-										<div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sc-blue-100"></div>
-										<span className="ms-3 text-sm font-medium text-gray-200">Search Galactapedia <i className="fas fa-book"></i></span>
-									</label>
+									<div className='inline-block'>
+										<label className="inline-flex items-center cursor-pointer">
+											<input type="checkbox" defaultChecked={useGalactapedia} onClick={event => setUseGalactapedia(!useGalactapedia)} className="sr-only peer" />
+											<div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sc-blue-100"></div>
+											<span className="ms-3 text-sm font-medium text-gray-200">Search Galactapedia <i className="fas fa-book"></i></span>
+										</label>
+									</div>
+									<div className='inline-block ml-2 border-l-2'>
+										<label className="ml-2 inline-flex items-center cursor-pointer">
+											<input type="checkbox" defaultChecked={highlightQuery} onClick={event => setHighlightQuery(!highlightQuery)} className="sr-only peer" />
+											<div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-400"></div>
+											<span className="ms-3 text-sm font-medium text-gray-200">Highlight Matches <i className="fas text-yellow-400 fa-highlighter"></i></span>
+										</label>
+									</div>
 								</div>
 							}
 						/>
-						<SearchResults />
+						<SearchResults highlightQuery={highlightQuery} />
 					</div>
 				</InstantSearch>
 			</div>

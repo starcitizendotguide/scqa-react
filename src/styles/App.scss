@@ -58,39 +58,10 @@ a {
     max-width: none;
 }
 
-::-moz-placeholder {
-    opacity: 1;
-}
-
-.modal {
-    background: none;
-}
-
-.modal-content {
-    position: relative;
-    padding-bottom: 56.25% !important;
-    padding-top: 30px !important; 
-    height: 0; 
-    overflow: hidden;
-}
-     
-.modal-content iframe,
-.modal-content object,
-.modal-content embed {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
 blockquote {
     @apply mr-5 my-4 pl-4 border-solid border-l-4 border-gray-200;
 }
 
 em {
-    font-style: normal;
-    text-decoration: underline;
-    text-decoration-color: #ffe100cc;
-    font-weight: 500;
+    @apply not-italic underline decoration-2 decoration-yellow-400;
 }
