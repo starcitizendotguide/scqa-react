@@ -2,7 +2,9 @@ import CopyToClipboard from './CopyToClipboard';
 import TimeDelta from './TimeDelta';
 import Tooltip from './Tooltip';
 import Card from './Card';
+
 import YouTubeModal from './YouTubeModal';
+import TwitchModal from './TwitchModal';
 
 function Hit({ type, ...data }) {
 	if (type === 'galactapedia') {
@@ -31,7 +33,7 @@ function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResul
 					<p>
 						-
 						<a
-							target="_blank" 
+							target="_blank"
 							rel="noreferrer"
 							href={`https://robertsspaceindustries.com/galactapedia/article/${id}-${slug}`}
 							className="pl-1"
@@ -88,11 +90,14 @@ function getSourceElement(type, title, source, time) {
 			return (
 				<YouTubeModal source={source} time={time} title={title} />
 			);
+		case 'twitch':
+			return (
+				<TwitchModal source={source} time={time} title={title} />
+			);
 
 		case 'monthly_report':
 		case 'spectrum':
 		case 'article':
-		case 'twitch':
 			return (
 				<a target="_blank" rel="noopener noreferrer" href={source}>
 					{title}
