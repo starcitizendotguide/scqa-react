@@ -25,7 +25,7 @@ function YouTubeModal(props) {
 					<button onClick={() => setIsOpen(true)} className='button-link'>{props.title}</button>
 				</Tooltip>
 				<Tooltip message={`Open in new tab`}>
-					<a href={linkUrl} target="_blank" rel="noopener noreferrer"><i class="pl-2 fas fa-arrow-up-right-from-square"></i></a>
+					<a href={linkUrl} target="_blank" rel="noopener noreferrer"><i className="pl-2 fas fa-arrow-up-right-from-square"></i></a>
 				</Tooltip>
 				<CopyToClipboard copyValue={linkUrl}>
 					<Tooltip message={`Click to copy link to YouTube`}>
@@ -54,11 +54,11 @@ function YouTubeModal(props) {
 						<iframe
 							className="w-full h-72 md:h-[720px]"
 							src={embedUrl}
-							title="YouTube video player"
+							title='YouTube Video Modal'
 							frameborder="0"
 							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
 							referrerpolicy="strict-origin-when-cross-origin"
-							allowfullscreen>
+							allowFullScreen>
 						</iframe>
 					</div>
 				</div>
