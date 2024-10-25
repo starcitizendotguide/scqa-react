@@ -55,9 +55,9 @@ function YouTubeModal(props) {
 							className="w-full h-72 md:h-[720px]"
 							src={embedUrl}
 							title='YouTube Video Modal'
-							frameborder="0"
+							frameBorder="0"
 							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-							referrerpolicy="strict-origin-when-cross-origin"
+							referrerPolicy="strict-origin-when-cross-origin"
 							allowFullScreen>
 						</iframe>
 					</div>
