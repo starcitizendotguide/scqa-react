@@ -67,7 +67,7 @@ const SearchResults = () => {
 
 const App = ({ navigation, location }) => {
 	const [searchState, setSearchState] = useState(urlToSearchState(location));
-	const [useNotGalactapedia, setUseNotGalactapedia] = useState(true);
+	const [useGalactapedia, setUseGalactapedia] = useState(false);
 	const [objectID, setObjectID] = useState(null);
 
 	useEffect(() => {
@@ -107,7 +107,7 @@ const App = ({ navigation, location }) => {
 					future={{ preserveSharedStateOnUnmount: true, }}
 				>
 					{objectID && <Configure filters={`objectID:${objectID}`} />}
-					{!objectID && useNotGalactapedia && <Configure filters={`NOT type:galactapedia`} />}
+					{!objectID && !useGalactapedia && <Configure filters={`NOT type:galactapedia`} />}
 					<div className="container">
 						<InformationCard
 							inputBox={
@@ -117,9 +117,9 @@ const App = ({ navigation, location }) => {
 							toggles={
 								<div className='mt-2'>
 									<label className="inline-flex items-center cursor-pointer">
-										<input type="checkbox" defaultChecked={useNotGalactapedia} onClick={event => setUseNotGalactapedia(!useNotGalactapedia)} className="sr-only peer" />
+										<input type="checkbox" defaultChecked={useGalactapedia} onClick={event => setUseGalactapedia(!useGalactapedia)} className="sr-only peer" />
 										<div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sc-blue-100"></div>
-										<span className="ms-3 text-sm font-medium text-gray-200">Exclude Galactapedia <i className="fas fa-book"></i></span>
+										<span className="ms-3 text-sm font-medium text-gray-200">Search Galactapedia <i className="fas fa-book"></i></span>
 									</label>
 								</div>
 							}
