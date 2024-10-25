@@ -6,7 +6,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import InformationCard from './InformationCard';
 import Hit from './Hit';
-import VideoModal from './VideoModal';
 
 import './../styles/App.scss';
 import video_background from './../styles/assets/background.webm';
@@ -34,7 +33,7 @@ const urlToSearchState = (location) => {
 };
 
 // Custom search results with loading indicator
-const SearchResults = ({ videoModal }) => {
+const SearchResults = () => {
 	const { results, status } = useInstantSearch();
 
 	if (status === 'loading') {
@@ -60,7 +59,7 @@ const SearchResults = ({ videoModal }) => {
 	return (
 		<div>
 			{results.hits.map((element) => (
-				<Hit key={element.objectID} videoModal={videoModal} {...element} />
+				<Hit key={element.objectID} {...element} />
 			))}
 		</div>
 	);
@@ -70,7 +69,6 @@ const App = ({ navigation, location }) => {
 	const [searchState, setSearchState] = useState(urlToSearchState(location));
 	const [useNotGalactapedia, setUseNotGalactapedia] = useState(true);
 	const [objectID, setObjectID] = useState(null);
-	const videoModal = useRef(null);
 
 	useEffect(() => {
 		const hash = getHashFromUrl();
@@ -99,7 +97,7 @@ const App = ({ navigation, location }) => {
 	};
 	return (
 		<>
-			<div className="md:container  md:mx-auto">
+			<div className="md:container md:mx-auto">
 				<InstantSearch
 					indexName="sc_questions"
 					searchClient={searchClient}
@@ -119,19 +117,17 @@ const App = ({ navigation, location }) => {
 							toggles={
 								<div className='mt-2'>
 									<label className="inline-flex items-center cursor-pointer">
-										<input type="checkbox" checked={useNotGalactapedia} onClick={event => setUseNotGalactapedia(!useNotGalactapedia)} className="sr-only peer" />
+										<input type="checkbox" defaultChecked={useNotGalactapedia} onClick={event => setUseNotGalactapedia(!useNotGalactapedia)} className="sr-only peer" />
 										<div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sc-blue-100"></div>
 										<span className="ms-3 text-sm font-medium text-gray-200">Exclude Galactapedia <i className="fas fa-book"></i></span>
 									</label>
 								</div>
 							}
 						/>
-						<SearchResults videoModal={videoModal} />
+						<SearchResults />
 					</div>
 				</InstantSearch>
 			</div>
-
-			<VideoModal ref={videoModal} />
 
 			<div className="video-container">
 				<video autoPlay muted loop poster={video_poster}>
