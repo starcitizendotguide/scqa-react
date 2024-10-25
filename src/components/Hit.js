@@ -30,7 +30,7 @@ function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResul
 				<>
 					<div className='border-b relative'></div>
 					<blockquote dangerouslySetInnerHTML={{ __html: answerHtml }}></blockquote>
-					<p>
+					<span>
 						-
 						<a
 							target="_blank"
@@ -41,7 +41,7 @@ function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResul
 							Galactapedia
 						</a>
 						<ClipboardButtons objectID={objectID} />
-					</p>
+					</span>
 				</>
 			}
 		/>

@@ -107,7 +107,7 @@ const App = ({ navigation, location }) => {
 					future={{ preserveSharedStateOnUnmount: true, }}
 				>
 					{objectID && <Configure filters={`objectID:${objectID}`} />}
-					{!objectID && !useGalactapedia && <Configure filters={`type:galactapedia`} />}
+					{!objectID && <Configure filters={(!useGalactapedia ? 'NOT ' : '') + `type:galactapedia`} />}
 					<div className="container">
 						<InformationCard
 							inputBox={
