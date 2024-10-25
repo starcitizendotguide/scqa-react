@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 //import * as serviceWorker from './serviceWorker';
 
 const root = createRoot(document.getElementById('root'));
-root.render(  
+root.render(
   <Router>
     <Routes>
       <Route path="/" element={<WrappedApp />} />

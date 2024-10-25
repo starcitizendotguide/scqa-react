@@ -1,23 +1,13 @@
-@import 'bulma/bulma.css';
-@import '~@creativebulma/bulma-tooltip/dist/bulma-tooltip.min.css';
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
 @import '~@fortawesome/fontawesome-free/css/all.min.css';
 
-html, .ais-SearchBox-input {
-    color: #DEE2E6 !important;
-}
-
+.button-link,
 a {
-    color: #039be5;
+    @apply text-sc-blue-100 hover:text-blue-300 underline hover:no-underline cursor-pointer;
 }
-
-.container {
-    width: 68%;
-}
-@media only screen and (max-width: 810px) {
-    .container {
-        width: 100%;
-    }
-} 
 
 .ais-SearchBox-input {
     background: transparent;
@@ -43,9 +33,6 @@ a {
     display: none;
 }
 
-ais-highlight-0000000000 {
-    color: gold;
-}
 
 .video-container {
     z-index: -1;
@@ -75,10 +62,6 @@ ais-highlight-0000000000 {
     opacity: 1;
 }
 
-a:hover {
-  color: #FFF;
-}
-
 .modal {
     background: none;
 }
@@ -102,86 +85,7 @@ a:hover {
 }
 
 blockquote {
-    margin: 20px 0;
-    padding-left: 1.5rem;
-    border-left: 5px solid #DEE2E6;
-}
-
-.card-header-title {
-    background-color: #01182a;
-    color: #58b4f6;
-    align-items: normal !important;
-    display: block !important;
-    font-size: 1.64rem;
-    font-weight: 400;
-}
-
-.card-content {
-    margin-top: 0;
-    background-color: #01182a;
-    color: #DEE2E6 !important;
-    padding-top: 0.01rem;
-
-    img {
-        display: block;
-        width: 90%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    h4 {
-        color: #9cd6ff;
-    }
-    
-    h5 {
-        color: #58b4f6;
-    }
-}
-
-.card {
-    transition: box-shadow .25s;
-}
-
-.card:hover {
-    box-shadow: 0 0 11px rgba(0, 0, 0, 0.5); 
-}
-
-.right {
-    float: right !important;
-}
-
-.credits {
-    font-size: 90%;
-    margin-bottom: 10px;
-}
-
-.link-like {
-    font-size: inherit;
-    line-height: 1.5;
-    background: none;
-    border: none;
-    color: #039be5 !important;
-    text-decoration: none;
-    padding: 0;
-
-    &:hover {
-        color: #26a69a;
-        cursor: pointer;
-    }
-
-    &:active {
-        background: none;
-    }
-
-}
-
-.icon-padding {
-    padding-left: 5px;
-    padding-right: 5px;
-}
-
-.hoverable {
-    transition: box-shadow 0.25s;
+    @apply mr-5 my-4 pl-4 border-solid border-l-4 border-gray-200;
 }
 
 em {
@@ -189,9 +93,4 @@ em {
     text-decoration: underline;
     text-decoration-color: #ffe100cc;
     font-weight: 500;
-}
-
-.tooltipped {
-    font-weight: normal;
-    font-family: inherit;
 }
