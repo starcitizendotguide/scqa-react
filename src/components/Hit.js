@@ -8,9 +8,9 @@ import TwitchModal from './TwitchModal';
 
 function Hit({ type, highlightQuery, ...data }) {
 	if (type === 'galactapedia') {
-		return <GalactapediaHit highlightQuery={highlightQuery} {...data} />;
+		return <div className='mt-4'><GalactapediaHit highlightQuery={highlightQuery} {...data} /></div>;
 	}
-	return <OtherHit type={type} highlightQuery={highlightQuery} {...data} />;
+	return <div className='mt-4'><OtherHit type={type} highlightQuery={highlightQuery} {...data} /></div>;
 }
 
 function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResult, highlightQuery }) {
