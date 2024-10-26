@@ -6,7 +6,7 @@ const InformationCard = (props) => {
 			<div
 				className="md:animate-rotate transform-gpu absolute h-full w-full bg-[conic-gradient(#58b4f6_20deg,transparent_120deg)]"
 			></div>
-			<div className='relative z-20 flex bg-sc-blue-900'>
+			<div className='relative z-20 flex bg-sc-blue-950'>
 				<Card
 					title={props.inputBox}
 					content={

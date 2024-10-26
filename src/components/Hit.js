@@ -28,7 +28,7 @@ function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResul
 			ref={card}
 			title={
 				<h1
-					className="text-lg text-sc-blue-100 font-semibold"
+					className="text-lg text-sc-blue-300 font-semibold"
 					dangerouslySetInnerHTML={{ __html: questionHtml }}
 				/>
 			}
@@ -80,7 +80,7 @@ function OtherHit({ type, title, source, transcript, published_at_timestamp, obj
 			ref={card}
 			title={
 				<div
-					className="text-lg text-sc-blue-100 font-semibold"
+					className="text-lg text-sc-blue-300 font-semibold"
 					dangerouslySetInnerHTML={{ __html: questionHtml }}
 				/>
 			}

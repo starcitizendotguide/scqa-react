@@ -31,7 +31,7 @@ const Star = () => {
     return (
         <>
             <Link to="/">
-                <div className='mt-4 bg-sc-blue-900'>
+                <div className='mt-4 bg-sc-blue-950'>
                     <button className='p-4 button-link font-bold'>
                         <i className="fa-solid fa-arrow-left mr-1"></i>
                         Back to Search

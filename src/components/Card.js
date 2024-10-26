@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 
 const Card = forwardRef((props, ref) => {
 	return (
-		<div ref={ref} className="bg-sc-blue-900 shadow-md w-full">
+		<div ref={ref} className="bg-sc-blue-950 shadow-md w-full">
 			<div className="p-4 pb-2">
 				{props.title}
 			</div>

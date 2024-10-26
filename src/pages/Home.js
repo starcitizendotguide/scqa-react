@@ -37,7 +37,7 @@ const SearchResults = (highlightQuery) => {
 
   if (status === 'loading') {
     return (
-      <div className="bg-sc-blue-900 shadow-md mt-4 p-4">
+      <div className="bg-sc-blue-950 shadow-md mt-4 p-4">
         <div className="text-gray-200">
           Searching <i className="fas fa-spin fa-spinner"></i>
         </div>
@@ -47,7 +47,7 @@ const SearchResults = (highlightQuery) => {
 
   if (status === 'stalled' || status === 'error') {
     return (
-      <div className="bg-sc-blue-900 shadow-md mt-4 p-4">
+      <div className="bg-sc-blue-950 shadow-md mt-4 p-4">
         <div className="text-gray-200">
           Searching stalled. There might be an issue with your internet connection.
         </div>

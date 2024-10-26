@@ -4,8 +4,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'sc-blue-900': '#01182a',
-        'sc-blue-100': '#58b4f6'
+        'sc-blue': {
+          '50': '#eff8ff',
+          '100': '#ddf2ff',
+          '200': '#b4e5ff',
+          '300': '#71d1ff',
+          '400': '#26bcff',
+          '500': '#00a3fe',
+          '600': '#0081da',
+          '700': '#0066b0',
+          '800': '#005791',
+          '900': '#034777',
+          '950': '#01182a',
+        },
       },
       animation: {
         rotate: "rotate 10s linear infinite",
