@@ -200,7 +200,7 @@ function ClipboardButtons({ objectID }) {
 					</button>
 				</Tooltip>
 			</CopyToClipboard>
-			<CopyToClipboard copyValue={`${window.location.origin}/#${objectID}`}>
+			<CopyToClipboard copyValue={`${window.location.origin}/star/${objectID}`}>
 				<Tooltip className='no-capture float-right pr-2' message='Perma link (Click to copy)'>
 					<button className="button-link">
 						<i className="fas fa-link"></i>
