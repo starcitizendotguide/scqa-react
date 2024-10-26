@@ -13,7 +13,6 @@ function CustomSearchBox(props) {
         refine(newQuery);
     }
 
-	const { selectDatabaseHook } = props;
 	useEffect(function() {
 		props.selectDatabaseHook(selectedOption);
 	});
