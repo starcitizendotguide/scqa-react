@@ -11,8 +11,6 @@ import InformationCard from '../components/InformationCard';
 import Hit from '../components/Hit';
 
 import './../styles/App.scss';
-import video_background from './../styles/assets/background.webm';
-import video_poster from './../styles/assets/header.webp';
 
 const createURL = (state) => (state.sc_questions.query ? `?question=${encodeURIComponent(state.sc_questions.query)}` : '');
 
@@ -131,12 +129,6 @@ const App = ({ navigation, location }) => {
           <SearchResults highlightQuery={highlightQuery} />
         </div>
       </InstantSearch>
-
-      <div className="video-container">
-        <video autoPlay muted loop poster={video_poster}>
-          <source src={video_background} type="video/webm" />
-        </video>
-      </div>
     </>
   );
 };

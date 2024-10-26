@@ -11,8 +11,8 @@ import GenericNotFound from './pages/GenericNotFound';
 const App = () => {
   return (
     <Router>
-      <div className="video-container">
-        <video autoPlay muted loop poster={video_poster} className="background-video">
+      <div className="z-[-1] fixed w-full h-full overflow-hidden inset-y-0">
+        <video autoPlay muted loop poster={video_poster} className="object-cover w-screen h-screen fixed left-0 top-0">
           <source src={video_background} type="video/webm" />
         </video>
       </div>
