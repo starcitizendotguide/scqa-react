@@ -11,8 +11,10 @@ const InformationCard = (props) => {
 					title={props.inputBox}
 					content={
 						<>
-							<span>Powered by <a href="https://www.algolia.com/?utm_source=instantsearch.js&utm_medium=website&utm_content=starfarer.space&utm_campaign=poweredby" target="_blank" rel="noopener noreferrer"><i className="fab fa-algolia"></i> algolia</a></span>
-							{props.toggles}
+							<div className="flex flex-row justify-between">
+								<span>Powered by <a href="https://www.algolia.com/?utm_source=instantsearch.js&utm_medium=website&utm_content=starfarer.space&utm_campaign=poweredby" target="_blank" rel="noopener noreferrer"><i className="fab fa-algolia"></i> algolia</a></span>
+								{props.toggles}
+							</div>
 							<div className="credits text-sm">
 								<p className='italic'>This is an unofficial Star Citizen fansite, not affiliated with the Cloud Imperium group of companies. All content on this site not authored by its host or users are property of their respective owners.</p>
 								<div className='flex flex-row justify-between'>
