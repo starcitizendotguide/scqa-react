@@ -66,7 +66,7 @@ const SearchResults = (highlightQuery) => {
 
 const App = ({ navigation, location }) => {
   const [searchState, setSearchState] = useState(urlToSearchState(location));
-  const [useGalactapedia, setUseGalactapedia] = useCookieState('toogle-use-galactapedia', false);
+  const [filter, setFilter] = useState('NOT type:galactapedia');
   const [highlightQuery, setHighlightQuery] = useCookieState('toggle-highlight-query', true);
 
   // --- backwards compatability with old /#<id> urls
@@ -90,11 +90,17 @@ const App = ({ navigation, location }) => {
     setUiState(uiState);
   };
 
-  const filterValue = `${!useGalactapedia ? 'NOT ' : ''}type:galactapedia`;
+  const handleDatabaseChange = (option) => {
+    switch(option)
+    {
+      case 'Vault': setFilter('NOT type:galactapedia'); break;
+      case 'Galactapedia': setFilter('type:galactapedia'); break;
+      default: throw new Error("Missing handleDatabaseChange case");
+    }
+  };
 
   return (
     <>
-
       <InstantSearch
         indexName="sc_questions"
         searchClient={algoliaClient}
@@ -103,24 +109,17 @@ const App = ({ navigation, location }) => {
         createURL={createURL}
         future={{ preserveSharedStateOnUnmount: true, }}
       >
-        <Configure filters={filterValue} />
+        <Configure filters={filter} />
         <div className="container">
           <InformationCard
             inputBox={
-              <CustomSearchBox queryHook={queryHook} />
+              <CustomSearchBox selectDatabaseHook={handleDatabaseChange} queryHook={queryHook} />
             }
 
             toggles={
               <div className='mt-2'>
                 <div className='inline-block'>
                   <label className="inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={useGalactapedia} onChange={event => setUseGalactapedia(!useGalactapedia)} className="sr-only peer" />
-                    <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sc-blue-100"></div>
-                    <span className="ms-3 text-sm font-medium text-gray-200">Search Galactapedia <i className="fas fa-book"></i></span>
-                  </label>
-                </div>
-                <div className='inline-block ml-2 border-l-2'>
-                  <label className="ml-2 inline-flex items-center cursor-pointer">
                     <input type="checkbox" checked={highlightQuery} onChange={event => setHighlightQuery(!highlightQuery)} className="sr-only peer" />
                     <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-400"></div>
                     <span className="ms-3 text-sm font-medium text-gray-200">Highlight Matches <i className="fas text-yellow-400 fa-highlighter"></i></span>
