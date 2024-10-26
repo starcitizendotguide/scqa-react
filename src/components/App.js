@@ -1,5 +1,6 @@
 import { liteClient as algoliasearch } from 'algoliasearch/lite';
 import React, { useState, useEffect } from 'react';
+import { useCookieState } from './useCookieState';
 import qs from 'qs';
 import { InstantSearch, Configure, useInstantSearch } from 'react-instantsearch';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -68,8 +69,8 @@ const SearchResults = (highlightQuery) => {
 
 const App = ({ navigation, location }) => {
 	const [searchState, setSearchState] = useState(urlToSearchState(location));
-	const [useGalactapedia, setUseGalactapedia] = useState(false);
-	const [highlightQuery, setHighlightQuery] = useState(true);
+	const [useGalactapedia, setUseGalactapedia] = useCookieState('toogle-use-galactapedia', false);
+	const [highlightQuery, setHighlightQuery] = useCookieState('toggle-highlight-query', true);
 	const [objectID, setObjectID] = useState(null);
 
 	useEffect(() => {
@@ -97,6 +98,11 @@ const App = ({ navigation, location }) => {
 
 		setUiState(uiState);
 	};
+
+	const filterValue = objectID
+		? `objectID:${objectID}`
+		: `${!useGalactapedia ? 'NOT ' : ''}type:galactapedia`;
+
 	return (
 		<>
 			<div className="md:container md:mx-auto">
@@ -108,8 +114,7 @@ const App = ({ navigation, location }) => {
 					createURL={createURL}
 					future={{ preserveSharedStateOnUnmount: true, }}
 				>
-					{objectID && <Configure filters={`objectID:${objectID}`} />}
-					{!objectID && <Configure filters={(!useGalactapedia ? 'NOT ' : '') + `type:galactapedia`} />}
+					<Configure filters={filterValue} />
 					<div className="container">
 						<InformationCard
 							inputBox={
@@ -120,14 +125,14 @@ const App = ({ navigation, location }) => {
 								<div className='mt-2'>
 									<div className='inline-block'>
 										<label className="inline-flex items-center cursor-pointer">
-											<input type="checkbox" defaultChecked={useGalactapedia} onClick={event => setUseGalactapedia(!useGalactapedia)} className="sr-only peer" />
+											<input type="checkbox" checked={useGalactapedia} onChange={event => setUseGalactapedia(!useGalactapedia)} className="sr-only peer" />
 											<div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sc-blue-100"></div>
 											<span className="ms-3 text-sm font-medium text-gray-200">Search Galactapedia <i className="fas fa-book"></i></span>
 										</label>
 									</div>
 									<div className='inline-block ml-2 border-l-2'>
 										<label className="ml-2 inline-flex items-center cursor-pointer">
-											<input type="checkbox" defaultChecked={highlightQuery} onClick={event => setHighlightQuery(!highlightQuery)} className="sr-only peer" />
+											<input type="checkbox" checked={highlightQuery} onChange={event => setHighlightQuery(!highlightQuery)} className="sr-only peer" />
 											<div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-400"></div>
 											<span className="ms-3 text-sm font-medium text-gray-200">Highlight Matches <i className="fas text-yellow-400 fa-highlighter"></i></span>
 										</label>
