@@ -15,7 +15,7 @@ function CustomSearchBox(props) {
 
 	useEffect(function() {
 		props.selectDatabaseHook(selectedOption);
-	}, [selectedOption, props]);
+	});
 
     return (
         <div className="flex items-center w-full"> 
