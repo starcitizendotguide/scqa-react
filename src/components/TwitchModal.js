@@ -17,11 +17,11 @@ function TwitchModal(props) {
 				<Tooltip message={`Open in pop-up`}>
 					<button onClick={() => setIsOpen(true)} className='button-link'>{props.title}</button>
 				</Tooltip>
-				<Tooltip message={`Open in new tab`}>
+				<Tooltip className="no-capture" message={`Open in new tab`}>
 					<a href={linkUrl} target="_blank" rel="noopener noreferrer"><i className="pl-2 fas fa-arrow-up-right-from-square"></i></a>
 				</Tooltip>
 				<CopyToClipboard copyValue={linkUrl}>
-					<Tooltip message={`Click to copy link to Twitch`}>
+					<Tooltip className="no-capture" message={`Click to copy link to Twitch`}>
 						<button className="button-link pl-2">
 							<i className="fas fa-brands fa-twitch"></i>
 						</button>

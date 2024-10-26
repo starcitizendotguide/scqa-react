@@ -1,6 +1,8 @@
-const Card = (props) => {
+import React, { forwardRef } from 'react';
+
+const Card = forwardRef((props, ref) => {
 	return (
-		<div className="bg-sc-blue-900 shadow-md w-full">
+		<div ref={ref} className="bg-sc-blue-900 shadow-md w-full">
 			<div className="p-4 pb-2">
 				{props.title}
 			</div>
@@ -9,6 +11,6 @@ const Card = (props) => {
 			</div>
 		</div>
 	);
-};
+});
 
 export default Card;
