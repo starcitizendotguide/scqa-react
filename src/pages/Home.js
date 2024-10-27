@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useCookieState } from '../components/useCookieState';
 
-import qs from 'qs';
 import algoliaClient from '../algoliaClient';
 import { InstantSearch, Configure, useInstantSearch } from 'react-instantsearch';
+import { history } from 'instantsearch.js/es/lib/routers';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import CustomSearchBox from '../components/CustomSearchBox';
@@ -12,21 +12,10 @@ import Hit from '../components/Hit';
 
 import './../styles/App.scss';
 
-const createURL = (state) => (state.sc_questions.query ? `?question=${encodeURIComponent(state.sc_questions.query)}` : '');
-
-const searchStateToUrl = (location, searchState) =>
-  searchState ? `${location.pathname}${createURL(searchState)}` : '';
 
 const getHashFromUrl = () => {
   const hash = window.location.hash.split('#')[1];
   return hash || null;
-};
-
-const urlToSearchState = (location) => {
-  const parsed = qs.parse(location.search.slice(1));
-  if (!parsed.question) return { question: '', sc_questions: { query: '' } };
-  const question = decodeURIComponent(parsed.question);
-  return { question: encodeURIComponent(question), sc_questions: { query: question } };
 };
 
 // Custom search results with loading indicator
@@ -62,10 +51,33 @@ const SearchResults = (highlightQuery) => {
   );
 };
 
+const getFilterForDatabase = (db) => {
+  switch (db) {
+    case 'Galactapedia': return 'type:galactapedia';
+
+    default:
+    case 'Vault': return 'NOT type:galactapedia';
+  }
+};
+
+const filterToDatabase = (filter) => {
+  switch (filter) {
+    case 'type:galactapedia': return 'Galactapedia';
+    case 'NOT type:galactapedia': return 'Vault';
+    default: return undefined;
+  }
+};
+
 const App = ({ navigation, location }) => {
-  const [searchState, setSearchState] = useState(urlToSearchState(location));
-  const [filter, setFilter] = useState('NOT type:galactapedia');
+
+  const [database, setDatabase] = useCookieState('selected-db', 'Vault');
+
+  const [filters, setFilters] = useState(getFilterForDatabase(database));
   const [highlightQuery, setHighlightQuery] = useCookieState('toggle-highlight-query', true);
+
+  useEffect(function() {
+    setFilters(getFilterForDatabase(database));
+  }, [database]);
 
   // --- backwards compatability with old /#<id> urls
   const hash = getHashFromUrl();
@@ -73,27 +85,46 @@ const App = ({ navigation, location }) => {
     navigation(`/star/${hash}`);
   }
 
-  useEffect(() => {
-    setSearchState(urlToSearchState(location));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location]);
+  // --- Routing
+  const routing = {
+    router: history({
+      cleanUrlOnDispose: true,
+      createURL: function ({ qsModule, routeState, location }) {
+        const { origin, pathname } = location;
+        const query = routeState.query ? `?question=${encodeURIComponent(routeState.query)}&db=${encodeURIComponent(routeState.db)}` : '';
 
-  const handleStateChange = ({ uiState, setUiState }) => {
-    clearTimeout(handleStateChange.debouncedSetState);
+        return `${origin}${pathname}${query}`;
+      },
+      parseURL: function ({ qsModule, location }) {
+        const parsed = qsModule.parse(location.search.slice(1));
 
-    handleStateChange.debouncedSetState = setTimeout(() => {
-      navigation(searchStateToUrl(location, uiState));
-    }, 400);
+        const question = parsed.question ? decodeURIComponent(parsed.question) : '';
+        const db = parsed.db ? decodeURIComponent(parsed.db) : null;
 
-    setUiState(uiState);
-  };
-
-  const handleDatabaseChange = (option) => {
-    switch(option)
-    {
-      case 'Vault': setFilter('NOT type:galactapedia'); break;
-      case 'Galactapedia': setFilter('type:galactapedia'); break;
-      default: throw new Error("Missing handleDatabaseChange case");
+        return { query: question.trim(), db: db };
+      }
+    }),
+    stateMapping: {
+      stateToRoute: function (state) {
+        return {
+          query: state.sc_questions.query,
+          db: filterToDatabase(state.sc_questions?.configure?.filters)
+        }
+      },
+      routeToState: function (state) {
+        if(state.db)
+        {
+          setDatabase(state.db);
+        }
+        return {
+          sc_questions: {
+            query: state.query,
+            configure: {
+              filters: getFilterForDatabase(state.db)
+            }
+          },
+        }
+      }
     }
   };
 
@@ -102,16 +133,14 @@ const App = ({ navigation, location }) => {
       <InstantSearch
         indexName="sc_questions"
         searchClient={algoliaClient}
-        initialUiState={searchState}
-        onStateChange={handleStateChange}
-        createURL={createURL}
+        routing={routing}
         future={{ preserveSharedStateOnUnmount: true, }}
       >
-        <Configure filters={filter} />
+        <Configure filters={filters} />
         <div className="container">
           <InformationCard
             inputBox={
-              <CustomSearchBox selectDatabaseHook={handleDatabaseChange} queryHook={queryHook} />
+              <CustomSearchBox database={database} selectDatabaseHook={setDatabase} queryHook={queryHook} />
             }
 
             toggles={
