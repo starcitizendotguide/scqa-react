@@ -79,8 +79,8 @@ function CustomSearchBox(props) {
 					<>
 					<b>Advanced Search Query</b>
 					<ul>
-						<li>Phrase Search: Use quotes (" ") around words for exact matches, e.g., "star citizen".</li>
-						<li>Exclude Words: Add a minus (-) before a word to exclude it, e.g., search -citizen.</li>
+						<li>Phrase Search: Use quotes (" ") around words for exact matches, e.g., <b>"star citizen"</b>.</li>
+						<li>Exclude Words: Add a minus (-) before a word to exclude it, e.g., <b>star -citizen</b>.</li>
 						<li>Note: Typos aren't tolerated within quotes, and "-" inside quotes is not treated as exclusion.</li>
 					</ul>
 					</>
