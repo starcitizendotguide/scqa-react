@@ -1,90 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { useCookieState } from '../components/useCookieState';
+import { useNavigate } from 'react-router-dom';
+
+import { useCookieState } from '../utils/useCookieState';
 
 import algoliaClient from '../algoliaClient';
-import { InstantSearch, Configure, useInstantSearch } from 'react-instantsearch';
+import { InstantSearch, Configure } from 'react-instantsearch';
 import { history } from 'instantsearch.js/es/lib/routers';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 import CustomSearchBox from '../components/CustomSearchBox';
 import InformationCard from '../components/InformationCard';
-import Hit from '../components/Hit';
+import SearchResults from '../components/SearchResults';
 
-import './../styles/App.scss';
+import { getHashFromUrl, databaseToFilter, filterToDatabase } from '../utils/helpers';
 
-const getHashFromUrl = () => {
-  const hash = window.location.hash.split('#')[1];
-  return hash || null;
+
+// Use a debounced query hook to manage user input
+const queryHook = (query, search) => {
+  clearTimeout(queryHook.timerId);
+  queryHook.timerId = setTimeout(() => search(query), 600);
 };
 
-// Custom search results with loading indicator
-const SearchResults = (highlightQuery) => {
-  const { results, status } = useInstantSearch();
-
-  if (status === 'loading') {
-    return (
-      <div className="bg-sc-blue-950 shadow-md mt-4 p-4">
-        <div className="text-gray-200">
-          Searching <i className="fas fa-spin fa-spinner"></i>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === 'stalled' || status === 'error') {
-    return (
-      <div className="bg-sc-blue-950 shadow-md mt-4 p-4">
-        <div className="text-gray-200">
-          Searching stalled. There might be an issue with your internet connection.
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      {results.hits.map((element) => (
-        <Hit key={element.objectID} highlightQuery={highlightQuery} {...element} />
-      ))}
-    </div>
-  );
-};
-
-const getFilterForDatabase = (db) => {
-  switch (db) {
-    case 'Galactapedia': return 'type:galactapedia';
-
-    default:
-    case 'Vault': return 'NOT type:galactapedia';
-  }
-};
-
-const filterToDatabase = (filter) => {
-  switch (filter) {
-    case 'type:galactapedia': return 'Galactapedia';
-    case 'NOT type:galactapedia': return 'Vault';
-    default: return undefined;
-  }
-};
-
-const App = ({ navigation, location }) => {
+const Home = () => {
 
   const [database, setDatabase] = useCookieState('selected-db', 'Vault');
 
-  const [filters, setFilters] = useState(getFilterForDatabase(database));
+  const [filters, setFilters] = useState(databaseToFilter(database));
   const [highlightQuery, setHighlightQuery] = useCookieState('toggle-highlight-query', true);
 
+  const navigate = useNavigate();
+
   useEffect(function () {
-    setFilters(getFilterForDatabase(database));
+    setFilters(databaseToFilter(database));
   }, [database]);
 
   // --- backwards compatability with old /#<id> urls
   useEffect(function () {
     const hash = getHashFromUrl();
     if (hash !== null) {
-      navigation(`/star/${hash}`);
+      navigate(`/star/${hash}`);
     }
-  }, [navigation]);
+  }, [navigate]);
 
 
   // --- Routing
@@ -121,7 +76,7 @@ const App = ({ navigation, location }) => {
           sc_questions: {
             query: state.query,
             configure: {
-              filters: getFilterForDatabase(state.db)
+              filters: databaseToFilter(state.db)
             }
           },
         }
@@ -159,19 +114,6 @@ const App = ({ navigation, location }) => {
       </InstantSearch>
     </>
   );
-};
-
-// Use a debounced query hook to manage user input
-const queryHook = (query, search) => {
-  clearTimeout(queryHook.timerId);
-  queryHook.timerId = setTimeout(() => search(query), 1000);
-};
-
-const Home = (props) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  return <App navigation={navigate} location={location} {...props} />;
 };
 
 export default Home;

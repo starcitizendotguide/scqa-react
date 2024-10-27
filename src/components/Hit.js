@@ -18,8 +18,8 @@ function Hit({ type, highlightQuery, ...data }) {
 
 function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResult, highlightQuery }) {
 
-	const questionHtml = (highlightQuery['highlightQuery'] ? _highlightResult?.question?.value : question);
-	const answerHtml = (highlightQuery['highlightQuery'] ? _highlightResult?.answer?.value : answer);
+	const questionHtml = (highlightQuery ? _highlightResult?.question?.value : question);
+	const answerHtml = (highlightQuery ? _highlightResult?.answer?.value : answer);
 
 	const card = useRef();
 
@@ -66,8 +66,8 @@ function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResul
 
 function OtherHit({ type, title, source, transcript, published_at_timestamp, objectID, user, question, answer, _highlightResult, time, highlightQuery }) {
 
-	const questionHtml = (highlightQuery['highlightQuery'] ? _highlightResult?.question?.value : question);
-	const answerHtml = (highlightQuery['highlightQuery'] ? _highlightResult?.answer?.value : answer);
+	const questionHtml = (highlightQuery ? _highlightResult?.question?.value : question);
+	const answerHtml = (highlightQuery ? _highlightResult?.answer?.value : answer);
 
 	const sourceElement = getSourceElement(type, title, source, time);
 	const introductionText = getIntroductionText(type, user);
