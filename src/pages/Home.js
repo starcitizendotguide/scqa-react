@@ -60,17 +60,17 @@ const getFilterForDatabase = (db) => {
   }
 };
 
-const filterToDatabase = (db) => {
-  switch (db) {
+const filterToDatabase = (filter) => {
+  switch (filter) {
     case 'type:galactapedia': return 'Galactapedia';
     case 'NOT type:galactapedia': return 'Vault';
-    default: throw new Error(`Unkown db for filter to database (${db})`);
+    default: return undefined;
   }
 };
 
 const App = ({ navigation, location }) => {
-  const [database, setDatabase] = useState('Vault');
-  const [overwriteDatabase, setOverwriteDatabase] = useState(null);
+
+  const [database, setDatabase] = useCookieState('selected-db', 'Vault');
 
   const [filters, setFilters] = useState(getFilterForDatabase(database));
   const [highlightQuery, setHighlightQuery] = useCookieState('toggle-highlight-query', true);
@@ -108,11 +108,14 @@ const App = ({ navigation, location }) => {
       stateToRoute: function (state) {
         return {
           query: state.sc_questions.query,
-          db: filterToDatabase(state.sc_questions.configure.filters)
+          db: filterToDatabase(state.sc_questions?.configure?.filters)
         }
       },
       routeToState: function (state) {
-        setOverwriteDatabase(state.db);
+        if(state.db)
+        {
+          setDatabase(state.db);
+        }
         return {
           sc_questions: {
             query: state.query,
@@ -137,7 +140,7 @@ const App = ({ navigation, location }) => {
         <div className="container">
           <InformationCard
             inputBox={
-              <CustomSearchBox selectDatabaseHook={setDatabase} overwriteDatabase={overwriteDatabase} queryHook={queryHook} />
+              <CustomSearchBox database={database} selectDatabaseHook={setDatabase} queryHook={queryHook} />
             }
 
             toggles={

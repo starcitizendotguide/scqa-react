@@ -1,34 +1,24 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useCookieState } from './useCookieState';
+import React, { useState, useRef } from 'react';
 import { useSearchBox } from 'react-instantsearch';
 
 function CustomSearchBox(props) {
-	const { selectDatabaseHook, overwriteDatabase } = props;
+	const { database, selectDatabaseHook } = props;
 
 	const { query, refine } = useSearchBox(props);
 	const [inputValue, setInputValue] = useState(query);
-	const [selectedOption, setSelectedOption] = useCookieState('selected-db', 'Vault');
 	const inputRef = useRef(null);
-
-	useEffect(function () {
-		if (overwriteDatabase !== null) {
-			setSelectedOption(overwriteDatabase);
-		}
-	});
 
 	function setQuery(newQuery) {
 		setInputValue(newQuery);
 		refine(newQuery);
 	}
 
-	useEffect(() => selectDatabaseHook(selectedOption), [selectedOption]); // eslint-disable-line 
-
 	return (
 		<div className="flex items-center w-full">
 			<select
 				className="mr-2 bg-transparent text-gray-200 border-b-2 border-sc-blue-300 focus:outline-none focus:ring-0 h-10"
-				value={selectedOption}
-				onChange={(e) => setSelectedOption(e.target.value)}
+				value={database}
+				onChange={(e) => selectDatabaseHook(e.target.value)}
 			>
 				<option value="Vault">Vault</option>
 				<option value="Galactapedia">Galactapedia</option>
