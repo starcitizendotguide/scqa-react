@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 
 import algoliaClient from '../algoliaClient';
-import { getElement } from '../algoliaCache';
+import { fetchItemByObjectID } from '../algoliaCache';
 
 import Hit from '../components/Hit';
 
@@ -17,25 +17,27 @@ const Star = () => {
         const fetchItem = async () => {
             try {
 
-                // --- Is it in the local cache?
-                var hit = await getElement(id);
+                fetchItemByObjectID(id) // --- local cache
+                    .then((item) => setItem(item))
+                    .catch((error) => {
 
-                if (hit) {
-                    setItem(hit);
-                }
-                // --- if not we have to fetch it from Aloglia
-                else {
-                    const hits = (await algoliaClient.search({
-                        requests: [{ indexName: 'sc_questions', filters: `objectID:${id}`, hitsPerPage: 1 }],
-                    })).results[0].hits;
+                        // --- If not in cache, fetch from Algolia
+                        algoliaClient.search({
+                            requests: [{ indexName: 'sc_questions', filters: `objectID:${id}`, hitsPerPage: 1 }],
+                        })
+                            .then((response) => {
+                                const hits = response.results[0].hits;
 
-                    if (hits.length > 0) {
-                        setItem(hits[0]);
-                    }
-                    else {
-                        navigate('/404');
-                    }
-                }
+                                if (hits.length > 0) {
+                                    setItem(hits[0]);
+                                } else {
+                                    navigate('/404');
+                                }
+                            })
+                            .catch((searchError) => {
+                                navigate('/404');
+                            });
+                    });
 
 
             } catch (err) {
