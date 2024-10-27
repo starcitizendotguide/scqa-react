@@ -164,7 +164,7 @@ const App = ({ navigation, location }) => {
 // Use a debounced query hook to manage user input
 const queryHook = (query, search) => {
   clearTimeout(queryHook.timerId);
-  queryHook.timerId = setTimeout(() => search(query), 200);
+  queryHook.timerId = setTimeout(() => search(query), 1000);
 };
 
 const Home = (props) => {
