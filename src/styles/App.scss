@@ -1,8 +1,10 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@use 'tailwindcss/base';
+@use 'tailwindcss/components';
+@use 'tailwindcss/utilities';
 
-@import '~@fortawesome/fontawesome-free/css/all.min.css';
+@use '~@fortawesome/fontawesome-free/scss/fontawesome';
+@use '~@fortawesome/fontawesome-free/scss/solid';
+@use '~@fortawesome/fontawesome-free/scss/brands';
 
 .button-link,
 a {
