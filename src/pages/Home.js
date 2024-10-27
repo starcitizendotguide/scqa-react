@@ -80,10 +80,13 @@ const App = ({ navigation, location }) => {
   }, [database]);
 
   // --- backwards compatability with old /#<id> urls
-  const hash = getHashFromUrl();
-  if (hash !== null) {
-    navigation(`/star/${hash}`);
-  }
+  useEffect(function() {
+    const hash = getHashFromUrl();
+    if (hash !== null) {
+      navigation(`/star/${hash}`);
+    }
+  }, [navigation]);
+
 
   // --- Routing
   const routing = {
