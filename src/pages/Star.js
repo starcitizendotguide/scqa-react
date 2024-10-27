@@ -32,7 +32,7 @@ const Star = () => {
         };
 
         fetchItem();
-    }, [id]);
+    }, [id, navigate]);
 
     return (
         <>
