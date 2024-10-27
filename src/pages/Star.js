@@ -2,33 +2,45 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 
 import algoliaClient from '../algoliaClient';
+import { getElement } from '../algoliaCache';
 
 import Hit from '../components/Hit';
 
 const Star = () => {
     var { id } = useParams();
     const navigate = useNavigate();
-    
+
     const [item, setItem] = useState(null);
 
 
     useEffect(() => {
         const fetchItem = async () => {
             try {
-                const hits = (await algoliaClient.search({
-                    requests: [{ indexName: 'sc_questions', filters: `objectID:${id}`, hitsPerPage: 1 }],
-                })).results[0].hits;
 
-                if (hits.length > 0) {
-                    setItem(hits[0]);
-                } 
-                else
-                {
-                    navigate('/404');
+                // --- Is it in the local cache?
+                var hit = await getElement(id);
+
+                if (hit) {
+                    setItem(hit);
                 }
+                // --- if not we have to fetch it from Aloglia
+                else {
+                    const hits = (await algoliaClient.search({
+                        requests: [{ indexName: 'sc_questions', filters: `objectID:${id}`, hitsPerPage: 1 }],
+                    })).results[0].hits;
+
+                    if (hits.length > 0) {
+                        setItem(hits[0]);
+                    }
+                    else {
+                        navigate('/404');
+                    }
+                }
+
+
             } catch (err) {
                 console.log(err);
-            } 
+            }
         };
 
         fetchItem();
@@ -44,7 +56,7 @@ const Star = () => {
                     </button>
                 </div>
             </Link>
-            { item !== null ? <Hit highlightQuery={false} {...item} /> : null }
+            {item !== null ? <Hit highlightQuery={false} {...item} /> : null}
         </>
 
     );
