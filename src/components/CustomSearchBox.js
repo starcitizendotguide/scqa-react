@@ -18,7 +18,10 @@ function CustomSearchBox(props) {
 			<select
 				className="mr-2 bg-transparent text-gray-200 border-b-2 border-sc-blue-300 focus:outline-none focus:ring-0 h-10"
 				value={database}
-				onChange={(e) => selectDatabaseHook(e.target.value)}
+				onChange={(e) => { 
+					selectDatabaseHook(e.target.value); 
+					setQuery(inputValue); 
+				}}
 			>
 				<option value="Vault">Vault</option>
 				<option value="Galactapedia">Galactapedia</option>
