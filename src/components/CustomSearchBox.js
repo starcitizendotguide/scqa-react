@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useSearchBox } from 'react-instantsearch';
+import Tooltip from './Tooltip';
 
 function CustomSearchBox(props) {
 	const { database, selectDatabaseHook } = props;
@@ -16,11 +17,11 @@ function CustomSearchBox(props) {
 	return (
 		<div className="flex items-center w-full">
 			<select
-				className="mr-2 bg-transparent text-gray-200 border-b-2 border-sc-blue-300 focus:outline-none focus:ring-0 h-10"
+				className="mr-2 bg-transparent text-gray-200 border-b-2 focus:outline-none focus:ring-0 h-10"
 				value={database}
-				onChange={(e) => { 
-					selectDatabaseHook(e.target.value); 
-					setQuery(inputValue); 
+				onChange={(e) => {
+					selectDatabaseHook(e.target.value);
+					setQuery(inputValue);
 				}}
 			>
 				<option value="Vault">Vault</option>
@@ -71,6 +72,21 @@ function CustomSearchBox(props) {
 					</label>
 				</div>
 			</form>
+			<Tooltip
+				className='ml-2'
+				position='left'
+				message={
+					<>
+					<b>Advanced Search Query</b>
+					<ul>
+						<li>Phrase Search: Use quotes (" ") around words for exact matches, e.g., "star citizen".</li>
+						<li>Exclude Words: Add a minus (-) before a word to exclude it, e.g., search -citizen.</li>
+						<li>Note: Typos aren't tolerated within quotes, and "-" inside quotes is not treated as exclusion.</li>
+					</ul>
+					</>
+				}>
+				<label className='fas fa-circle-question text-sc-blue-300'></label>
+			</Tooltip>
 		</div>
 	);
 };

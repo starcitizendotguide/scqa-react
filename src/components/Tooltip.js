@@ -10,7 +10,7 @@ export default function Tooltip({ message, children, position = "top", className
   return (
     <div className={`group relative inline-block ${className}`}>
       <span
-        className={`absolute ${positionClasses[position]} scale-0 transition-all rounded bg-gray-800 p-2 text-xs text-white group-hover:scale-100 group-hover:opacity-100 opacity-0 whitespace-nowrap`}
+        className={`absolute ${positionClasses[position]} z-50 scale-0 transition-all rounded bg-sc-blue-800 p-2 text-xs text-white group-hover:scale-100 group-hover:opacity-100 opacity-0 whitespace-nowrap`}
       >
         {message}
       </span>
