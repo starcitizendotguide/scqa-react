@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 
 import algoliaClient from '../algoliaClient';
 
@@ -7,8 +7,10 @@ import Hit from '../components/Hit';
 
 const Star = () => {
     var { id } = useParams();
+    const navigate = useNavigate();
     
     const [item, setItem] = useState(null);
+
 
     useEffect(() => {
         const fetchItem = async () => {
@@ -20,6 +22,10 @@ const Star = () => {
                 if (hits.length > 0) {
                     setItem(hits[0]);
                 } 
+                else
+                {
+                    navigate('/404');
+                }
             } catch (err) {
                 console.log(err);
             } 
