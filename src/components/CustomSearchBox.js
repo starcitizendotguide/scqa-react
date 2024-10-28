@@ -53,7 +53,7 @@ function CustomSearchBox(props) {
 			>
 				<div className="relative z-0 w-full group">
 					<input
-						className="block font-bold py-2 px-0 w-full text-lg text-gray-200 bg-transparent border-0 border-b-2 focus:outline-none focus:ring-0 focus:border-sc-blue-300 peer h-10" // Adjusted height to match dropdown
+						className="block font-bold w-full text-lg text-gray-200 bg-transparent border-b-2 focus:outline-none focus:ring-0 focus:border-sc-blue-300 peer h-10" 
 						type="search"
 						id="searchbox"
 						placeholder=''
@@ -67,7 +67,7 @@ function CustomSearchBox(props) {
 					/>
 					<label
 						htmlFor="searchbox"
-						className="md:animate-typing overflow-hidden whitespace-nowrap peer-focus:font-medium absolute text-sm text-sc-blue-300 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-sc-blue-300 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+						className="md:animate-typing overflow-hidden whitespace-nowrap peer-focus:font-medium absolute text-lg font-bold text-sc-blue-300 duration-300 transform -translate-y-6 scale-75 top-1 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-sc-blue-300 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
 						What are you looking for?
 					</label>
 				</div>
