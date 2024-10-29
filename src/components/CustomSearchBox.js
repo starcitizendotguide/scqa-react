@@ -25,6 +25,7 @@ function CustomSearchBox(props) {
 				}}
 			>
 				<option value="Vault">Vault</option>
+				<option value="Posts">Posts</option>
 				<option value="Galactapedia">Galactapedia</option>
 			</select>
 			<form

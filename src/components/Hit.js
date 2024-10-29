@@ -145,6 +145,7 @@ function getSourceElement(type, title, source, time) {
 		case 'spectrum':
 		case 'article':
 		case 'reddit':
+		case 'post':
 			return (
 				<a target="_blank" rel="noopener noreferrer" href={source}>
 					{title}
