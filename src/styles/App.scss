@@ -18,3 +18,13 @@ blockquote {
 .highlight-query {
     @apply not-italic underline decoration-2 decoration-yellow-400;
 }
+
+.hit {
+    img  {
+        @apply max-w-sm mx-auto;
+    }
+
+    ul {
+        @apply list-disc ml-10;
+    }
+} 
