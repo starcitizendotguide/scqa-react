@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
     <ShortName>Starfarer Web Search</ShortName>
-    <Description>Search starfarer.space content.</Description>
-    <Url type="text/html" method="get" template="https://starfarer.space?question={searchTerms}" />
+    <Description>Search starfarer.space vault content.</Description>
+    <Url type="text/html" method="get" template="https://starfarer.space?db=vault&amp;question={searchTerms}" />
     <InputEncoding>UTF-8</InputEncoding>
     <Image height="32" width="32" type="image/png">https://starfarer.space/favicon.ico</Image>
 </OpenSearchDescription>
