@@ -5,6 +5,7 @@ import { useCookieState } from '../utils/useCookieState';
 
 import algoliaClient from '../algoliaClient';
 import { InstantSearch } from 'react-instantsearch';
+import { history } from 'instantsearch.js/es/lib/routers';
 
 import CustomSearchBox from '../components/CustomSearchBox';
 import InformationCard from '../components/InformationCard';
@@ -40,62 +41,35 @@ const Home = () => {
 
 
   // --- Routing
-  // const routing = {
-  //   router: history({
-  //     cleanUrlOnDispose: true,
-  //     createURL: function ({ qsModule, routeState, location }) {
-  //       const { origin, pathname } = location;
-  //       const query = routeState.query ? `?question=${encodeURIComponent(routeState.query)}&db=${encodeURIComponent(routeState.db)}` : '';
-
-  //       return `${origin}${pathname}${query}`;
-  //     },
-  //     parseURL: function ({ qsModule, location }) {
-  //       const parsed = qsModule.parse(location.search.slice(1));
-
-  //       const question = parsed.question ? decodeURIComponent(parsed.question) : '';
-  //       const db = parsed.db ? decodeURIComponent(parsed.db) : null;
-
-  //       return { query: question.trim(), db: db };
-  //     }
-  //   }),
-  //   stateMapping: {
-  //     stateToRoute: function (state) {
-  //       console.log('stateToRoute');
-  //       console.log(state);
-  //       return {
-  //         query: state.sc_questions.query,
-  //         db: filterToDatabase(state.sc_questions?.configure?.filters)
-  //       }
-  //     },
-  //     routeToState: function (state) {
-  //       console.log('routeToState');
-  //       console.log(state);
-  //       console.log('guessing: ' + filterToDatabase(state.db));
-  //       if (state.db) {
-  //         setDatabase(state.db);
-        
-  //         return {
-  //           [filterToDatabase(state.db)]: {
-  //             query: state.query,
-  //             configure: {
-  //               filters: databaseToFilter(state.db)
-  //             }
-  //           },
-  //         }
-  //       }
-
-  //       return {};
-        
-  //     }
-  //   }
-  // };
+  const routing = {
+    router: history({
+      cleanUrlOnDispose: true,
+    }),
+    stateMapping: {
+      stateToRoute(uiState) {
+        const indexState = uiState[algoliaIndex];
+        return {
+          question: indexState.query,
+          db: databaseToFilter(database),
+        }
+      },
+      routeToState(routeState) {
+        let index = routeState.db || 'vault';
+        return {
+          [index]: {
+            query: routeState.question,
+          },
+        };
+      },
+    },
+  };
 
   return (
     <>
       <InstantSearch
         indexName={algoliaIndex}
         searchClient={algoliaClient}
-        routing={true}
+        routing={routing}
         future={{ preserveSharedStateOnUnmount: true, }}
       >
         <div className="container">

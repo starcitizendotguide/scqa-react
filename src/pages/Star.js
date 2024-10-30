@@ -9,7 +9,7 @@ import Hit from '../components/Hit';
 const Star = () => {
     var { id, index } = useParams();
     index = index || 'vault';
-    console.log(index);
+
     const navigate = useNavigate();
 
     const [item, setItem] = useState(null);
