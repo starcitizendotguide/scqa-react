@@ -3,21 +3,17 @@ export const getHashFromUrl = () => {
     return hash || null;
 };
 
-export const databaseToFilter = (db) => {
-    switch (db) {
-        case 'Galactapedia': return 'galactapedia';
-        case 'Posts': return 'posts';
-
-        default:
-        case 'Vault': return 'vault';
+export const getValidIndex = (val) => {
+    switch(val.toLowerCase()) {
+        case 'vault':
+        case 'galactapedia':
+        case 'posts':
+            return val;
+        default: return 'vault';
     }
 };
 
-export const filterToDatabase = (filter) => {
-    switch (filter) {
-        case 'galactapedia': return 'Galactapedia';
-        case 'posts': return 'Posts';
-        case 'vault': return 'Vault';
-        default: return undefined;
-    }
+export const getDBFromUrl = () => {
+    const db = (new URLSearchParams(window.location.search)).get('db').toLowerCase();
+    return getValidIndex(db) || 'vault';
 };

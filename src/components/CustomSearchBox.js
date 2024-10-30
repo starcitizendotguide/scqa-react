@@ -2,12 +2,23 @@ import React, { useState, useRef } from 'react';
 import { useSearchBox } from 'react-instantsearch';
 import Tooltip from './Tooltip';
 
+
+const queryHook = (query, search) => {
+	clearTimeout(queryHook.timerId);
+	queryHook.timerId = setTimeout(() => search(query), 600);
+};
+
 function CustomSearchBox(props) {
+
 	const { database, selectDatabaseHook } = props;
 
-	const { query, refine } = useSearchBox(props);
-	const [inputValue, setInputValue] = useState(query);
 	const inputRef = useRef(null);
+	const { query, refine } = useSearchBox({
+		queryHook: queryHook
+	});
+
+	const [inputValue, setInputValue] = useState(query);
+
 
 	function setQuery(newQuery) {
 		setInputValue(newQuery);
@@ -19,14 +30,11 @@ function CustomSearchBox(props) {
 			<select
 				className="mr-2 bg-transparent text-gray-200 border-b-2 focus:outline-none focus:ring-0 h-10"
 				value={database}
-				onChange={(e) => {
-					selectDatabaseHook(e.target.value);
-					setQuery(inputValue);
-				}}
+				onChange={(e) => selectDatabaseHook(e.target.value)}
 			>
-				<option value="Vault">Vault</option>
-				<option value="Posts">Posts</option>
-				<option value="Galactapedia">Galactapedia</option>
+				<option value="vault">Vault</option>
+				<option value="posts">Posts</option>
+				<option value="galactapedia">Galactapedia</option>
 			</select>
 			<form
 				action=""
@@ -54,7 +62,7 @@ function CustomSearchBox(props) {
 			>
 				<div className="relative z-0 w-full group">
 					<input
-						className="block font-bold w-full text-lg text-gray-200 bg-transparent border-b-2 focus:outline-none focus:ring-0 focus:border-sc-blue-300 peer h-10" 
+						className="block font-bold w-full text-lg text-gray-200 bg-transparent border-b-2 focus:outline-none focus:ring-0 focus:border-sc-blue-300 peer h-10"
 						type="search"
 						id="searchbox"
 						placeholder=''
