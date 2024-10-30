@@ -8,10 +8,10 @@ const SearchResults = ({ highlightQuery, algoliaIndex }) => {
     const { results, status } = useInstantSearch();
 
     if (status === 'loading') {
-        return <Card content={<>Searching <i className="fas fa-spin fa-spinner"></i></>} />;
+        return <div className='mt-4'><Card content={<>Searching <i className="fas fa-spin fa-spinner"></i></>} /></div>;
     }
     else if (status === 'stalled' || status === 'error') {
-        return <Card content={<>Searching stalled. There might be an issue with your internet connection.</>} />;
+        return <div className='mt-4'><Card content={<>Searching stalled. There might be an issue with your internet connection.</>} /></div>;
     }
 
     return (
