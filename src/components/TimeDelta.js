@@ -16,15 +16,21 @@ const TimeDelta = ({ timestamp }) => {
 
     const { tooltip } = getClassAndTooltip();
 
-    const formattedDate = new Date(timestamp * 1000).toISOString().split('T')[0];
+    try {
+        const formattedDate = new Date(timestamp * 1000).toISOString().split('T')[0];
 
-    return (
-        <span className={`relative group`}>
-            <Tooltip message={tooltip}>
-                {formattedDate}
-            </Tooltip>
-        </span>
-    );
+        return (
+            <span className={`relative group`}>
+                <Tooltip message={tooltip}>
+                    {formattedDate}
+                </Tooltip>
+            </span>
+        );
+    } catch(error) {
+        console.log(timestamp);
+        console.error(error);
+    } 
+
 };
 
 export default TimeDelta;
