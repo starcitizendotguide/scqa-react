@@ -3,7 +3,7 @@ import { useInstantSearch } from 'react-instantsearch';
 import Hit from './Hit';
 import Card from './Card';
 
-const SearchResults = ({ highlightQuery }) => {
+const SearchResults = ({ highlightQuery, algoliaIndex }) => {
 
     const { results, status } = useInstantSearch();
 
@@ -17,7 +17,7 @@ const SearchResults = ({ highlightQuery }) => {
     return (
         <div>
             {results.hits.map((element) => (
-                <Hit key={element.objectID} highlightQuery={highlightQuery} {...element} />
+                <Hit key={element.objectID} highlightQuery={highlightQuery} algoliaIndex={algoliaIndex} {...element} />
             ))}
         </div>
     );

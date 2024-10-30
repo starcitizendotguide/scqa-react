@@ -19,7 +19,7 @@ const App = () => {
       <div className="md:container md:mx-auto">
         <Routes>
           <Route exact path="/" Component={Home} />
-          <Route exact path="/star/:id" Component={Star} />
+          <Route exact path="/star/:index?/:id" Component={Star} />
 
           <Route exact path="/404" Component={GenericNotFound} />
           <Route path="*" element={<Navigate to='/404' />} />

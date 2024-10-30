@@ -4,14 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { useCookieState } from '../utils/useCookieState';
 
 import algoliaClient from '../algoliaClient';
-import { InstantSearch, Configure } from 'react-instantsearch';
-import { history } from 'instantsearch.js/es/lib/routers';
+import { InstantSearch } from 'react-instantsearch';
 
 import CustomSearchBox from '../components/CustomSearchBox';
 import InformationCard from '../components/InformationCard';
 import SearchResults from '../components/SearchResults';
 
-import { getHashFromUrl, databaseToFilter, filterToDatabase } from '../utils/helpers';
+import { getHashFromUrl, databaseToFilter } from '../utils/helpers';
 
 
 // Use a debounced query hook to manage user input
@@ -23,15 +22,13 @@ const queryHook = (query, search) => {
 const Home = () => {
 
   const [database, setDatabase] = useCookieState('selected-db', 'Vault');
-
-  const [filters, setFilters] = useState(databaseToFilter(database));
+  const [algoliaIndex, setAlgoliaIndex] = useState(databaseToFilter(database));
   const [highlightQuery, setHighlightQuery] = useCookieState('toggle-highlight-query', true);
 
   const navigate = useNavigate();
 
-  useEffect(function () {
-    setFilters(databaseToFilter(database));
-  }, [database]);
+  useEffect(() => setAlgoliaIndex(databaseToFilter(database)), [database]);
+
 
   // --- backwards compatability with old /#<id> urls
   useEffect(function () {
@@ -43,56 +40,64 @@ const Home = () => {
 
 
   // --- Routing
-  const routing = {
-    router: history({
-      cleanUrlOnDispose: true,
-      createURL: function ({ qsModule, routeState, location }) {
-        const { origin, pathname } = location;
-        const query = routeState.query ? `?question=${encodeURIComponent(routeState.query)}&db=${encodeURIComponent(routeState.db)}` : '';
+  // const routing = {
+  //   router: history({
+  //     cleanUrlOnDispose: true,
+  //     createURL: function ({ qsModule, routeState, location }) {
+  //       const { origin, pathname } = location;
+  //       const query = routeState.query ? `?question=${encodeURIComponent(routeState.query)}&db=${encodeURIComponent(routeState.db)}` : '';
 
-        return `${origin}${pathname}${query}`;
-      },
-      parseURL: function ({ qsModule, location }) {
-        const parsed = qsModule.parse(location.search.slice(1));
+  //       return `${origin}${pathname}${query}`;
+  //     },
+  //     parseURL: function ({ qsModule, location }) {
+  //       const parsed = qsModule.parse(location.search.slice(1));
 
-        const question = parsed.question ? decodeURIComponent(parsed.question) : '';
-        const db = parsed.db ? decodeURIComponent(parsed.db) : null;
+  //       const question = parsed.question ? decodeURIComponent(parsed.question) : '';
+  //       const db = parsed.db ? decodeURIComponent(parsed.db) : null;
 
-        return { query: question.trim(), db: db };
-      }
-    }),
-    stateMapping: {
-      stateToRoute: function (state) {
-        return {
-          query: state.sc_questions.query,
-          db: filterToDatabase(state.sc_questions?.configure?.filters)
-        }
-      },
-      routeToState: function (state) {
-        if (state.db) {
-          setDatabase(state.db);
-        }
-        return {
-          sc_questions: {
-            query: state.query,
-            configure: {
-              filters: databaseToFilter(state.db)
-            }
-          },
-        }
-      }
-    }
-  };
+  //       return { query: question.trim(), db: db };
+  //     }
+  //   }),
+  //   stateMapping: {
+  //     stateToRoute: function (state) {
+  //       console.log('stateToRoute');
+  //       console.log(state);
+  //       return {
+  //         query: state.sc_questions.query,
+  //         db: filterToDatabase(state.sc_questions?.configure?.filters)
+  //       }
+  //     },
+  //     routeToState: function (state) {
+  //       console.log('routeToState');
+  //       console.log(state);
+  //       console.log('guessing: ' + filterToDatabase(state.db));
+  //       if (state.db) {
+  //         setDatabase(state.db);
+        
+  //         return {
+  //           [filterToDatabase(state.db)]: {
+  //             query: state.query,
+  //             configure: {
+  //               filters: databaseToFilter(state.db)
+  //             }
+  //           },
+  //         }
+  //       }
+
+  //       return {};
+        
+  //     }
+  //   }
+  // };
 
   return (
     <>
       <InstantSearch
-        indexName="sc_questions"
+        indexName={algoliaIndex}
         searchClient={algoliaClient}
-        routing={routing}
+        routing={true}
         future={{ preserveSharedStateOnUnmount: true, }}
       >
-        <Configure filters={filters} />
         <div className="container">
           <InformationCard
             inputBox={
@@ -109,7 +114,7 @@ const Home = () => {
               </>
             }
           />
-          <SearchResults highlightQuery={highlightQuery} />
+          <SearchResults highlightQuery={highlightQuery} algoliaIndex={algoliaIndex} />
         </div>
       </InstantSearch>
     </>

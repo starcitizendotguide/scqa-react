@@ -7,7 +7,9 @@ import { fetchItemByObjectID } from '../algoliaCache';
 import Hit from '../components/Hit';
 
 const Star = () => {
-    var { id } = useParams();
+    var { id, index } = useParams();
+    index = index || 'vault';
+    console.log(index);
     const navigate = useNavigate();
 
     const [item, setItem] = useState(null);
@@ -23,7 +25,7 @@ const Star = () => {
 
                         // --- If not in cache, fetch from Algolia
                         algoliaClient.search({
-                            requests: [{ indexName: 'sc_questions', filters: `objectID:${id}`, hitsPerPage: 1 }],
+                            requests: [{ indexName: index, filters: `objectID:${id}`, hitsPerPage: 1 }],
                         })
                             .then((response) => {
                                 const hits = response.results[0].hits;
@@ -46,7 +48,7 @@ const Star = () => {
         };
 
         fetchItem();
-    }, [id, navigate]);
+    }, [id, index, navigate]);
 
     return (
         <>

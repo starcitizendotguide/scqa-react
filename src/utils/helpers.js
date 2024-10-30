@@ -5,19 +5,19 @@ export const getHashFromUrl = () => {
 
 export const databaseToFilter = (db) => {
     switch (db) {
-        case 'Galactapedia': return 'type:galactapedia';
-        case 'Posts': return 'type:post';
+        case 'Galactapedia': return 'galactapedia';
+        case 'Posts': return 'posts';
 
         default:
-        case 'Vault': return 'NOT type:galactapedia AND NOT type:post';
+        case 'Vault': return 'vault';
     }
 };
 
 export const filterToDatabase = (filter) => {
     switch (filter) {
-        case 'type:galactapedia': return 'Galactapedia';
-        case 'type:post': return 'Posts';
-        case 'NOT type:galactapedia AND NOT type:post': return 'Vault';
+        case 'galactapedia': return 'Galactapedia';
+        case 'posts': return 'Posts';
+        case 'vault': return 'Vault';
         default: return undefined;
     }
 };

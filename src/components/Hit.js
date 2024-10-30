@@ -9,15 +9,19 @@ import Card from './Card';
 import YouTubeModal from './YouTubeModal';
 import TwitchModal from './TwitchModal';
 
-function Hit({ type, highlightQuery, ...data }) {
-	if (type === 'galactapedia') {
-		return <div className='hit mt-4'><GalactapediaHit highlightQuery={highlightQuery} {...data} /></div>;
+function Hit({ type, highlightQuery, algoliaIndex, ...data }) {
+	if (algoliaIndex === 'galactapedia') {
+		return <div className='hit mt-4'>
+			<GalactapediaHit highlightQuery={highlightQuery} algoliaIndex={algoliaIndex} {...data} />
+		</div>;
 	}
-	return <div className='hit mt-4'><OtherHit type={type} highlightQuery={highlightQuery} {...data} /></div>;
+	return <div className='hit mt-4'>
+		<OtherHit type={type} highlightQuery={highlightQuery} algoliaIndex={algoliaIndex} {...data} />
+	</div>;
 }
 
-function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResult, highlightQuery }) {
-
+function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResult, highlightQuery, algoliaIndex }) {
+	
 	const questionHtml = (highlightQuery ? _highlightResult?.question?.value : question);
 	const answerHtml = (highlightQuery ? _highlightResult?.answer?.value : answer);
 
@@ -55,7 +59,7 @@ function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResul
 									<i className="fas fa-camera-retro"></i>
 								</button>
 							</Tooltip>
-							<ClipboardButtons objectID={objectID} />
+							<ClipboardButtons objectID={objectID} algoliaIndex={algoliaIndex} />
 						</div>
 					</div>
 				</>
@@ -64,7 +68,9 @@ function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResul
 	);
 }
 
-function OtherHit({ type, title, source, transcript, published_at_timestamp, objectID, user, question, answer, _highlightResult, time, highlightQuery }) {
+function OtherHit({ type, title, source, transcript, published_at_timestamp, objectID, user, question, answer, _highlightResult, time, highlightQuery,
+	algoliaIndex
+ }) {
 
 	const questionHtml = (highlightQuery ? _highlightResult?.question?.value : question);
 	const answerHtml = (highlightQuery ? _highlightResult?.answer?.value : answer);
@@ -76,7 +82,7 @@ function OtherHit({ type, title, source, transcript, published_at_timestamp, obj
 	const card = useRef();
 
 	return (
-		<Card 
+		<Card
 			ref={card}
 			title={
 				<div
@@ -99,7 +105,7 @@ function OtherHit({ type, title, source, transcript, published_at_timestamp, obj
 									<i className="fas fa-camera-retro"></i>
 								</button>
 							</Tooltip>
-							<ClipboardButtons objectID={objectID} />
+							<ClipboardButtons objectID={objectID} algoliaIndex={algoliaIndex} />
 							{transcriptElement}
 						</div>
 					</div>
@@ -191,7 +197,7 @@ function getTranscriptElement(type, transcriptUrl) {
 	return null;
 }
 
-function ClipboardButtons({ objectID }) {
+function ClipboardButtons({ objectID, algoliaIndex }) {
 	return (
 		<>
 			<CopyToClipboard copyValue={objectID}>
@@ -201,7 +207,7 @@ function ClipboardButtons({ objectID }) {
 					</button>
 				</Tooltip>
 			</CopyToClipboard>
-			<CopyToClipboard copyValue={`${window.location.origin}/star/${objectID}`}>
+			<CopyToClipboard copyValue={`${window.location.origin}/star/${algoliaIndex}/${objectID}`}>
 				<Tooltip className='no-capture float-right pr-2' message='Perma link (Click to copy)'>
 					<button className="button-link">
 						<i className="fas fa-link"></i>
