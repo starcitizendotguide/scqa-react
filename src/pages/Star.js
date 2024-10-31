@@ -4,11 +4,13 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import algoliaClient from '../algoliaClient';
 import { fetchItemByObjectID } from '../algoliaCache';
 
+import { getValidIndex } from '../utils/helpers';
+
 import Hit from '../components/Hit';
 
 const Star = () => {
     var { id, index } = useParams();
-    index = index || 'vault';
+    index = getValidIndex(index);
 
     const navigate = useNavigate();
 
