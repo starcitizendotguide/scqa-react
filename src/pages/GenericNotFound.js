@@ -9,7 +9,7 @@ const GenericNotFound = () => {
     <>
       <Link to="/">
         <div className='mt-4 bg-sc-blue-950'>
-          <button className='p-4 button-link font-bold'>
+          <button className='p-4 button-link font-bold' aria-label='Back to Search'>
             <i className="fa-solid fa-arrow-left mr-1"></i>
             Back to Search
           </button>

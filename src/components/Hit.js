@@ -55,7 +55,7 @@ function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResul
 						</div>
 						<div>
 							<Tooltip message='Save Card as Image' className='no-capture float-right pr-2'>
-								<button className='button-link' onClick={() => captureComponent(question, card)}>
+								<button className='button-link' aria-label="Save Card as Image" onClick={() => captureComponent(question, card)}>
 									<i className="fas fa-camera-retro"></i>
 								</button>
 							</Tooltip>
@@ -101,7 +101,7 @@ function OtherHit({ type, title, source, transcript, published_at_timestamp, obj
 						</div>
 						<div>
 							<Tooltip message='Save Card as Image' className='no-capture float-right pr-2'>
-								<button className='button-link' onClick={() => captureComponent(question, card)}>
+								<button className='button-link' aria-label="Save Card as Image" onClick={() => captureComponent(question, card)}>
 									<i className="fas fa-camera-retro"></i>
 								</button>
 							</Tooltip>
@@ -202,14 +202,14 @@ function ClipboardButtons({ objectID, algoliaIndex }) {
 		<>
 			<CopyToClipboard copyValue={objectID}>
 				<Tooltip className='no-capture float-right pr-2' message={`ID: ${objectID} (Click to copy)`}>
-					<button className="button-link">
+					<button className="button-link" aria-label="Copy Card Fingerprint ID">
 						<i className="fas fa-fingerprint"></i>
 					</button>
 				</Tooltip>
 			</CopyToClipboard>
 			<CopyToClipboard copyValue={`${window.location.origin}/star/${algoliaIndex}/${objectID}`}>
 				<Tooltip className='no-capture float-right pr-2' message='Perma link (Click to copy)'>
-					<button className="button-link">
+					<button className="button-link" aria-label="Copy Permalink to Card">
 						<i className="fas fa-link"></i>
 					</button>
 				</Tooltip>

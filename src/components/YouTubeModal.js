@@ -22,14 +22,14 @@ function YouTubeModal(props) {
 		<>
 			<>
 				<Tooltip message={`Open in pop-up`}>
-					<button onClick={() => setIsOpen(true)} className='button-link'>{props.title}</button>
+					<button onClick={() => setIsOpen(true)} className='button-link' aria-label='Open YouTube Source in Popup'>{props.title}</button>
 				</Tooltip>
 				<Tooltip className="no-capture" message={`Open in new tab`}>
 					<a href={linkUrl} target="_blank" rel="noopener noreferrer"><i className="pl-2 fas fa-arrow-up-right-from-square"></i></a>
 				</Tooltip>
 				<CopyToClipboard copyValue={linkUrl}>
 					<Tooltip className="no-capture" message={`Click to copy link to YouTube`}>
-						<button className="button-link pl-2">
+						<button className="button-link pl-2" aria-label='Copy Link to YouTube Source'>
 							<i className="fas fa-brands fa-youtube"></i>
 						</button>
 					</Tooltip>
