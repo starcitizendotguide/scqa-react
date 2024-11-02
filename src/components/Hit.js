@@ -188,7 +188,7 @@ function getTranscriptElement(type, transcriptUrl) {
 					rel="noreferrer"
 					href={transcriptUrl}
 					className="float-right pr-2 group relative"
-					aria-labelby='Go to the transcriber of this card'
+					aria-label='Go to the transcriber of this card'
 				>
 					<i className="fas fa-scroll"></i>
 				</a>
