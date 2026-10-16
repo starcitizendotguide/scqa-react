@@ -11,8 +11,7 @@ const InformationCard = (props) => {
 					title={props.inputBox}
 					content={
 						<>
-							<div className="flex flex-row justify-between mb-4">
-								<span>Powered by <a href="https://www.meilisearch.com/" target="_blank" rel="noopener noreferrer"><i className="fas fa-magnifying-glass"></i> Meilisearch</a></span>
+							<div className="flex flex-row justify-end mb-4">
 								<div>
 									{props.toggles}
 								</div>
