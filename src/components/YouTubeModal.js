@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import CopyToClipboard from "./CopyToClipboard";
 import Tooltip from "./Tooltip";
@@ -6,9 +6,10 @@ import VideoModal from "./VideoModal";
 
 function YouTubeModal({ videoId, start, title }) {
 	const [isOpen, setIsOpen] = useState(false);
+	const close = useCallback(() => setIsOpen(false), []);
 
 	const linkUrl = `https://youtu.be/${videoId}${start ? `?t=${start}` : ''}`;
-	const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&showinfo=0${start ? `&start=${start}` : ''}`;
+	const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1${start ? `&start=${start}` : ''}`;
 
 	return (
 		<>
@@ -27,7 +28,7 @@ function YouTubeModal({ videoId, start, title }) {
 					</button>
 				</Tooltip>
 			</CopyToClipboard>
-			{isOpen && <VideoModal src={embedUrl} title="YouTube Video Modal" onClose={() => setIsOpen(false)} />}
+			{isOpen && <VideoModal src={embedUrl} title={title} linkUrl={linkUrl} platform="YouTube" onClose={close} />}
 		</>
 	);
 }

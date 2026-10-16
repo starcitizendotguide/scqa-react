@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import CopyToClipboard from "./CopyToClipboard";
 import Tooltip from "./Tooltip";
@@ -8,6 +8,7 @@ const twitchTime = (s) => `${Math.floor(s / 3600)}h${Math.floor((s % 3600) / 60)
 
 function TwitchModal({ videoId, start, title }) {
 	const [isOpen, setIsOpen] = useState(false);
+	const close = useCallback(() => setIsOpen(false), []);
 
 	const linkUrl = `https://www.twitch.tv/videos/${videoId}${start ? `?t=${twitchTime(start)}` : ''}`;
 	const embedUrl = `https://player.twitch.tv/?video=${videoId}&parent=${window.location.hostname}&autoplay=true${start ? `&time=${twitchTime(start)}` : ''}`;
@@ -29,7 +30,7 @@ function TwitchModal({ videoId, start, title }) {
 					</button>
 				</Tooltip>
 			</CopyToClipboard>
-			{isOpen && <VideoModal src={embedUrl} title="Twitch Video Modal" onClose={() => setIsOpen(false)} />}
+			{isOpen && <VideoModal src={embedUrl} title={title} linkUrl={linkUrl} platform="Twitch" onClose={close} />}
 		</>
 	);
 }
