@@ -5,12 +5,10 @@ import Tooltip from './Tooltip';
 
 const queryHook = (query, search) => {
 	clearTimeout(queryHook.timerId);
-	queryHook.timerId = setTimeout(() => search(query), 600);
+	queryHook.timerId = setTimeout(() => search(query), 150);
 };
 
 function CustomSearchBox(props) {
-
-	const { database, selectDatabaseHook } = props;
 
 	const inputRef = useRef(null);
 	const { query, refine } = useSearchBox({
@@ -27,15 +25,6 @@ function CustomSearchBox(props) {
 
 	return (
 		<div className="flex items-center w-full">
-			<select
-				className="mr-2 bg-transparent text-gray-200 border-b-2 focus:outline-none focus:ring-0 h-10"
-				value={database}
-				onChange={(e) => selectDatabaseHook(e.target.value)}
-			>
-				<option value="vault">Vault</option>
-				<option value="posts">Posts</option>
-				<option value="galactapedia">Galactapedia</option>
-			</select>
 			<form
 				action=""
 				role="search"

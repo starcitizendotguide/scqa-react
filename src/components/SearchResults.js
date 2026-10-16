@@ -1,24 +1,48 @@
-import React from 'react';
-import { useInstantSearch } from 'react-instantsearch';
+import React, { useEffect, useRef } from 'react';
+import { useInfiniteHits, useInstantSearch } from 'react-instantsearch';
 import Hit from './Hit';
 import Card from './Card';
 
-const SearchResults = ({ highlightQuery, algoliaIndex }) => {
+const SearchResults = ({ highlightQuery }) => {
 
-    const { results, status } = useInstantSearch();
+    const { status } = useInstantSearch();
+    const { items, isLastPage, showMore } = useInfiniteHits({ escapeHTML: false });
+    const sentinel = useRef(null);
+    const hasItems = items.length > 0;
 
-    if (status === 'loading') {
+    useEffect(() => {
+        if (!sentinel.current || isLastPage) {
+            return;
+        }
+        const observer = new IntersectionObserver((entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+                showMore();
+            }
+        }, { rootMargin: '800px' });
+        observer.observe(sentinel.current);
+        return () => observer.disconnect();
+    }, [isLastPage, showMore, hasItems]);
+
+    if (status === 'error') {
+        return <div className='mt-4'><Card content={<>Searching stalled. There might be an issue with your internet connection.</>} /></div>;
+    }
+    if (items.length === 0 && (status === 'loading' || status === 'stalled')) {
         return <div className='mt-4'><Card content={<>Searching <i className="fas fa-spin fa-spinner"></i></>} /></div>;
     }
-    else if (status === 'stalled' || status === 'error') {
-        return <div className='mt-4'><Card content={<>Searching stalled. There might be an issue with your internet connection.</>} /></div>;
+    if (items.length === 0) {
+        return <div className='mt-4'><Card content={<>Nothing found. Try fewer or different words.</>} /></div>;
     }
 
     return (
         <div>
-            {results.hits.map((element) => (
-                <Hit key={element.objectID} highlightQuery={highlightQuery} algoliaIndex={algoliaIndex} {...element} />
+            {items.map((element) => (
+                <Hit key={element.id} highlightQuery={highlightQuery} {...element} />
             ))}
+            {!isLastPage && (
+                <div ref={sentinel} className='mt-4'>
+                    <Card content={<>Loading more <i className="fas fa-spin fa-spinner"></i></>} />
+                </div>
+            )}
         </div>
     );
 };

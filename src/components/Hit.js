@@ -1,103 +1,71 @@
 import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
+import { Link } from 'react-router-dom';
 
 import CopyToClipboard from './CopyToClipboard';
 import TimeDelta from './TimeDelta';
 import Tooltip from './Tooltip';
 import Card from './Card';
+import { Highlighted, RichText } from './RichText';
 
 import YouTubeModal from './YouTubeModal';
 import TwitchModal from './TwitchModal';
 
-function Hit({ type, highlightQuery, algoliaIndex, ...data }) {
-	if (algoliaIndex === 'galactapedia') {
-		return <div className='hit mt-4'>
-			<GalactapediaHit highlightQuery={highlightQuery} algoliaIndex={algoliaIndex} {...data} />
-		</div>;
-	}
+function Hit({ highlightQuery, ...hit }) {
 	return <div className='hit mt-4'>
-		<OtherHit type={type} highlightQuery={highlightQuery} algoliaIndex={algoliaIndex} {...data} />
+		<QaHit highlightQuery={highlightQuery} hit={hit} />
 	</div>;
 }
 
-function GalactapediaHit({ id, slug, objectID, question, answer, _highlightResult, highlightQuery, algoliaIndex }) {
-	
-	const questionHtml = (highlightQuery ? _highlightResult?.question?.value : question);
-	const answerHtml = (highlightQuery ? _highlightResult?.answer?.value : answer);
+const formatted = (hit, highlight) => (path, raw) => {
+	if (!highlight) {
+		return raw;
+	}
+	const value = path.reduce((node, key) => node?.[key], hit._highlightResult)?.value;
+	return value ?? raw;
+};
 
-	const card = useRef();
-
+function SpeakerLabel({ turn }) {
+	if (!turn.speaker && !turn.initials) {
+		return null;
+	}
 	return (
-		<Card
-			ref={card}
-			title={
-				<h1
-					className="text-lg text-sc-blue-300 font-semibold"
-					dangerouslySetInnerHTML={{ __html: questionHtml }}
-				/>
-			}
-
-			content={
-				<>
-					<div className='border-b relative'></div>
-					<blockquote dangerouslySetInnerHTML={{ __html: answerHtml }}></blockquote>
-					<div className='flex flex-row justify-between'>
-						<div>
-							-
-							<a
-								target="_blank"
-								rel="noreferrer"
-								href={`https://robertsspaceindustries.com/galactapedia/article/${id}-${slug}`}
-								className="pl-1"
-							>
-								Galactapedia
-							</a>
-						</div>
-						<div>
-							<Tooltip message='Save Card as Image' className='no-capture float-right pr-2'>
-								<button className='button-link' aria-label="Save Card as Image" onClick={() => captureComponent(question, card)}>
-									<i className="fas fa-camera-retro"></i>
-								</button>
-							</Tooltip>
-							<ClipboardButtons objectID={objectID} algoliaIndex={algoliaIndex} />
-						</div>
-					</div>
-				</>
-			}
-		/>
+		<div className="text-sm mb-1">
+			<span className="font-semibold text-sc-blue-300">{turn.speaker || turn.initials}</span>
+			{turn.role && <span className="text-gray-400"> · {turn.role}</span>}
+		</div>
 	);
 }
 
-function OtherHit({ type, title, source, transcript, published_at_timestamp, objectID, user, question, answer, _highlightResult, time, highlightQuery,
-	algoliaIndex
- }) {
-
-	const questionHtml = (highlightQuery ? _highlightResult?.question?.value : question);
-	const answerHtml = (highlightQuery ? _highlightResult?.answer?.value : answer);
-
-	const sourceElement = getSourceElement(type, title, source, time);
-	const introductionText = getIntroductionText(type, user);
-	const transcriptElement = getTranscriptElement(type, transcript);
-
+function QaHit({ hit, highlightQuery }) {
+	const { id, question, asked_by, answer, source, credit } = hit;
+	const text = formatted(hit, highlightQuery);
 	const card = useRef();
+	const labelled = answer.length > 1 || answer.some((t) => t.speaker);
 
 	return (
 		<Card
 			ref={card}
 			title={
-				<div
-					className="text-lg text-sc-blue-300 font-semibold"
-					dangerouslySetInnerHTML={{ __html: questionHtml }}
-				/>
+				<div className="text-lg text-sc-blue-300 font-semibold">
+					<Highlighted text={text(['question'], question)} highlight={highlightQuery} />
+				</div>
 			}
 
 			content={
 				<>
 					<div className='border-b relative'></div>
-					<blockquote dangerouslySetInnerHTML={{ __html: answerHtml }}></blockquote>
+					<blockquote>
+						{answer.map((turn, i) => (
+							<div key={i} className={i > 0 ? 'mt-3' : ''}>
+								{labelled && <SpeakerLabel turn={turn} />}
+								<RichText text={text(['answer', i, 'text'], turn.text)} highlight={highlightQuery} />
+							</div>
+						))}
+					</blockquote>
 					<div className='flex flex-row justify-between'>
 						<div>
-							- {introductionText && `${introductionText} in`} {sourceElement} | <TimeDelta timestamp={published_at_timestamp} />
+							- {introductionText(source, asked_by)} <SourceLink source={source} /> | <TimeDelta timestamp={source.published_at} />
 						</div>
 						<div>
 							<Tooltip message='Save Card as Image' className='no-capture float-right pr-2'>
@@ -105,8 +73,9 @@ function OtherHit({ type, title, source, transcript, published_at_timestamp, obj
 									<i className="fas fa-camera-retro"></i>
 								</button>
 							</Tooltip>
-							<ClipboardButtons objectID={objectID} algoliaIndex={algoliaIndex} />
-							{transcriptElement}
+							<ClipboardButtons id={id} />
+							<EpisodeLink source={source} />
+							<CreditLink credit={credit} />
 						</div>
 					</div>
 				</>
@@ -136,79 +105,67 @@ const captureComponent = async (title, componentRef) => {
 	}
 };
 
-function getSourceElement(type, title, source, time) {
-	switch (type) {
-		case 'youtube':
-			return (
-				<YouTubeModal source={source} time={time} title={title} />
-			);
-		case 'twitch':
-			return (
-				<TwitchModal source={source} time={time} title={title} />
-			);
-
-		case 'monthly_report':
-		case 'spectrum':
-		case 'article':
-		case 'reddit':
-		case 'post':
-			return (
-				<a target="_blank" rel="noopener noreferrer" href={source}>
-					{title}
-				</a>
-			);
-		default:
-			return null;
+function SourceLink({ source }) {
+	if (source.platform === 'youtube') {
+		return <YouTubeModal videoId={source.video_id} start={source.start} title={source.title} />;
 	}
+	if (source.platform === 'twitch') {
+		return <TwitchModal videoId={source.video_id} start={source.start} title={source.title} />;
+	}
+	return <a target="_blank" rel="noopener noreferrer" href={source.url}>{source.title}</a>;
 }
 
-function getIntroductionText(type, user) {
-	switch (type) {
-		case 'youtube':
-			return user ? `asked by ${user}` : null;
-		case 'monthly_report':
-			return 'published';
-		case 'spectrum':
-		case 'article':
-		case 'reddit':
-			return user ? `asked by ${user}` : '';
-		default:
-			return null;
+function introductionText(source, askedBy) {
+	if (askedBy) {
+		return `asked by ${askedBy} in`;
 	}
+	return source.kind === 'article' ? 'published in' : '';
 }
 
-function getTranscriptElement(type, transcriptUrl) {
-	if (type === 'youtube' && transcriptUrl) {
-		const parser = document.createElement('a');
-		parser.href = transcriptUrl;
-		return (
-			<Tooltip className='no-capture' message={`Transcribed by ${parser.hostname}`}>
-				<a
-					target="_blank"
-					rel="noreferrer"
-					href={transcriptUrl}
-					className="float-right pr-2 group relative"
-					aria-label='Go to the transcriber of this card'
-				>
-					<i className="fas fa-scroll"></i>
-				</a>
-			</Tooltip>
-		);
+function EpisodeLink({ source }) {
+	if (source.kind !== 'video' || !source.video_id || window.location.pathname.startsWith('/episode/')) {
+		return null;
 	}
-	return null;
+	return (
+		<Tooltip className='no-capture float-right pr-2' message='All Q&As from this episode'>
+			<Link to={`/episode/${source.video_id}`} className="button-link" aria-label="All Q&As from this episode">
+				<i className="fas fa-list-ul"></i>
+			</Link>
+		</Tooltip>
+	);
 }
 
-function ClipboardButtons({ objectID, algoliaIndex }) {
+function CreditLink({ credit }) {
+	if (!credit) {
+		return null;
+	}
+	const host = new URL(credit).hostname;
+	return (
+		<Tooltip className='no-capture' message={`Transcribed by ${host}`}>
+			<a
+				target="_blank"
+				rel="noreferrer"
+				href={credit}
+				className="float-right pr-2 group relative"
+				aria-label='Go to the transcriber of this card'
+			>
+				<i className="fas fa-scroll"></i>
+			</a>
+		</Tooltip>
+	);
+}
+
+function ClipboardButtons({ id }) {
 	return (
 		<>
-			<CopyToClipboard copyValue={objectID}>
-				<Tooltip className='no-capture float-right pr-2' message={`ID: ${objectID} (Click to copy)`}>
+			<CopyToClipboard copyValue={id}>
+				<Tooltip className='no-capture float-right pr-2' message={`ID: ${id} (Click to copy)`}>
 					<button className="button-link" aria-label="Copy Card Fingerprint ID">
 						<i className="fas fa-fingerprint"></i>
 					</button>
 				</Tooltip>
 			</CopyToClipboard>
-			<CopyToClipboard copyValue={`${window.location.origin}/star/${algoliaIndex}/${objectID}`}>
+			<CopyToClipboard copyValue={`${window.location.origin}/star/vault/${id}`}>
 				<Tooltip className='no-capture float-right pr-2' message='Perma link (Click to copy)'>
 					<button className="button-link" aria-label="Copy Permalink to Card">
 						<i className="fas fa-link"></i>

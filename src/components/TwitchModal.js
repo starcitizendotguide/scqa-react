@@ -2,62 +2,34 @@ import React, { useState } from "react";
 
 import CopyToClipboard from "./CopyToClipboard";
 import Tooltip from "./Tooltip";
+import VideoModal from "./VideoModal";
 
-function TwitchModal(props) {
+const twitchTime = (s) => `${Math.floor(s / 3600)}h${Math.floor((s % 3600) / 60)}m${s % 60}s`;
+
+function TwitchModal({ videoId, start, title }) {
 	const [isOpen, setIsOpen] = useState(false);
 
-	const videoId = props.source.split('/')[4];
-
-	const linkUrl = `https://www.twitch.tv/videos/${videoId}${props.time ? `?t=${props.time}` : ''}`
-	const embedUrl = `https://player.twitch.tv/?video=${videoId}&parent=starfarer.space&autoplay=true${props.time ? `&time=${props.time}` : ''}`;
+	const linkUrl = `https://www.twitch.tv/videos/${videoId}${start ? `?t=${twitchTime(start)}` : ''}`;
+	const embedUrl = `https://player.twitch.tv/?video=${videoId}&parent=${window.location.hostname}&autoplay=true${start ? `&time=${twitchTime(start)}` : ''}`;
 
 	return (
 		<>
-			<>
-				<Tooltip message={`Open in pop-up`}>
-					<button onClick={() => setIsOpen(true)} className='button-link' aria-label="Open Twitch Source in Popup">{props.title}</button>
+			<Tooltip message={`Open in pop-up`}>
+				<button onClick={() => setIsOpen(true)} className='button-link' aria-label="Open Twitch Source in Popup">{title}</button>
+			</Tooltip>
+			<Tooltip className="no-capture" message={`Open in new tab`}>
+				<a href={linkUrl} target="_blank" rel="noopener noreferrer" aria-label='Go to Twitch source'>
+					<i className="pl-2 fas fa-arrow-up-right-from-square"></i>
+				</a>
+			</Tooltip>
+			<CopyToClipboard copyValue={linkUrl}>
+				<Tooltip className="no-capture" message={`Click to copy link to Twitch`}>
+					<button className="button-link pl-2" aria-label="Copy Link to Twitch Source">
+						<i className="fas fa-brands fa-twitch"></i>
+					</button>
 				</Tooltip>
-				<Tooltip className="no-capture" message={`Open in new tab`}>
-					<a href={linkUrl} target="_blank" rel="noopener noreferrer" aria-label='Go to Twitch source'>
-						<i className="pl-2 fas fa-arrow-up-right-from-square"></i>
-					</a>
-				</Tooltip>
-				<CopyToClipboard copyValue={linkUrl}>
-					<Tooltip className="no-capture" message={`Click to copy link to Twitch`}>
-						<button className="button-link pl-2" aria-label="Copy Link to Twitch Source">
-							<i className="fas fa-brands fa-twitch"></i>
-						</button>
-					</Tooltip>
-				</CopyToClipboard>
-			</>
-
-			{/* Modal */}
-			{isOpen && (
-				<div className="fixed inset-0 flex items-center justify-center z-50">
-					<div
-						className="fixed inset-0 bg-black opacity-50"
-						onClick={() => setIsOpen(false)}
-					></div>
-
-					<div className="relative bg-white w-96 md:w-[1280px]">
-						<button
-							onClick={() => setIsOpen(false)}
-							className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
-						>
-							&times;
-						</button>
-						<iframe
-							className="w-full h-72 md:h-[720px]"
-							src={embedUrl}
-							title='Twitch Video Modal'
-							frameBorder="0"
-							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-							referrerPolicy="strict-origin-when-cross-origin"
-							allowFullScreen>
-						</iframe>
-					</div>
-				</div>
-			)}
+			</CopyToClipboard>
+			{isOpen && <VideoModal src={embedUrl} title="Twitch Video Modal" onClose={() => setIsOpen(false)} />}
 		</>
 	);
 }

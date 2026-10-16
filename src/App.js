@@ -5,6 +5,7 @@ import video_poster from './styles/assets/header.webp';
 
 import Home from './pages/Home';
 import Star from './pages/Star';
+import Episode from './pages/Episode';
 import GenericNotFound from './pages/GenericNotFound';
 
 const App = () => {
@@ -20,6 +21,7 @@ const App = () => {
         <Routes>
           <Route exact path="/" Component={Home} />
           <Route exact path="/star/:index?/:id" Component={Star} />
+          <Route exact path="/episode/:videoId" Component={Episode} />
 
           <Route exact path="/404" Component={GenericNotFound} />
           <Route path="*" element={<Navigate to='/404' />} />

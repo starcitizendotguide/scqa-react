@@ -1,58 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 
-import { meiliSearchInstance } from '../searchClient';
-import { fetchItemByObjectID } from '../algoliaCache';
-
-import { getValidIndex } from '../utils/helpers';
+import { meiliSearchInstance, INDEX } from '../searchClient';
 
 import Hit from '../components/Hit';
 
 const Star = () => {
-    var { id, index } = useParams();
-    index = getValidIndex(index);
-
+    const { id } = useParams();
     const navigate = useNavigate();
-
     const [item, setItem] = useState(null);
 
-
     useEffect(() => {
-        const fetchItem = async () => {
-            try {
-
-                fetchItemByObjectID(id) // --- local cache
-                    .then((item) => setItem(item))
-                    .catch((error) => {
-
-                        // --- If not in cache, fetch from the search index
-                        if (!/^[A-Za-z0-9_-]+$/.test(id)) {
-                            navigate('/404');
-                            return;
-                        }
-                        meiliSearchInstance.index(index).search('', { filter: `objectID = "${id}"`, limit: 1 })
-                            .then((response) => {
-                                const hits = response.hits;
-
-                                if (hits.length > 0) {
-                                    setItem(hits[0]);
-                                } else {
-                                    navigate('/404');
-                                }
-                            })
-                            .catch((searchError) => {
-                                navigate('/404');
-                            });
-                    });
-
-
-            } catch (err) {
-                console.log(err);
-            }
-        };
-
-        fetchItem();
-    }, [id, index, navigate]);
+        if (!/^[A-Za-z0-9_-]+$/.test(id)) {
+            navigate('/404');
+            return;
+        }
+        meiliSearchInstance.index(INDEX).search('', { filter: `id = "${id}"`, limit: 1 })
+            .then((response) => {
+                if (response.hits.length > 0) {
+                    setItem(response.hits[0]);
+                } else {
+                    navigate('/404');
+                }
+            })
+            .catch(() => navigate('/404'));
+    }, [id, navigate]);
 
     return (
         <>
@@ -66,7 +38,6 @@ const Star = () => {
             </Link>
             {item !== null ? <Hit highlightQuery={false} {...item} /> : null}
         </>
-
     );
 };
 

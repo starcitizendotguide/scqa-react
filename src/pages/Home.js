@@ -1,23 +1,27 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useCookieState } from '../utils/useCookieState';
 
-import searchClient from '../searchClient';
+import searchClient, { INDEX } from '../searchClient';
 import { InstantSearch, Index, Configure } from 'react-instantsearch';
 import { history } from 'instantsearch.js/es/lib/routers';
 
-import CustomSearchBox from '../components/CustomSearchBox';
-import InformationCard from '../components/InformationCard';
+import SearchHeader from '../components/SearchHeader';
+import ResultsBar from '../components/ResultsBar';
+import Footer from '../components/Footer';
 import SearchResults from '../components/SearchResults';
+import SortController from '../components/SortController';
+import FacetRail, { FACETS } from '../components/FacetRail';
 
-import { getHashFromUrl, getDBFromUrl, getValidIndex } from '../utils/helpers';
+import { getHashFromUrl } from '../utils/helpers';
 
 
 const Home = () => {
 
-  const [algoliaIndex, setAlgoliaIndex] = useCookieState('selected-db', 'vault');
   const [highlightQuery, setHighlightQuery] = useCookieState('toggle-highlight-query', true);
+  const [newestFirst, setNewestFirst] = useCookieState('sort-newest-first', false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,11 +31,7 @@ const Home = () => {
     if (hash !== null) {
       navigate(`/star/vault/${hash}`);
     }
-
-    // --- set correct index based on url param
-    const db = getDBFromUrl();
-    setAlgoliaIndex(db);
-  }, [navigate, setAlgoliaIndex]);
+  }, [navigate]);
 
   const routing = {
     router: history({
@@ -39,22 +39,22 @@ const Home = () => {
     }),
     stateMapping: {
       stateToRoute(uiState) {
-        const index = Object.keys(uiState).find(key => ['galactapedia', 'posts', 'vault'].includes(key)) || 'vault';
-
-        const indexUiState = uiState[''];
+        const refinements = uiState.vault?.refinementList || {};
         return {
-          question: indexUiState.query,
-          db: index,
+          question: uiState['']?.query,
+          ...Object.fromEntries(FACETS.map((f) => [f.param, refinements[f.attribute]?.length ? refinements[f.attribute] : undefined])),
         };
       },
       routeToState(routeState) {
-        const index = getValidIndex(routeState.db?.toLowerCase());
+        const list = (value) => (value === undefined ? undefined : [].concat(value));
         return {
           // eslint-disable-next-line
           ['']: {
             query: routeState.question,
           },
-          [index]: {}
+          vault: {
+            refinementList: Object.fromEntries(FACETS.map((f) => [f.attribute, list(routeState[f.param])]).filter(([, v]) => v)),
+          },
         };
       },
     }
@@ -69,26 +69,19 @@ const Home = () => {
       future={{ preserveSharedStateOnUnmount: true, }}
     >
       <div className="container">
-        <InformationCard
-          inputBox={
-            <CustomSearchBox database={algoliaIndex} selectDatabaseHook={setAlgoliaIndex} />
-          }
-
-          toggles={
-            <>
-              <label className="inline-flex items-center cursor-pointer">
-                <input type="checkbox" checked={highlightQuery} onChange={event => setHighlightQuery(!highlightQuery)} className="sr-only peer" />
-                <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-400"></div>
-                <span className={`ms-3 text-sm font-medium text-gray-200 ${highlightQuery ? 'highlight-query' : ''}`}>Highlight Matches <i className={`fas fa-highlighter ${highlightQuery ? 'text-yellow-400' : ''}`}></i></span>
-              </label>
-            </>
-          }
-        />
-
-        <Index indexName={algoliaIndex}>
-          <Configure hitsPerPage={100} />
-          <SearchResults highlightQuery={highlightQuery} algoliaIndex={algoliaIndex} />
+        <SearchHeader newest={newestFirst} onSortChange={setNewestFirst} onOpenFilters={() => setFiltersOpen(true)} />
+        <Index indexName={INDEX} indexId="vault">
+          <SortController newest={newestFirst} />
+          <Configure hitsPerPage={30} />
+          <div className="flex gap-4 items-start">
+            <FacetRail open={filtersOpen} onClose={() => setFiltersOpen(false)} />
+            <main className="flex-1 min-w-0">
+              <ResultsBar highlight={highlightQuery} onHighlight={setHighlightQuery} />
+              <SearchResults highlightQuery={highlightQuery} />
+            </main>
+          </div>
         </Index>
+        <Footer />
       </div>
     </InstantSearch>
   );
