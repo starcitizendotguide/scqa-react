@@ -1,7 +1,7 @@
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 
 const MEILI_URL = process.env.REACT_APP_MEILI_URL || 'https://search.starfarer.space';
-const MEILI_KEY = process.env.REACT_APP_MEILI_KEY || 'beabd30d201ecf2fca2ed2be55a3c04b84e821ada8131d1a2b97cbc4e3de0bc6';
+const MEILI_KEY = process.env.REACT_APP_MEILI_KEY || 'a161a5ba126ca5f1523ddbbb44f67024935b0190968971adc63e3c80301cd971';
 
 export const INDEX = 'qa';
 export const HIGHLIGHT_PRE = '⟦';
