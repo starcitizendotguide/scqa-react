@@ -26,13 +26,14 @@ const formatted = (hit, highlight) => (path, raw) => {
 };
 
 function SpeakerLabel({ turn }) {
-	if (!turn.speaker && !turn.initials) {
+	const who = turn.speaker || turn.initials;
+	if (!who && !turn.role) {
 		return null;
 	}
 	return (
 		<div className="text-sm mb-1">
-			<span className="font-semibold text-sc-blue-300">{turn.speaker || turn.initials}</span>
-			{turn.role && <span className="text-gray-400"> · {turn.role}</span>}
+			{who && <span className="font-semibold text-sc-blue-300">{who}</span>}
+			{turn.role && <span className="text-gray-400">{who ? ' · ' : ''}{turn.role}</span>}
 		</div>
 	);
 }
@@ -41,7 +42,7 @@ function QaHit({ hit, highlightQuery }) {
 	const { id, question, asked_by, answer, source, credit } = hit;
 	const text = formatted(hit, highlightQuery);
 	const card = useRef();
-	const labelled = answer.length > 1 || answer.some((t) => t.speaker);
+	const labelled = answer.length > 1 || answer.some((t) => t.speaker || t.role);
 
 	return (
 		<Card
