@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { useCookieState } from '../utils/useCookieState';
 
-import algoliaClient from '../algoliaClient';
-import { InstantSearch, Index } from 'react-instantsearch';
+import searchClient from '../searchClient';
+import { InstantSearch, Index, Configure } from 'react-instantsearch';
 import { history } from 'instantsearch.js/es/lib/routers';
 
 import CustomSearchBox from '../components/CustomSearchBox';
@@ -64,7 +64,7 @@ const Home = () => {
 
   return (
     <InstantSearch
-      searchClient={algoliaClient}
+      searchClient={searchClient}
       routing={routing}
       future={{ preserveSharedStateOnUnmount: true, }}
     >
@@ -86,6 +86,7 @@ const Home = () => {
         />
 
         <Index indexName={algoliaIndex}>
+          <Configure hitsPerPage={100} />
           <SearchResults highlightQuery={highlightQuery} algoliaIndex={algoliaIndex} />
         </Index>
       </div>

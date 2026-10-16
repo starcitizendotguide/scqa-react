@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 
-import algoliaClient from '../algoliaClient';
+import { meiliSearchInstance } from '../searchClient';
 import { fetchItemByObjectID } from '../algoliaCache';
 
 import { getValidIndex } from '../utils/helpers';
@@ -25,12 +25,14 @@ const Star = () => {
                     .then((item) => setItem(item))
                     .catch((error) => {
 
-                        // --- If not in cache, fetch from Algolia
-                        algoliaClient.search({
-                            requests: [{ indexName: index, filters: `objectID:${id}`, hitsPerPage: 1 }],
-                        })
+                        // --- If not in cache, fetch from the search index
+                        if (!/^[A-Za-z0-9_-]+$/.test(id)) {
+                            navigate('/404');
+                            return;
+                        }
+                        meiliSearchInstance.index(index).search('', { filter: `objectID = "${id}"`, limit: 1 })
                             .then((response) => {
-                                const hits = response.results[0].hits;
+                                const hits = response.hits;
 
                                 if (hits.length > 0) {
                                     setItem(hits[0]);

@@ -12,7 +12,7 @@ const InformationCard = (props) => {
 					content={
 						<>
 							<div className="flex flex-row justify-between mb-4">
-								<span>Powered by <a href="https://www.algolia.com/?utm_source=instantsearch.js&utm_medium=website&utm_content=starfarer.space&utm_campaign=poweredby" target="_blank" rel="noopener noreferrer"><i className="fab fa-algolia"></i> algolia</a></span>
+								<span>Powered by <a href="https://www.meilisearch.com/" target="_blank" rel="noopener noreferrer"><i className="fas fa-magnifying-glass"></i> Meilisearch</a></span>
 								<div>
 									{props.toggles}
 								</div>
