@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 
 import { RECORD_ID, VIDEO_ID } from './ids.js';
 
-const MEILI_URL = process.env.VITE_MEILI_URL || 'https://search.starfarer.space';
+const MEILI_URL = process.env.STARFARER_MEILI_URL || 'https://search.starfarer.space';
 const MEILI_KEY = process.env.VITE_MEILI_KEY || 'a161a5ba126ca5f1523ddbbb44f67024935b0190968971adc63e3c80301cd971';
 const SITE = process.env.SITE_URL || 'https://starfarer.space';
 
