@@ -1040,6 +1040,176 @@ a {
 }
 
 // --- episode page: player and summary next to the transmission log
+// --- the log column takes the height of the player column and scrolls inside, under its fixed title
+.ep {
+	display: grid;
+	grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+	gap: 20px;
+	margin-top: 16px;
+}
+
+.ep-side {
+	position: relative;
+	min-height: 320px;
+}
+
+.ep-screen {
+	padding: 14px 14px 18px;
+}
+
+.screen {
+	position: relative;
+	overflow: hidden;
+}
+
+.poster {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	width: 100%;
+	color: var(--cyan);
+	background: radial-gradient(circle at center, #0b2a42, #02080f 75%);
+	img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		opacity: .8;
+	}
+	&:hover {
+		text-decoration: none;
+		img {
+			opacity: .95;
+		}
+	}
+	.label {
+		position: relative;
+		color: var(--soft);
+	}
+}
+
+.play {
+	position: relative;
+	width: 76px;
+	height: 76px;
+	border-radius: 50%;
+	border: 2px solid var(--cyan);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 26px;
+	background: rgba(2, 8, 15, .6);
+	box-shadow: 0 0 30px rgba(89, 224, 255, .35);
+	.icon {
+		margin-left: 4px;
+	}
+}
+
+.ep-meta {
+	margin-top: 14px;
+}
+
+.ep-title {
+	font: 700 30px/1.15 var(--head);
+	margin: 10px 0 8px;
+	color: #fff;
+}
+
+.summary {
+	color: var(--soft);
+	font-size: 15.5px;
+	margin: 0 0 12px;
+}
+
+.chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 2px;
+	margin-top: 4px;
+}
+
+.ep-log {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	padding: 16px 8px 8px 16px;
+	.panel-title {
+		padding-right: 8px;
+	}
+	ol {
+		flex: 1;
+		min-height: 0;
+		margin: 0;
+		padding: 0 8px 0 0;
+		list-style: none;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		scrollbar-width: thin;
+		scrollbar-color: var(--line) transparent;
+	}
+}
+
+.tli {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: start;
+	border-bottom: 1px solid var(--line2);
+	&:last-child {
+		border-bottom: 0;
+	}
+	> button,
+	> a:first-child {
+		display: grid;
+		grid-template-columns: 64px minmax(0, 1fr);
+		gap: 10px;
+		padding: 10px 6px;
+		text-align: left;
+		color: var(--txt);
+		&:hover {
+			background: var(--panel2);
+			text-decoration: none;
+		}
+	}
+	b {
+		font: 400 13px/1.6 var(--hud);
+		color: var(--amber);
+	}
+	span {
+		font: 15px/1.4 var(--body);
+	}
+	small {
+		display: block;
+		font: 11.5px/1.5 var(--hud);
+		color: var(--dim);
+		margin-top: 3px;
+	}
+	&.on {
+		background: var(--panel2);
+		box-shadow: inset 2px 0 0 var(--amber);
+	}
+}
+
+.tli-acts {
+	display: flex;
+	gap: 4px;
+	padding: 8px 2px 8px 6px;
+	.act {
+		padding: 5px 6px;
+	}
+}
+
+.section-title {
+	margin: 28px 2px 14px;
+	justify-content: flex-start;
+	gap: 14px;
+}
+
 .hit {
 	scroll-margin-top: 16px;
 	&.flash {
@@ -1105,6 +1275,28 @@ a {
 }
 
 @media (max-width: 979px) {
+	.ep {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.ep-side {
+		min-height: 0;
+	}
+	.tli {
+		> button,
+		> a:first-child {
+			grid-template-columns: 46px minmax(0, 1fr);
+		}
+	}
+	.tli-acts {
+		flex-direction: column;
+	}
+	.ep-log {
+		position: static;
+		max-height: 75vh;
+	}
+	.ep-title {
+		font-size: 25px;
+	}
 	.wrap {
 		padding: 14px 16px 20px;
 	}
