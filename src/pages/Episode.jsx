@@ -204,7 +204,7 @@ export default function Episode({ loaderData, params }) {
 			</div>
 			<h2 className="panel-title section-title">Full answers</h2>
 			{items.map((item, i) => (
-				<Hit key={item.id} index={i + 1} highlightQuery={false} {...item} />
+				<Hit key={item.id} highlightQuery={false} {...item} />
 			))}
 		</PlayerContext.Provider>
 	);

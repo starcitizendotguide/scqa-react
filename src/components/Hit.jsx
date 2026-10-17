@@ -33,8 +33,8 @@ export function focusRecord(id, { scroll = true } = {}) {
 	card.flashTimer = setTimeout(() => card.classList.remove('flash'), 1600);
 }
 
-function Hit({ highlightQuery, index, full = false, ...hit }) {
-	return <QaHit highlightQuery={highlightQuery} index={index} full={full} hit={hit} />;
+function Hit({ highlightQuery, full = false, ...hit }) {
+	return <QaHit highlightQuery={highlightQuery} full={full} hit={hit} />;
 }
 
 const formatted = (hit, highlight) => (path, raw) => {
@@ -82,7 +82,7 @@ function Turn({ turn, developers, children }) {
 	);
 }
 
-function QaHit({ hit, index, full, highlightQuery }) {
+function QaHit({ hit, full, highlightQuery }) {
 	const { id, question, asked_by, answer, source, credit, topics, developers } = hit;
 	const text = formatted(hit, highlightQuery);
 	const card = useRef();
@@ -95,16 +95,12 @@ function QaHit({ hit, index, full, highlightQuery }) {
 	}, [id]);
 	const Heading = full ? 'h1' : 'h2';
 	const title = <Highlighted text={text(['question'], question)} highlight={highlightQuery} />;
+	const heading = full ? title : <Link to={`/star/vault/${id}`}>{title}</Link>;
+	const asker = asked_by && <small className="asker">asked by {asked_by}</small>;
 
 	return (
 		<article ref={card} id={`rec-${id}`} className="frame card hit">
-			<div className="card-hd">
-				<span className="label">{index ? `REC-${String(index).padStart(4, '0')}` : 'REC'}{source.show ? ` · ${source.show}` : ''}</span>
-				<span className="label whitespace-nowrap"><TimeDelta timestamp={source.published_at} /></span>
-			</div>
-			<Heading className="card-q">{full ? title : <Link to={`/star/vault/${id}`}>{title}</Link>}</Heading>
-			<SourceLine source={source} />
-			{asked_by && <div className="label asked">asked by {asked_by}</div>}
+			<Heading className="card-q">{heading}{asker}</Heading>
 			<AnswerClamp full={full}>
 				{answer.map((turn, i) => (
 					<Turn key={i} turn={turn} developers={developers}>
@@ -112,6 +108,11 @@ function QaHit({ hit, index, full, highlightQuery }) {
 					</Turn>
 				))}
 			</AnswerClamp>
+			<div className="card-meta">
+				<Meta source={source} />
+				<span className="sep">·</span>
+				<TimeDelta timestamp={source.published_at} format={shortDate} />
+			</div>
 			<div className="acts no-capture">
 				<PlayButton source={source} />
 				<CopyButton value={() => `${window.location.origin}/star/vault/${id}`} icon="hud-link" label="Link" title="Copy the permalink of this answer" />
@@ -160,20 +161,43 @@ const captureComponent = async (title, componentRef) => {
 	}
 };
 
-// --- the episode (or post) the answer comes from: its page here for videos, the original elsewhere
-function SourceLine({ source }) {
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+export const shortDate = (timestamp) => {
+	const d = new Date(timestamp * 1000);
+	return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+};
+
+// --- "Star Citizen Live: Vehicle Q&A" under the show "Star Citizen Live" is just "Vehicle Q&A"
+export function episodeTitle(show, title) {
+	if (!show || !title) {
+		return title;
+	}
+	const at = title.toLowerCase().indexOf(show.toLowerCase());
+	if (at < 0 || at > 16) {
+		return title;
+	}
+	const rest = title.slice(at + show.length).replace(/^[\s:|\-–—.]+/, '');
+	return rest || title;
+}
+
+// --- show › episode (or post): the episode links to its page here for videos, to the original elsewhere
+function Meta({ source }) {
 	const { pathname } = useLocation();
-	if (!source.title) {
-		return null;
-	}
 	const episode = source.kind === 'video' && source.video_id ? `/episode/${source.video_id}` : null;
-	let title = source.title;
+	const name = episodeTitle(source.show, source.title);
+	let title = name;
 	if (episode && pathname !== episode) {
-		title = <Link to={episode}>{source.title}</Link>;
+		title = <Link to={episode}>{name}</Link>;
 	} else if (!episode && source.url) {
-		title = <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a>;
+		title = <a href={source.url} target="_blank" rel="noopener noreferrer">{name}</a>;
 	}
-	return <div className="source" title={source.title}>{title}</div>;
+	const withTitle = source.title && pathname !== episode && name !== source.show;
+	return (
+		<span className="meta" title={source.title}>
+			{source.show && <b>{source.show}</b>}
+			{withTitle && <>{source.show && <span className="sep">›</span>}{title}</>}
+		</span>
+	);
 }
 
 function EpisodeLink({ source }) {

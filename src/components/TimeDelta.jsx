@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Tooltip from "./Tooltip";
 
-const TimeDelta = ({ timestamp }) => {
+const TimeDelta = ({ timestamp, format }) => {
     const [now, setNow] = useState(null);
     useEffect(() => setNow(Date.now()), []);
     const delta = now === null ? null : now / 1000 - timestamp;
@@ -22,7 +22,7 @@ const TimeDelta = ({ timestamp }) => {
     const { tooltip } = getClassAndTooltip();
 
     try {
-        const formattedDate = new Date(timestamp * 1000).toISOString().split('T')[0];
+        const formattedDate = format ? format(timestamp) : new Date(timestamp * 1000).toISOString().split('T')[0];
 
         return (
             <span className={`relative group`}>

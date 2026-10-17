@@ -758,12 +758,6 @@ a {
 	margin-bottom: 16px;
 }
 
-.card-hd {
-	display: flex;
-	justify-content: space-between;
-	gap: 10px;
-}
-
 .card-q {
 	font: 600 24px/1.22 var(--head);
 	margin: 8px 0 14px;
@@ -778,26 +772,54 @@ a {
 	}
 }
 
-.source {
-	margin: -8px 0 12px;
-	font: 12.5px/1.5 var(--hud);
-	color: var(--soft);
+// --- "asked by" rides along after the question instead of taking a line of its own
+.asker {
+	margin-left: 10px;
+	font: 400 12px/1 var(--hud);
+	letter-spacing: .02em;
+	color: var(--dim);
+	white-space: nowrap;
+}
+
+// --- show › episode · date, one quiet line at the foot of the card: where an answer is from matters less than what it says
+.meta {
+	min-width: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	b {
+		font-weight: 400;
+		color: var(--amber);
+	}
 	a {
 		color: inherit;
 		&:hover {
 			color: var(--cyan);
 		}
 	}
-	+ .asked {
-		margin-top: -10px;
+}
+
+.card-meta {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	margin: 14px 0 0;
+	font: 12px/1.5 var(--hud);
+	color: var(--dim);
+	.meta {
+		color: var(--soft);
+	}
+	> :last-child {
+		white-space: nowrap;
 	}
 }
 
-.asked {
-	margin: -8px 0 12px;
+.sep {
+	margin: 0 6px;
+	color: var(--dim);
+	.card-meta > & {
+		margin: 0;
+	}
 }
 
 .turn {
@@ -1684,8 +1706,7 @@ a {
 		background: rgba(89, 224, 255, .09);
 		animation: sk-pulse 1.6s ease-in-out infinite;
 	}
-	.card-hd .sk-line {
-		display: inline-block;
+	.card-meta .sk-line {
 		height: 10px;
 		margin: 0;
 	}

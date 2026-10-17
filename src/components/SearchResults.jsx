@@ -48,7 +48,7 @@ const SearchResults = ({ highlightQuery }) => {
         <FilterContext.Provider value={filter}>
             <div className={status === 'stalled' ? 'results stale' : 'results'} aria-busy={status === 'stalled' || undefined}>
             {items.map((element, i) => (
-                <Hit key={element.id} index={i + 1} highlightQuery={highlightQuery} {...element} />
+                <Hit key={element.id} highlightQuery={highlightQuery} {...element} />
             ))}
             </div>
             {!isLastPage && (

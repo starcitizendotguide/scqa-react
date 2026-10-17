@@ -137,7 +137,7 @@ export default function Developer({ loaderData }) {
 				<small>latest {dev.recent.length} of {fmt(dev.count)}</small>
 			</h2>
 			{dev.recent.map((item, i) => (
-				<Hit key={item.id} index={i + 1} highlightQuery={false} {...item} />
+				<Hit key={item.id} highlightQuery={false} {...item} />
 			))}
 			{dev.count > dev.recent.length && (
 				<div className="frame message">

@@ -9,12 +9,12 @@ export function SkeletonCards({ count = 3 }) {
 		<div className="skeleton" aria-hidden="true">
 			{Array.from({ length: count }, (_, i) => (
 				<div key={i} className="frame card">
-					<div className="card-hd"><span className="sk-line" style={{ width: '22%' }}></span><span className="sk-line" style={{ width: '9%' }}></span></div>
 					<div className="sk-q">{widths[i % 2 ? 2 : 0].map((w, k) => <span key={k} className="sk-line" style={{ width: `${w}%` }}></span>)}</div>
 					<div className="turn">
 						<span className="hex sk-hex"></span>
 						<div className="sk-text">{widths[i % 2 ? 3 : 1].map((w, k) => <span key={k} className="sk-line" style={{ width: `${w}%` }}></span>)}</div>
 					</div>
+					<div className="card-meta"><span className="sk-line" style={{ width: '38%' }}></span></div>
 					<div className="acts"><span className="sk-pill"></span><span className="sk-pill"></span><span className="sk-pill sk-tag"></span><span className="sk-pill sk-tag"></span></div>
 				</div>
 			))}
