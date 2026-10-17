@@ -46,10 +46,20 @@
 }
 @font-face {
 	font-family: 'Rajdhani fallback';
+	font-weight: 400 600;
 	src: local('Arial'), local('Liberation Sans'), local('Helvetica');
-	size-adjust: 93%;
-	ascent-override: 100%;
-	descent-override: 37%;
+	size-adjust: 91%;
+	ascent-override: 102%;
+	descent-override: 38%;
+	line-gap-override: 0%;
+}
+@font-face {
+	font-family: 'Rajdhani fallback';
+	font-weight: 700;
+	src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('Helvetica Bold');
+	size-adjust: 80%;
+	ascent-override: 116%;
+	descent-override: 43%;
 	line-gap-override: 0%;
 }
 @font-face {
@@ -171,8 +181,16 @@ a {
 	}
 }
 
+// --- a 1px line along a clipped (diagonal) edge, as a background layer over the corner box of `$size`; the line runs
+// through the box's other two corners and sits on the inner side of the clip
+@function edge($to, $at, $size) {
+	@return linear-gradient(to #{$to}, transparent 50%, var(--edge) 50%, var(--edge) calc(50% + 1.25px), transparent calc(50% + 1.25px)) #{$at} / #{$size} no-repeat border-box;
+}
+
 .cut {
+	--edge: var(--line);
 	clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+	background: edge(bottom left, right top, 18px 18px), edge(top right, left bottom, 18px 18px), var(--panel);
 }
 
 .label {
@@ -492,20 +510,22 @@ a {
 	padding: 3px 10px;
 	font: 11.5px/1.5 var(--hud);
 	letter-spacing: .04em;
-	border: 1px solid var(--line);
+	--edge: var(--line);
+	border: 1px solid var(--edge);
 	color: var(--soft);
 	cursor: pointer;
 	clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+	background: edge(bottom right, left top, 6px 100%), edge(top left, right top, 6px 100%);
 	transition: color .12s, border-color .12s, background-color .12s;
 	&:hover {
-		border-color: var(--cyan);
+		--edge: var(--cyan);
 		color: var(--cyan);
 		text-decoration: none;
 	}
 	&.on {
-		background: var(--cyan);
+		--edge: var(--cyan);
+		background-color: var(--cyan);
 		color: #012;
-		border-color: var(--cyan);
 	}
 	small {
 		font-size: inherit;
@@ -703,6 +723,13 @@ a {
 	color: var(--cyan);
 	a {
 		color: inherit;
+		cursor: pointer;
+		text-decoration: underline 1px transparent;
+		text-underline-offset: 3px;
+		transition: text-decoration-color .12s;
+		&:hover {
+			text-decoration-color: currentColor;
+		}
 	}
 	span {
 		font: 400 12px var(--hud);
