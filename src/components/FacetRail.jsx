@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useClearRefinements, useInstantSearch, useRefinementList } from 'react-instantsearch';
 import Icon from './Icon';
 import { topicLabel } from '../topics';
+import { fmt } from '../utils/format';
 
 export const FACETS = [
 	{ attribute: 'source.show', param: 'show' },
@@ -10,71 +11,67 @@ export const FACETS = [
 	{ attribute: 'developers', param: 'developer' },
 ];
 
-const fmt = (n) => n.toLocaleString('en-US');
-const initials = (name) => name.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('').slice(0, 2);
-
-function Title({ children, right }) {
+function Panel({ title, right, children, className = '' }) {
 	return (
-		<h3 className="text-[0.7rem] uppercase tracking-widest text-gray-400 font-bold mb-2 flex justify-between">
-			<span>{children}</span>{right}
-		</h3>
-	);
-}
-
-function Row({ item, refine, fill, avatar }) {
-	return (
-		<label className="relative grid grid-cols-[1fr_auto] items-center gap-2 py-0.5 text-sm text-gray-200 cursor-pointer hover:text-sc-blue-300">
-			<span className="flex items-center gap-2 min-w-0">
-				<input type="checkbox" checked={item.isRefined} onChange={() => refine(item.value)} className="accent-sky-400 shrink-0" />
-				{avatar && (
-					<span className="w-5 h-5 shrink-0 rounded-full bg-sc-blue-800 text-[9px] font-bold flex items-center justify-center text-sc-blue-100">{initials(item.label)}</span>
-				)}
-				<span className="truncate">{item.label}</span>
-			</span>
-			<span className="text-gray-400 text-xs">{fmt(item.count)}</span>
-			{fill !== undefined && <span className="absolute left-0 bottom-0 h-[2px] bg-sc-blue-300/40" style={{ width: `${fill}%` }}></span>}
-		</label>
-	);
-}
-
-function ShowFacet() {
-	const { items, refine } = useRefinementList({ attribute: 'source.show', limit: 50, sortBy: ['count:desc', 'name:asc'] });
-	const max = Math.max(1, ...items.map((i) => i.count));
-	return (
-		<section className="mb-5">
-			<Title>Show</Title>
-			{items.map((item) => <Row key={item.value} item={item} refine={refine} fill={(item.count / max) * 100} />)}
+		<section className={`frame panel ${className}`}>
+			<h3 className="panel-title"><span>{title}</span>{right !== undefined && <small>{right}</small>}</h3>
+			{children}
 		</section>
 	);
 }
 
-const TOPICS_SHOWN = 12;
+function Row({ item, refine, fill }) {
+	return (
+		<button type="button" className={`row${item.isRefined ? ' on' : ''}`} aria-pressed={item.isRefined} onClick={() => refine(item.value)}>
+			<span>{item.label}</span>
+			<b>{fmt(item.count)}</b>
+			{fill !== undefined && <i style={{ width: `${fill}%` }}></i>}
+		</button>
+	);
+}
+
+function More({ all, count, noun, onClick }) {
+	return <div><button type="button" className="more" onClick={onClick}>{all ? '▴ fewer' : `▾ all ${count} ${noun}`}</button></div>;
+}
+
+const SHOWS_SHOWN = 12;
+
+function ShowFacet() {
+	const [all, setAll] = useState(false);
+	const { items, refine } = useRefinementList({ attribute: 'source.show', limit: 50, sortBy: ['count:desc', 'name:asc'] });
+	const max = Math.max(1, ...items.map((i) => i.count));
+	const shown = all ? items : items.filter((item, k) => k < SHOWS_SHOWN || item.isRefined);
+	return (
+		<Panel title="Sources">
+			{shown.map((item) => <Row key={item.value} item={item} refine={refine} fill={(item.count / max) * 100} />)}
+			{items.length > SHOWS_SHOWN && <More all={all} count={items.length} noun="sources" onClick={() => setAll(!all)} />}
+		</Panel>
+	);
+}
+
+const TOPICS_SHOWN = 16;
 
 function TopicFacet() {
 	const [all, setAll] = useState(false);
 	const { items, refine } = useRefinementList({ attribute: 'topics', limit: 100, sortBy: ['isRefined', 'count:desc', 'name:asc'] });
 	const shown = all ? items : items.slice(0, TOPICS_SHOWN);
 	return (
-		<section className="mb-5">
-			<Title>Topic</Title>
-			<div className="flex flex-wrap gap-1">
+		<Panel title="Topics" right={items.length}>
+			<div>
 				{shown.map((item) => (
 					<button
 						key={item.value}
+						type="button"
 						onClick={() => refine(item.value)}
 						aria-pressed={item.isRefined}
-						className={`px-2 py-0.5 rounded-full text-xs border ${item.isRefined
-							? 'bg-sc-blue-300 border-sc-blue-300 text-sc-blue-950'
-							: 'border-sc-blue-800 text-gray-200 hover:border-sc-blue-300 hover:text-sc-blue-300'}`}
+						className={`tag${item.isRefined ? ' on' : ''}`}
 					>
-						{topicLabel(item.label)} <span className={item.isRefined ? 'text-sc-blue-900' : 'text-gray-400'}>{fmt(item.count)}</span>
+						{topicLabel(item.label)}<small>{fmt(item.count)}</small>
 					</button>
 				))}
 			</div>
-			{items.length > TOPICS_SHOWN && (
-				<button className="button-link text-xs mt-1" onClick={() => setAll(!all)}>{all ? 'Show less' : `Show all ${items.length}`}</button>
-			)}
-		</section>
+			{items.length > TOPICS_SHOWN && <More all={all} count={items.length} noun="topics" onClick={() => setAll(!all)} />}
+		</Panel>
 	);
 }
 
@@ -111,44 +108,38 @@ function YearFacet() {
 		setDrag(null);
 	};
 
-	const label = selected.length === 0 ? 'All years'
+	const label = selected.length === 0 ? 'all years'
 		: selected.length === 1 ? selected[0] : `${selected[0]} – ${selected[selected.length - 1]}`;
 
 	return (
-		<section className="mb-5 select-none" onMouseLeave={apply}>
-			<Title right={<span className="text-sc-blue-300 normal-case font-normal tracking-normal">{label}</span>}>Year</Title>
-			<div className="flex items-end gap-[2px] h-20 border-b border-dashed border-gray-600" onMouseUp={apply}>
-				{items.map((item, k) => {
-					const on = drag ? inDrag(k) : item.isRefined || selected.length === 0;
-					const height = item.count ? 18 + 82 * (Math.log(item.count + 1) / Math.log(max + 1)) : 0;
-					return (
-						<div
-							key={item.value}
-							title={`${item.value}: ${item.count ? fmt(item.count) : 'no'} answers`}
-							className={`group relative flex-1 h-full flex items-end ${item.count || item.isRefined ? 'cursor-pointer' : 'cursor-default'}`}
-							onMouseDown={() => setDrag({ from: k, to: k })}
-							onMouseEnter={() => drag && setDrag({ ...drag, to: k })}
-						>
-							<span className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 text-[10px] text-gray-200 opacity-0 group-hover:opacity-100 whitespace-nowrap">
-								{item.count ? fmt(item.count) : '0'}
-							</span>
-							{item.count > 0 && (
-								<div
-									className={`w-full ${on ? 'bg-sc-blue-300' : 'bg-sc-blue-300/25'} group-hover:bg-sc-blue-200`}
-									style={{ height: `${height}%` }}
-								></div>
-							)}
-							{item.count === 0 && item.isRefined && <div className="w-full h-[3px] bg-sc-blue-300/60"></div>}
-						</div>
-					);
-				})}
+		<Panel title="Timeline" right={label}>
+			<div onMouseLeave={apply}>
+				<div className="years" onMouseUp={apply}>
+					{items.map((item, k) => {
+						const on = drag ? inDrag(k) : item.isRefined || selected.length === 0;
+						const height = item.count ? 12 + 88 * (Math.log(item.count + 1) / Math.log(max + 1)) : 0;
+						return (
+							<div
+								key={item.value}
+								title={`${item.value}: ${item.count ? fmt(item.count) : 'no'} answers`}
+								className={item.count || item.isRefined ? 'pick' : ''}
+								onMouseDown={() => setDrag({ from: k, to: k })}
+								onMouseEnter={() => drag && setDrag({ ...drag, to: k })}
+							>
+								<span>{item.value} · {fmt(item.count)}</span>
+								{item.count > 0 && <i className={on ? 'on' : ''} style={{ height: `${height}%` }}></i>}
+								{item.count === 0 && item.isRefined && <i className="empty"></i>}
+							</div>
+						);
+					})}
+				</div>
+				<div className="yl">
+					<span>{items[0]?.value}</span>
+					<span>click or drag across years</span>
+					<span>{items[items.length - 1]?.value}</span>
+				</div>
 			</div>
-			<div className="flex justify-between text-[10px] text-gray-400 mt-1">
-				<span>{items[0]?.value}</span>
-				<span>click or drag across years</span>
-				<span>{items[items.length - 1]?.value}</span>
-			</div>
-		</section>
+		</Panel>
 	);
 }
 
@@ -160,21 +151,19 @@ function DeveloperFacet() {
 	const matching = needle ? items.filter((i) => i.label.toLowerCase().includes(needle)) : items;
 	const shown = needle || all ? matching : matching.slice(0, 10);
 	return (
-		<section>
-			<Title>Developer</Title>
+		<Panel title="Developers" right={items.length}>
 			<input
 				type="search"
-				className="w-full mb-2 px-2 py-1 text-sm bg-black/30 border border-gray-600 text-gray-200 focus:outline-none focus:border-sc-blue-300"
-				placeholder="Find a developer…"
+				className="find"
+				placeholder="find a developer…"
+				aria-label="Find a developer"
 				value={term}
 				onChange={(event) => setTerm(event.target.value)}
 			/>
-			{shown.length === 0 && <div className="text-sm text-gray-400">No developer matches “{term}”</div>}
-			{shown.map((item) => <Row key={item.value} item={item} refine={refine} avatar />)}
-			{!needle && items.length > 10 && (
-				<button className="button-link text-xs mt-1" onClick={() => setAll(!all)}>{all ? 'Show less' : `Show all ${items.length}`}</button>
-			)}
-		</section>
+			{shown.length === 0 && <div className="none">No developer matches “{term}”</div>}
+			{shown.map((item) => <Row key={item.value} item={item} refine={refine} />)}
+			{!needle && items.length > 10 && <More all={all} count={items.length} noun="developers" onClick={() => setAll(!all)} />}
+		</Panel>
 	);
 }
 
@@ -185,19 +174,19 @@ const FacetRail = ({ open, onClose }) => {
 	const ready = results && !results.__isArtificial;
 	return (
 		<>
-			{open && <div className="md:hidden fixed inset-0 bg-black/60 z-40" onClick={onClose}></div>}
-			<aside className={`${open ? 'fixed inset-y-0 left-0 z-50 w-80 overflow-y-auto' : 'hidden'} md:block md:w-72 md:shrink-0 md:sticky md:top-4 md:mt-4 md:max-h-[calc(100vh-2rem)] md:overflow-y-auto bg-sc-blue-950 p-4`}>
-				<div className="flex justify-between items-baseline mb-3">
-					<h2 className="font-semibold text-gray-100"><Icon name="filter" className="text-sc-blue-300 mr-1" />Filters</h2>
-					<span className="flex gap-3">
-						{canRefine && <button className="button-link text-xs" onClick={clearAll}>Reset</button>}
-						<button className="md:hidden text-gray-300" onClick={onClose} aria-label="Close filters"><Icon name="xmark" /></button>
+			{open && <div className="rail-backdrop" onClick={onClose}></div>}
+			<aside className={`rail${open ? ' open' : ''}`} aria-label="Filters">
+				<div className="rail-head">
+					<h2 className="panel-title">Filters</h2>
+					<span className="flex gap-2">
+						{canRefine && <button type="button" className="act" onClick={clearAll}>Reset</button>}
+						<button type="button" className="act dim" onClick={onClose} aria-label="Close filters"><Icon name="hud-close" /></button>
 					</span>
 				</div>
 				<div className={ready ? '' : 'hidden'}>
-					<ShowFacet />
 					<TopicFacet />
 					<YearFacet />
+					<ShowFacet />
 					<DeveloperFacet />
 				</div>
 			</aside>
