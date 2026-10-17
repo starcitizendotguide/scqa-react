@@ -886,6 +886,30 @@ a {
 	position: relative;
 }
 
+.answer.short:not(.open) {
+	max-height: 5.2em;
+	// --- narrow cards: the speaker's role wraps onto a second line, so a little more room for the teaser
+	@media (max-width: 640px) {
+		max-height: 7.4em;
+	}
+}
+
+// --- AI summary of a long answer: a slanted chip like the topic tags, the sentence right after it
+.tldr {
+	margin: -4px 0 14px;
+	font: 15.5px/1.55 var(--body);
+	color: var(--txt);
+	.tag {
+		margin: 0 10px 0 0;
+		padding: 1px 9px;
+		font-size: 10.5px;
+		letter-spacing: .14em;
+		--edge: var(--cyan2);
+		color: var(--cyan);
+		cursor: help;
+	}
+}
+
 .answer {
 	max-height: 15.5em;
 	overflow: hidden;

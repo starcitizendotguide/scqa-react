@@ -53,7 +53,7 @@ export function meta({ loaderData }) {
 	const by = who.length ? `${who.join(', ')}: ` : '';
 	return pageMeta({
 		title: `${clip(item.question, 90)} | starfarer.space`,
-		description: `${by}${answerText(item.answer)}`,
+		description: `${by}${item.tldr || answerText(item.answer)}`,
 		path: `/star/vault/${item.id}`,
 		type: 'article',
 		...(item.og ? { image: { url: `${OG_URL}/${item.og}`, width: 1200, height: 630 } } : {}),

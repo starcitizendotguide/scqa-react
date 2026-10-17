@@ -83,7 +83,7 @@ function Turn({ turn, developers, children }) {
 }
 
 function QaHit({ hit, full, highlightQuery }) {
-	const { id, question, asked_by, answer, source, credit, topics, developers } = hit;
+	const { id, question, asked_by, answer, source, credit, topics, developers, tldr } = hit;
 	const text = formatted(hit, highlightQuery);
 	const card = useRef();
 	// --- opened with #rec-<id>: also scrolls there when the card only appeared after the page loaded
@@ -101,7 +101,14 @@ function QaHit({ hit, full, highlightQuery }) {
 	return (
 		<article ref={card} id={`rec-${id}`} className="frame card hit">
 			<Heading className="card-q">{heading}{asker}</Heading>
-			<AnswerClamp full={full}>
+			{tldr && (
+				<p className="tldr">
+					<span className="tag" title="AI summary of the answer below. What was actually said is the answer itself.">TL;DR</span>
+					{tldr}
+				</p>
+			)}
+			{/* --- with a summary on top, two lines of the answer are enough as a teaser */}
+			<AnswerClamp full={full} short={Boolean(tldr)}>
 				{answer.map((turn, i) => (
 					<Turn key={i} turn={turn} developers={developers}>
 						<RichText text={text(['answer', i, 'text'], turn.text)} highlight={highlightQuery} />
