@@ -17,5 +17,14 @@ const { searchClient, meiliSearchInstance } = instantMeiliSearch(MEILI_URL, MEIL
 	},
 });
 
+// --- before its first real search instant-meilisearch fetches each index's unfiltered facet counts, one extra round
+// trip that is only used with `keepZeroFacets`. Answer that prefetch locally; it is the only multi-search without a
+// query string (real searches always carry `q` and the highlight settings above).
+const multiSearch = meiliSearchInstance.multiSearch.bind(meiliSearchInstance);
+const isFacetPrefetch = ({ queries }) => queries.every((query) => query.q === undefined && query.attributesToHighlight === undefined);
+meiliSearchInstance.multiSearch = (request, ...rest) => (isFacetPrefetch(request)
+	? Promise.resolve({ results: request.queries.map(({ indexUid }) => ({ indexUid, hits: [], facetDistribution: {} })) })
+	: multiSearch(request, ...rest));
+
 export { meiliSearchInstance };
 export default searchClient;
