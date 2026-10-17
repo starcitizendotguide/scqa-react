@@ -103,27 +103,40 @@ body {
 	background-attachment: fixed;
 }
 
-// --- a darkened, blurred still of the game behind everything (episode pages swap in their own thumbnail through
-// --bg-image and blur it); ?bg=none turns it off for comparison
+// --- a darkened, blurred still of the game behind everything; episode pages fade their own thumbnail in on top
+// (--bg-image, set by the page), toned down to the same darkness so the switch reads as a tint, not a new backdrop.
+// ?bg=none turns the layer off for comparison
 .bg-still {
 	position: fixed;
 	inset: 0;
 	z-index: 0;
 	pointer-events: none;
+	overflow: hidden;
+	&::before,
 	&::after {
 		content: '';
 		position: absolute;
+	}
+	&::before {
 		inset: 0;
 		background:
 			radial-gradient(1300px 700px at 75% -15%, rgba(13, 59, 94, .55) 0%, transparent 60%),
-			linear-gradient(180deg, rgba(2, 8, 15, .5) 0%, rgba(2, 8, 15, .82) 70%, rgba(2, 8, 15, .92) 100%);
+			linear-gradient(180deg, rgba(2, 8, 15, .5) 0%, rgba(2, 8, 15, .82) 70%, rgba(2, 8, 15, .92) 100%),
+			url('./assets/bg-still.webp') center / cover no-repeat;
 	}
-	&::before {
-		content: '';
-		position: absolute;
-		inset: calc(var(--bg-blur, 0px) * -2);
-		background: var(--bg-image, url('./assets/bg-still.webp')) center / cover no-repeat;
-		filter: blur(var(--bg-blur, 0px)) saturate(var(--bg-saturate, 1));
+	&::after {
+		inset: -60px;
+		background:
+			linear-gradient(180deg, rgba(2, 8, 15, .55) 0%, rgba(2, 8, 15, .84) 70%, rgba(2, 8, 15, .93) 100%),
+			var(--bg-image, none) center / cover no-repeat;
+		filter: blur(24px) saturate(.5) brightness(.75);
+		opacity: var(--bg-image-opacity, 0);
+		transition: opacity .6s ease;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.bg-still::after {
+		transition: none;
 	}
 }
 .bg-none .bg-still {

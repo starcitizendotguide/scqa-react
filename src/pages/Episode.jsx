@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { data } from 'react-router';
 
 import { INDEX } from '../searchConfig';
@@ -62,6 +62,16 @@ export default function Episode({ loaderData, params }) {
 
 	const source = items[0].source;
 	const youtube = source.platform === 'youtube';
+	// --- the backdrop thumbnail stays on <html> after leaving, only faded out, so going back to the search fades too
+	useEffect(() => {
+		if (!youtube) {
+			return undefined;
+		}
+		const root = document.documentElement.style;
+		root.setProperty('--bg-image', `url(https://i.ytimg.com/vi/${videoId}/hqdefault.jpg)`);
+		root.setProperty('--bg-image-opacity', '1');
+		return () => root.setProperty('--bg-image-opacity', '0');
+	}, [youtube, videoId]);
 	const jump = (seconds) => {
 		setStart(seconds || 0);
 		setAutoplay(true);
@@ -70,7 +80,7 @@ export default function Episode({ loaderData, params }) {
 
 	return (
 		<>
-			{youtube && <style>{`:root{--bg-image:url(https://i.ytimg.com/vi/${videoId}/hqdefault.jpg);--bg-blur:16px;--bg-saturate:.7}`}</style>}
+			{youtube && <style>{`:root{--bg-image:url(https://i.ytimg.com/vi/${videoId}/hqdefault.jpg);--bg-image-opacity:1}`}</style>}
 			<BackLink />
 			<div className='frame card mt-4'>
 				<h1 className='card-q'>{source.title}</h1>
