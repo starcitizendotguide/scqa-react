@@ -41,7 +41,7 @@ async function load() {
 		for (const [slug, names] of groupNames(count(records.flatMap((r) => r.developers || [])))) {
 			devs.set(slug, { names, records: records.filter((r) => r.developers?.some((d) => names.includes(d))) });
 		}
-		cache = { records, byId, byVideo, byTopic, devs };
+		cache = { records, byId, byVideo, byTopic, devs, related: new Map() };
 	}
 	return cache;
 }
@@ -105,8 +105,12 @@ export async function getRelated(record) {
 	if (!data) {
 		return relatedFromSearch(run, record);
 	}
-	const candidates = new Set((record.topics || []).flatMap((t) => data.byTopic.get(t) || []));
-	return rankRelated(record, [...candidates]);
+	// --- each page is rendered twice (HTML and its data file); rank once
+	if (!data.related.has(record.id)) {
+		const candidates = new Set((record.topics || []).flatMap((t) => data.byTopic.get(t) || []));
+		data.related.set(record.id, rankRelated(record, [...candidates]));
+	}
+	return data.related.get(record.id);
 }
 
 // --- every developer with a page, most answers first
