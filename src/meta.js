@@ -1,5 +1,7 @@
 export const SITE = 'https://starfarer.space';
 export const SITE_NAME = 'starfarer.space';
+export const OG_URL = 'https://og.starfarer.space';
+export const DEFAULT_IMAGE = { url: `${SITE}/og-default.jpg`, width: 1200, height: 630 };
 export const DEFAULT_DESCRIPTION = 'Search thousands of answers Star Citizen developers gave in official shows, streams and posts.';
 
 const clip = (text, max) => {
@@ -7,7 +9,7 @@ const clip = (text, max) => {
 	return flat.length > max ? `${flat.slice(0, max - 1).replace(/\s+\S*$/, '')}…` : flat;
 };
 
-export function pageMeta({ title, description = DEFAULT_DESCRIPTION, path = '/', type = 'website', extra = [] }) {
+export function pageMeta({ title, description = DEFAULT_DESCRIPTION, path = '/', type = 'website', image = DEFAULT_IMAGE, extra = [] }) {
 	const url = `${SITE}${path}`;
 	const desc = clip(description, 200);
 	return [
@@ -19,9 +21,12 @@ export function pageMeta({ title, description = DEFAULT_DESCRIPTION, path = '/',
 		{ property: 'og:title', content: title },
 		{ property: 'og:description', content: desc },
 		{ property: 'og:url', content: url },
-		{ name: 'twitter:card', content: 'summary' },
+		{ property: 'og:image', content: image.url },
+		...(image.width ? [{ property: 'og:image:width', content: String(image.width) }, { property: 'og:image:height', content: String(image.height) }] : []),
+		{ name: 'twitter:card', content: 'summary_large_image' },
 		{ name: 'twitter:title', content: title },
 		{ name: 'twitter:description', content: desc },
+		{ name: 'twitter:image', content: image.url },
 		...extra,
 	];
 }

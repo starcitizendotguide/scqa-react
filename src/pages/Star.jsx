@@ -4,7 +4,7 @@ import { data, redirect } from 'react-router';
 import { INDEX } from '../searchConfig';
 import { getRecord } from '../data.server';
 import { RECORD_ID } from '../ids';
-import { pageMeta, speakers, answerText, clip, isoTime } from '../meta';
+import { pageMeta, speakers, answerText, clip, isoTime, OG_URL } from '../meta';
 
 import Hit from '../components/Hit';
 import BackLink from '../components/BackLink';
@@ -50,6 +50,7 @@ export function meta({ loaderData }) {
 		description: `${by}${answerText(item.answer)}`,
 		path: `/star/vault/${item.id}`,
 		type: 'article',
+		...(item.og ? { image: { url: `${OG_URL}/${item.og}`, width: 1200, height: 630 } } : {}),
 		extra: isoTime(item.source.published_at) ? [{ property: 'article:published_time', content: isoTime(item.source.published_at) }] : [],
 	});
 }

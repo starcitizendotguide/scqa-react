@@ -51,6 +51,7 @@ export function meta({ loaderData, params }) {
 		description: summary || `${items.length} questions answered in ${source.title} (${source.show}): ${items.slice(0, 3).map((i) => i.question).join(' · ')}`,
 		path: `/episode/${params.videoId}`,
 		type: 'video.episode',
+		...(source.platform === 'youtube' ? { image: { url: `https://i.ytimg.com/vi/${params.videoId}/hqdefault.jpg`, width: 480, height: 360 } } : {}),
 	});
 }
 
