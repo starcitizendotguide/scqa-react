@@ -137,7 +137,7 @@ export default function Episode({ loaderData, params }) {
 									<span className="play"><Icon name="hud-play" /></span>
 								</button>
 							) : (
-								<a className="poster" href={external ? external.link(source) : source.url} target="_blank" rel="noopener noreferrer">
+								<a className="poster" href={external ? external.link({ ...source, start: 0 }) : source.url} target="_blank" rel="noopener noreferrer">
 									<span className="play"><Icon name="hud-external" /></span>
 									<span className="label">Watch on {external?.name || source.platform}</span>
 								</a>
