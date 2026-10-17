@@ -1,11 +1,11 @@
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 
+import { HIGHLIGHT_POST, HIGHLIGHT_PRE } from './searchConfig';
+
+export { INDEX, HIGHLIGHT_PRE, HIGHLIGHT_POST } from './searchConfig';
+
 const MEILI_URL = import.meta.env.VITE_MEILI_URL || 'https://search.starfarer.space';
 const MEILI_KEY = import.meta.env.VITE_MEILI_KEY || 'a161a5ba126ca5f1523ddbbb44f67024935b0190968971adc63e3c80301cd971';
-
-export const INDEX = 'qa';
-export const HIGHLIGHT_PRE = '⟦';
-export const HIGHLIGHT_POST = '⟧';
 
 const { searchClient, meiliSearchInstance } = instantMeiliSearch(MEILI_URL, MEILI_KEY, {
 	primaryKey: 'id',

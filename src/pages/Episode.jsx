@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { data } from 'react-router';
 
-import { meiliSearchInstance, INDEX } from '../searchClient';
+import { INDEX } from '../searchConfig';
 import { getEpisode, getEpisodeSummary } from '../data.server';
 import { VIDEO_ID } from '../ids';
 import { pageMeta } from '../meta';
@@ -28,6 +28,7 @@ export async function clientLoader({ params, serverLoader }) {
 	try {
 		return await serverLoader();
 	} catch {
+		const { meiliSearchInstance } = await import('../searchClient');
 		const res = VIDEO_ID.test(params.videoId)
 			? await meiliSearchInstance.index(INDEX).search('', { filter: `source.video_id = "${params.videoId}"`, sort: ['source.start:asc'], limit: 500 })
 			: { hits: [] };

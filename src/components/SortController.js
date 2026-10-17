@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useInstantSearch, useSortBy } from 'react-instantsearch';
 
-import { INDEX } from '../searchClient';
+import { INDEX } from '../searchConfig';
 
 export const BY_DATE = `${INDEX}:source.published_at:desc`;
 

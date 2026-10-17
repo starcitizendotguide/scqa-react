@@ -1,7 +1,7 @@
 import React from 'react';
 import { data, redirect } from 'react-router';
 
-import { meiliSearchInstance, INDEX } from '../searchClient';
+import { INDEX } from '../searchConfig';
 import { getRecord } from '../data.server';
 import { RECORD_ID } from '../ids';
 import { pageMeta, speakers, answerText, clip, isoTime } from '../meta';
@@ -27,6 +27,7 @@ export async function clientLoader({ params, serverLoader }) {
 	try {
 		return await serverLoader();
 	} catch {
+		const { meiliSearchInstance } = await import('../searchClient');
 		const res = RECORD_ID.test(params.id)
 			? await meiliSearchInstance.index(INDEX).search('', { filter: `id = "${params.id}"`, limit: 1 })
 			: { hits: [] };

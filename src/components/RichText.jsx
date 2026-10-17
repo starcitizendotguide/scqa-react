@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { HIGHLIGHT_PRE, HIGHLIGHT_POST } from '../searchClient';
+import { HIGHLIGHT_PRE, HIGHLIGHT_POST } from '../searchConfig';
 
 const MARKED = new RegExp(`${HIGHLIGHT_PRE}(.*?)${HIGHLIGHT_POST}`, 'gs');
 
