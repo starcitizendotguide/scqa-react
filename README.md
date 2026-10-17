@@ -25,10 +25,11 @@ VITE_MEILI_URL=http://localhost:7700 VITE_MEILI_KEY=<search key> npm run dev
 npm run build
 ```
 
-Writes a static site to `build/client`. Answer pages (`/star/vault/<id>`) and episode pages (`/episode/<video id>`)
-are pre-rendered when `STARFARER_DATA` points to a JSON export of the search documents; without it the build
-pre-renders the home page and one answer and episode from the public search endpoint, and the other pages load their
-data in the browser. Paths that were not pre-rendered are served by `build/client/__spa-fallback.html`.
+Writes a static site to `build/client`. Answer pages (`/star/vault/<id>`, with related answers), episode pages
+(`/episode/<video id>`) and developer pages (`/dev` and `/dev/<slug>`, slug rule in `src/slug.js`) are pre-rendered
+when `STARFARER_DATA` points to a JSON export of the search documents (`STARFARER_EPISODES` optionally adds episode
+summaries); without it the build pre-renders the home page and one answer, episode and developer from the public search
+endpoint, and the other pages load their data in the browser. Paths that were not pre-rendered are served by `build/client/__spa-fallback.html`.
 
 The home page is pre-rendered with the first page of results for the bare search, fetched from the search endpoint
 during the build (the browser fetches them again only if the index has changed since). If the endpoint is unreachable
