@@ -1,0 +1,70 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router';
+
+import { INDEX } from '../searchConfig';
+import { getRoster } from '../data.server';
+import { rosterFromSearch } from '../archive';
+import { pageMeta } from '../meta';
+import { fmt } from '../utils/format';
+
+import { initials } from '../components/Hit';
+import TopBar from '../components/TopBar';
+
+export async function loader() {
+	return { roster: await getRoster() };
+}
+
+export async function clientLoader({ serverLoader }) {
+	try {
+		return await serverLoader();
+	} catch {
+		const { meiliSearchInstance } = await import('../searchClient');
+		return { roster: await rosterFromSearch(({ q, ...rest }) => meiliSearchInstance.index(INDEX).search(q, rest)) };
+	}
+}
+
+export function meta({ loaderData }) {
+	const roster = loaderData?.roster || [];
+	return pageMeta({
+		title: 'Star Citizen developers | starfarer.space',
+		description: `${roster.length} Cloud Imperium developers and the questions they answered: ${roster.slice(0, 5).map((d) => d.name).join(', ')} and more.`,
+		path: '/dev',
+	});
+}
+
+export default function Developers({ loaderData }) {
+	const { roster } = loaderData;
+	const [term, setTerm] = useState('');
+	const needle = term.trim().toLowerCase();
+	const shown = needle ? roster.filter((d) => d.name.toLowerCase().includes(needle) || d.role?.toLowerCase().includes(needle)) : roster;
+	return (
+		<>
+			<TopBar active="devs" />
+			<section className="frame panel roster">
+				<div className="roster-head">
+					<h1 className="panel-title">Developer roster <small>{fmt(roster.length)} on record</small></h1>
+					<input
+						type="search"
+						className="find"
+						placeholder="find a developer or role…"
+						aria-label="Find a developer or role"
+						value={term}
+						onChange={(event) => setTerm(event.target.value)}
+					/>
+				</div>
+				{shown.length === 0 && <div className="none">No developer matches “{term}”</div>}
+				<ul>
+					{shown.map((dev) => (
+						<li key={dev.slug}>
+							<Link to={`/dev/${dev.slug}`}>
+								<span className="hex" aria-hidden="true">{initials(dev.name)}</span>
+								<span className="who">{dev.name}{dev.role && <span>{dev.role}</span>}</span>
+								<b>{fmt(dev.count)}<small>{dev.first ? (dev.first === dev.last ? ` · ${dev.first}` : ` · ${dev.first}–${dev.last}`) : ''}</small></b>
+							</Link>
+						</li>
+					))}
+				</ul>
+			</section>
+		</>
+	);
+}
