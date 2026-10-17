@@ -2,8 +2,8 @@ import React from 'react';
 
 const widths = [[92, 70], [100, 96, 98, 88, 64], [84, 52], [100, 94, 97, 60]];
 
-// --- placeholders in the shape of the real cards and panels, for the moments with nothing to show yet (a shared
-// search link, the very first search, a slow connection); they keep the layout where the results will appear
+// --- placeholders in the shape of the real cards and panels while there is nothing to show yet, so the layout
+// doesn't jump when the results arrive
 export function SkeletonCards({ count = 3 }) {
 	return (
 		<div className="skeleton" aria-hidden="true">

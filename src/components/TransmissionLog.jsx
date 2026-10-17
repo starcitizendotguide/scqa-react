@@ -8,8 +8,7 @@ import { progress, segment } from '../utils/follow';
 
 const speakerNames = (item) => [...new Set(item.answer.map((t) => t.speaker).filter(Boolean))];
 
-// --- the episode's questions in order: a row jumps the player there (or opens the source when it isn't on YouTube),
-// the marked row stays in view inside the list, and the playing row's bar fills as its segment plays
+// --- a row jumps the player there, or opens the source when the video isn't on YouTube
 export default function TransmissionLog({ items, active, playing, player, external, onJump }) {
 	const list = useRef(null);
 	const { duration, now } = player;

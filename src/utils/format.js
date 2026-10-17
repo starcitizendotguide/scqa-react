@@ -1,6 +1,5 @@
 export const fmt = (n) => n.toLocaleString('en-US');
 
-// --- seconds -> m:ss or h:mm:ss
 export const clock = (s) => {
 	const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = Math.floor(s % 60);
 	return `${h ? `${h}:${String(m).padStart(2, '0')}` : m}:${String(x).padStart(2, '0')}`;
@@ -43,7 +42,6 @@ export function episodeTitle(show, title) {
 	return title.slice(at + show.length).replace(/^[\s:|\-–—.]+/, '') || title;
 }
 
-// --- "Richard Towler" -> "RT", for the speaker hexagons
 export const initials = (name) => {
 	const letters = name.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('').slice(0, 2);
 	return letters || name.slice(0, 2).toUpperCase();

@@ -7,7 +7,6 @@ import { useHydrated } from '../hooks/useHydrated';
 import { embedUrl } from '../hooks/useYouTubePlayer';
 import { devUrl } from '../slug';
 
-// --- the video (or a link out when it isn't on YouTube) with the episode's title, summary and developers
 export default function EpisodeScreen({ source, videoId, thumb, items, summary, developers, screen, frame, player, external, embed, onPlay }) {
 	const youtube = source.platform === 'youtube';
 	const origin = useHydrated() ? window.location.origin : '';

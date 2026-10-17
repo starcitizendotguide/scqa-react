@@ -57,7 +57,6 @@ export function PlayButton({ source }) {
 	);
 }
 
-// --- copies on click and confirms on the button itself for a moment
 export function CopyButton({ value, icon, label, title, className = '' }) {
 	const [copied, setCopied] = useState(false);
 

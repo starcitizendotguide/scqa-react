@@ -8,7 +8,6 @@ const YEAR = 365 * 24 * 60 * 60;
 const openedAt = typeof window === 'undefined' ? null : Date.now();
 const subscribe = () => () => {};
 
-// --- how old an answer is, for the tooltip (only after hydration: the pre-rendered page doesn't know "now")
 function age(timestamp, now) {
 	if (now === null) {
 		return 'Published on this date.';

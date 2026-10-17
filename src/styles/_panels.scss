@@ -26,8 +26,6 @@
 	}
 }
 
-// --- a 1px line along a clipped (diagonal) edge, as a background layer over the corner box of `$size`; the line runs
-// through the box's other two corners and sits on the inner side of the clip
 // --- chamfered panels: the clipped shape (with its border) is a decorative layer behind the content, so nothing
 // inside (tooltips, focus rings) gets clipped with it
 .cut {

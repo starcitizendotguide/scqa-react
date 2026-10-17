@@ -46,9 +46,8 @@ const createRouting = () => ({
 	stateMapping,
 });
 
-// --- the size of the whole index, for the header and the search field. Results pre-rendered at build time stay
-// until the index has changed since: a one-hit request once the page is idle compares the total, and only then the
-// results are fetched (and re-rendered) again.
+// --- the size of the whole index. Results pre-rendered at build time stay until the index has changed since then:
+// once the page is idle a zero-hit request compares the total, and only a different one fetches the results again
 function IndexTotal({ total, onTotal, prerendered }) {
 	const { refresh } = useInstantSearch();
 	const compare = useEffectEvent((estimatedTotalHits) => {
