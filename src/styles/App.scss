@@ -1561,6 +1561,9 @@ a {
 	.roster ul {
 		grid-template-columns: minmax(0, 1fr);
 	}
+	.roster small {
+		display: none;
+	}
 	.roster-head {
 		flex-wrap: wrap;
 		.find {
