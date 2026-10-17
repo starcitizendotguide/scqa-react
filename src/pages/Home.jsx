@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 
 import { useCookieState } from '../utils/useCookieState';
 
-import searchClient, { INDEX } from '../searchClient';
+import searchClient from '../searchClient';
 import { InstantSearch, Index, Configure } from 'react-instantsearch';
 import { history } from 'instantsearch.js/es/lib/routers';
 
@@ -11,7 +11,7 @@ import SearchHeader from '../components/SearchHeader';
 import ResultsBar from '../components/ResultsBar';
 import Footer from '../components/Footer';
 import SearchResults from '../components/SearchResults';
-import SortController from '../components/SortController';
+import SortController, { initialSort } from '../components/SortController';
 import FacetRail, { FACETS } from '../components/FacetRail';
 
 import { getHashFromUrl } from '../utils/helpers';
@@ -23,6 +23,7 @@ const Search = () => {
   const [highlightQuery, setHighlightQuery] = useCookieState('toggle-highlight-query', true);
   const [newestFirst, setNewestFirst] = useCookieState('sort-newest-first', false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [sortIndex] = useState(() => initialSort(newestFirst, new URLSearchParams(window.location.search).get('question')));
 
   const navigate = useNavigate();
 
@@ -71,7 +72,7 @@ const Search = () => {
     >
       <div className="container">
         <SearchHeader newest={newestFirst} onSortChange={setNewestFirst} onOpenFilters={() => setFiltersOpen(true)} />
-        <Index indexName={INDEX} indexId="vault">
+        <Index indexName={sortIndex} indexId="vault">
           <SortController newest={newestFirst} />
           <Configure hitsPerPage={30} />
           <div className="flex gap-4 items-start">
