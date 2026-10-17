@@ -1,8 +1,6 @@
-@use 'tailwindcss/base';
-@use 'tailwindcss/components';
-@use 'tailwindcss/utilities';
-
 // --- one partial per area, in cascade order (later ones may override earlier ones)
+@use 'reset';
+@use 'helpers';
 @use 'fonts';
 @use 'globals';
 @use 'panels';

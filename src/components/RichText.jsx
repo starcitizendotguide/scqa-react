@@ -22,13 +22,13 @@ export function RichText({ text, highlight }) {
 		const lines = para.split('\n');
 		if (lines.every((line) => line.startsWith('- '))) {
 			return (
-				<ul key={i} className="list-disc ml-6 mb-2">
+				<ul key={i}>
 					{lines.map((line, j) => <li key={j}><Highlighted text={line.slice(2)} highlight={highlight} /></li>)}
 				</ul>
 			);
 		}
 		return (
-			<p key={i} className="mb-2 last:mb-0">
+			<p key={i}>
 				{lines.map((line, j) => (
 					<React.Fragment key={j}>
 						{j > 0 && <br />}

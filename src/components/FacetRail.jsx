@@ -179,7 +179,7 @@ const FacetRail = ({ open, onClose }) => {
 			<aside className={`rail${open ? ' open' : ''}`} aria-label="Filters">
 				<div className="rail-head">
 					<h2 className="panel-title">Filters</h2>
-					<span className="flex gap-2">
+					<span className="rail-acts">
 						{canRefine && <button type="button" className="act" onClick={clearAll}>Reset</button>}
 						<button type="button" className="act dim" onClick={onClose} aria-label="Close filters"><Icon name="hud-close" /></button>
 					</span>

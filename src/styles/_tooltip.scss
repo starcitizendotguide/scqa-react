@@ -1,5 +1,52 @@
 // --- tooltips
+.tip-wrap {
+	position: relative;
+	display: inline-block;
+}
+
+// --- hidden (scaled to nothing) until its wrapper is hovered or focused
 .tip {
+	position: absolute;
+	z-index: 50;
+	opacity: 0;
+	white-space: nowrap;
+	transform: var(--tip-shift) scale(0);
+	transition: all .15s cubic-bezier(.4, 0, .2, 1);
+	.tip-wrap:hover &,
+	.tip-wrap:focus-within & {
+		opacity: 1;
+		transform: var(--tip-shift) scale(1);
+	}
+	&.tip-top {
+		bottom: 100%;
+		left: 50%;
+		margin-bottom: .5rem;
+		--tip-shift: translateX(-50%);
+	}
+	&.tip-bottom {
+		top: 100%;
+		left: 50%;
+		margin-top: .5rem;
+		--tip-shift: translateX(-50%);
+	}
+	&.tip-left {
+		right: 100%;
+		top: 50%;
+		margin-right: .5rem;
+		--tip-shift: translateY(-50%);
+	}
+	&.tip-right {
+		left: 100%;
+		top: 50%;
+		margin-left: .5rem;
+		--tip-shift: translateY(-50%);
+	}
+	&.tip-long {
+		width: 18rem;
+		white-space: normal;
+		text-transform: none;
+		letter-spacing: 0;
+	}
 	font: 11.5px/1.5 var(--hud);
 	color: var(--txt);
 	background: #061a2b;

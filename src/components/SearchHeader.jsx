@@ -6,7 +6,7 @@ import Icon from './Icon';
 const SYNTAX = (
 	<>
 		<b>Advanced search</b>
-		<ul className="mt-1 list-disc ml-4">
+		<ul>
 			<li>Phrase: quotes around words for exact matches, e.g. <b>"star citizen"</b></li>
 			<li>Exclude: a minus before a word, e.g. <b>star -citizen</b></li>
 			<li>Typos aren't tolerated within quotes, and "-" inside quotes is not an exclusion.</li>

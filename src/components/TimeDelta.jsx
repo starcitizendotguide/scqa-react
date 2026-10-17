@@ -25,7 +25,7 @@ const TimeDelta = ({ timestamp, format }) => {
         const formattedDate = format ? format(timestamp) : new Date(timestamp * 1000).toISOString().split('T')[0];
 
         return (
-            <span className={`relative group`}>
+            <span>
                 <Tooltip message={tooltip}>
                     {formattedDate}
                 </Tooltip>

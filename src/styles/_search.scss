@@ -124,6 +124,10 @@
 		color: var(--amber);
 		font-weight: 400;
 	}
+	ul {
+		margin: .25rem 0 0 1rem;
+		list-style: disc;
+	}
 	&.open {
 		display: block;
 	}
