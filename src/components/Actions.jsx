@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 import VideoModal from './VideoModal';
 import Icon from './Icon';
@@ -6,7 +6,7 @@ import { clock, copyText } from '../utils/format';
 
 const twitchTime = (s) => `${Math.floor(s / 3600)}h${Math.floor((s % 3600) / 60)}m${s % 60}s`;
 
-const PLAYERS = {
+export const PLAYERS = {
 	youtube: {
 		name: 'YouTube',
 		link: ({ video_id, start }) => `https://youtu.be/${video_id}${start ? `?t=${start}` : ''}`,
@@ -19,11 +19,16 @@ const PLAYERS = {
 	},
 };
 
+// --- a page with its own player for a video (the episode page) plays answers from that video there
+export const PlayerContext = createContext(null);
+
 // --- videos open in the overlay at the answer's timestamp; other sources link out
 export function PlayButton({ source }) {
 	const [open, setOpen] = useState(false);
 	const close = useCallback(() => setOpen(false), []);
+	const page = useContext(PlayerContext);
 	const player = source.video_id && PLAYERS[source.platform];
+	const here = page && page.videoId === source.video_id;
 
 	if (!player) {
 		return source.url ? (
@@ -35,7 +40,7 @@ export function PlayButton({ source }) {
 	const at = source.start ? clock(source.start) : null;
 	return (
 		<>
-			<button type="button" className="act" onClick={() => setOpen(true)} title={`Play “${source.title}”${at ? ` at ${at}` : ''}`}>
+			<button type="button" className="act" onClick={() => (here ? page.jump(source.start) : setOpen(true))} title={`Play “${source.title}”${at ? ` at ${at}` : ''}`}>
 				<Icon name="hud-play" />Play at {at || 'start'}
 			</button>
 			{open && (

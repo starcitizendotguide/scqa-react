@@ -38,6 +38,25 @@ export default function AnswerClamp({ children, full = false }) {
 		setOpen(true);
 	};
 
+	// --- a card the page points at (a #rec-… link) opens up by itself
+	const latest = useRef(null);
+	latest.current = () => {
+		const el = box.current;
+		if (el && !el.classList.contains('open') && el.scrollHeight > parseFloat(getComputedStyle(el).fontSize) * LIMIT + 4) {
+			setClipped(true);
+			expand();
+		}
+	};
+	useEffect(() => {
+		const card = box.current?.closest('.card');
+		if (full || !card) {
+			return undefined;
+		}
+		const onFocus = () => latest.current();
+		card.addEventListener('record:focus', onFocus);
+		return () => card.removeEventListener('record:focus', onFocus);
+	}, [full]);
+
 	const collapse = () => {
 		const el = box.current;
 		el.style.maxHeight = `${el.scrollHeight}px`;

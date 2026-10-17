@@ -3,9 +3,9 @@ import { Link } from 'react-router';
 import TopBar from './TopBar';
 import Icon from './Icon';
 
-const BackLink = () => (
+const BackLink = ({ active }) => (
 	<>
-		<TopBar />
+		<TopBar active={active} />
 		<Link to="/" className="act mt-4">
 			<Icon name="arrow-left" />Back to search
 		</Link>

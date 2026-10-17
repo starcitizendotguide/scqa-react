@@ -1039,6 +1039,26 @@ a {
 	}
 }
 
+// --- episode page: player and summary next to the transmission log
+.hit {
+	scroll-margin-top: 16px;
+	&.flash {
+		animation: flash 1.4s ease-out;
+	}
+}
+@keyframes flash {
+	from {
+		border-color: var(--cyan);
+		box-shadow: 0 0 0 1px var(--cyan), 0 0 26px rgba(89, 224, 255, .35);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.hit.flash {
+		animation: none;
+		border-color: var(--cyan);
+	}
+}
+
 // --- tooltips
 .tip {
 	font: 11.5px/1.5 var(--hud);
@@ -1097,7 +1117,11 @@ a {
 		letter-spacing: .12em;
 	}
 	.tabs {
-		display: none;
+		margin-left: -6px;
+	}
+	.tab {
+		font-size: 12.5px;
+		padding: 6px 13px;
 	}
 	.qlabel {
 		align-items: flex-start;

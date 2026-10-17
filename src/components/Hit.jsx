@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router';
 
 import TimeDelta from './TimeDelta';
@@ -8,9 +8,30 @@ import { Highlighted, RichText } from './RichText';
 
 import Icon from './Icon';
 import { topicLabel, topicUrl } from '../topics';
+import { devUrl } from '../slug';
 
-// --- on the search page topic tags and speaker names filter the results in place; elsewhere they link to the search
+// --- on the search page topic tags filter the results in place; elsewhere they link to the search
 export const FilterContext = createContext(null);
+
+// --- scroll to an answer card, open it up if it is clamped and flash it briefly (a "read the full answer" link)
+export function focusRecord(id, { scroll = true } = {}) {
+	const card = document.getElementById(`rec-${id}`);
+	if (!card) {
+		return;
+	}
+	if (window.location.hash !== `#rec-${id}`) {
+		window.history.replaceState(window.history.state, '', `#rec-${id}`);
+	}
+	if (scroll) {
+		card.scrollIntoView({ behavior: scroll === 'instant' || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+	}
+	card.dispatchEvent(new CustomEvent('record:focus'));
+	card.classList.remove('flash');
+	void card.offsetWidth;
+	card.classList.add('flash');
+	clearTimeout(card.flashTimer);
+	card.flashTimer = setTimeout(() => card.classList.remove('flash'), 1600);
+}
 
 function Hit({ highlightQuery, index, full = false, ...hit }) {
 	return <QaHit highlightQuery={highlightQuery} index={index} full={full} hit={hit} />;
@@ -24,7 +45,7 @@ const formatted = (hit, highlight) => (path, raw) => {
 	return value ?? raw;
 };
 
-const initials = (name) => {
+export const initials = (name) => {
 	const letters = name.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('').slice(0, 2);
 	return letters || name.slice(0, 2).toUpperCase();
 };
@@ -51,7 +72,7 @@ function Turn({ turn, developers, children }) {
 			<div className="min-w-0">
 				<div className="who">
 					{turn.speaker && developers?.includes(turn.speaker)
-						? <FilterLink attribute="developers" param="developer" value={turn.speaker} title={`All answers by ${turn.speaker}`}>{turn.speaker}</FilterLink>
+						? <Link to={devUrl(turn.speaker)} onClick={(event) => event.stopPropagation()} title={`Developer dossier: ${turn.speaker}`}>{turn.speaker}</Link>
 						: name || 'Cloud Imperium'}
 					{turn.role && <span>{turn.role}</span>}
 				</div>
@@ -65,11 +86,18 @@ function QaHit({ hit, index, full, highlightQuery }) {
 	const { id, question, asked_by, answer, source, credit, topics, developers } = hit;
 	const text = formatted(hit, highlightQuery);
 	const card = useRef();
+	// --- opened with #rec-<id>: also scrolls there when the card only appeared after the page loaded
+	useEffect(() => {
+		const check = () => window.location.hash === `#rec-${id}` && focusRecord(id, { scroll: 'instant' });
+		check();
+		window.addEventListener('hashchange', check);
+		return () => window.removeEventListener('hashchange', check);
+	}, [id]);
 	const Heading = full ? 'h1' : 'h2';
 	const title = <Highlighted text={text(['question'], question)} highlight={highlightQuery} />;
 
 	return (
-		<article ref={card} className="frame card hit">
+		<article ref={card} id={`rec-${id}`} className="frame card hit">
 			<div className="card-hd">
 				<span className="label">{index ? `REC-${String(index).padStart(4, '0')}` : 'REC'}{source.show ? ` · ${source.show}` : ''}</span>
 				<span className="label whitespace-nowrap"><TimeDelta timestamp={source.published_at} /></span>
