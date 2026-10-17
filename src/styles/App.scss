@@ -1215,10 +1215,26 @@ a {
 		background: var(--panel2);
 		box-shadow: inset 2px 0 0 var(--amber);
 	}
-	// --- the question being answered at this moment in the video
-	&.now b {
-		color: var(--cyan);
-		text-shadow: 0 0 8px rgba(89, 224, 255, .55);
+	// --- the question being answered at this moment in the video: the bar fills as its segment plays
+	&.now {
+		position: relative;
+		box-shadow: inset 2px 0 0 rgba(255, 184, 77, .22);
+		&::before {
+			content: '';
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 2px;
+			height: 100%;
+			background: var(--amber);
+			box-shadow: 0 0 6px rgba(255, 184, 77, .6);
+			transform: scaleY(var(--progress, 0));
+			transform-origin: top;
+		}
+		b {
+			color: var(--cyan);
+			text-shadow: 0 0 8px rgba(89, 224, 255, .55);
+		}
 	}
 }
 

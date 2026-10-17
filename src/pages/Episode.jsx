@@ -64,7 +64,10 @@ const YT_ORIGIN = 'https://www.youtube-nocookie.com';
 function usePlayerTime(frame) {
 	const [ready, setReady] = useState(false);
 	const [time, setTime] = useState(null);
+	const [duration, setDuration] = useState(null);
 	const readyRef = useRef(false);
+	// --- the last report (time, when it came, playing or not, speed): between reports the position is counted forward
+	const last = useRef({ time: null, at: 0, playing: false, rate: 1 });
 	useEffect(() => {
 		const onMessage = (event) => {
 			if (event.origin !== YT_ORIGIN || event.source !== frame.current?.contentWindow) {
@@ -80,8 +83,19 @@ function usePlayerTime(frame) {
 				readyRef.current = true;
 				setReady(true);
 			}
-			if (typeof msg?.info?.currentTime === 'number') {
-				setTime(msg.info.currentTime);
+			const info = msg?.info || {};
+			if (typeof info.playerState === 'number') {
+				last.current = { ...last.current, time: last.current.time == null ? null : now(), at: performance.now(), playing: info.playerState === 1 };
+			}
+			if (typeof info.playbackRate === 'number') {
+				last.current.rate = info.playbackRate;
+			}
+			if (typeof info.currentTime === 'number') {
+				last.current = { ...last.current, time: info.currentTime, at: performance.now() };
+				setTime(info.currentTime);
+			}
+			if (typeof msg?.info?.duration === 'number' && msg.info.duration > 0) {
+				setDuration(msg.info.duration);
 			}
 		};
 		window.addEventListener('message', onMessage);
@@ -100,7 +114,11 @@ function usePlayerTime(frame) {
 		}, 250);
 	};
 	const command = (func, args = []) => post({ event: 'command', func, args });
-	return { ready, time, onLoad, command };
+	const now = () => {
+		const { time: at, at: when, playing, rate } = last.current;
+		return at == null ? null : at + (playing ? ((performance.now() - when) / 1000) * rate : 0);
+	};
+	return { ready, time, duration, onLoad, command, now };
 }
 
 export default function Episode({ loaderData, params }) {
@@ -164,6 +182,33 @@ export default function Episode({ loaderData, params }) {
 			setActive(playing);
 		}
 	}, [playing]);
+	// --- how far into its segment (until the next question starts, or the video ends) the playing question is: drawn
+	// every frame from the counted-forward position, straight on the row, so the bar fills smoothly
+	useEffect(() => {
+		if (playing == null) {
+			return undefined;
+		}
+		const row = log.current?.children[playing];
+		const from = items[playing].source.start;
+		const later = items.map((item) => item.source.start).filter((at) => at != null && at > from);
+		const to = later.length ? Math.min(...later) : yt.duration;
+		if (!row || !(to > from)) {
+			return undefined;
+		}
+		let frame;
+		const draw = () => {
+			const t = yt.now();
+			if (t != null) {
+				row.style.setProperty('--progress', Math.min(1, Math.max(0, (t - from) / (to - from))).toFixed(4));
+			}
+			frame = requestAnimationFrame(draw);
+		};
+		draw();
+		return () => {
+			cancelAnimationFrame(frame);
+			row.style.removeProperty('--progress');
+		};
+	}, [playing, items, yt.duration]);
 
 	// --- keep the marked row in view inside the log (without scrolling the page)
 	useEffect(() => {
@@ -252,7 +297,10 @@ export default function Episode({ loaderData, params }) {
 									</>
 								);
 								return (
-									<li key={item.id} className={`tli${active === i ? ' on' : ''}${playing === i ? ' now' : ''}`}>
+									<li
+										key={item.id}
+										className={`tli${active === i ? ' on' : ''}${playing === i ? ' now' : ''}`}
+									>
 										{youtube ? (
 											<button type="button" onClick={() => jump(at, i)} aria-label={`Play from ${at != null ? clock(at) : 'the start'}: ${item.question}`}>{body}</button>
 										) : (
