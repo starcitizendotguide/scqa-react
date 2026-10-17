@@ -9,6 +9,7 @@ import { pageMeta } from '../meta';
 import Hit from '../components/Hit';
 import BackLink from '../components/BackLink';
 import TimeDelta from '../components/TimeDelta';
+import { useAfterLoad } from '../utils/afterLoad';
 import Icon from '../components/Icon';
 
 const clock = (s) => {
@@ -58,6 +59,8 @@ export default function Episode({ loaderData, params }) {
 	const { videoId } = params;
 	const [start, setStart] = useState(0);
 	const [autoplay, setAutoplay] = useState(false);
+	// --- the player (about a megabyte of YouTube scripts that can hold up the first paint) loads after the page itself
+	const loaded = useAfterLoad();
 
 	const source = items[0].source;
 	const youtube = source.platform === 'youtube';
@@ -79,8 +82,8 @@ export default function Episode({ loaderData, params }) {
 				{youtube ? (
 					<iframe
 						key={`${start}-${autoplay}`}
-						className="w-full aspect-video"
-						src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0${start ? `&start=${start}` : ''}${autoplay ? '&autoplay=1' : ''}`}
+						className="w-full aspect-video bg-black"
+						src={loaded || autoplay ? `https://www.youtube-nocookie.com/embed/${videoId}?rel=0${start ? `&start=${start}` : ''}${autoplay ? '&autoplay=1' : ''}` : undefined}
 						title={source.title}
 						frameBorder="0"
 						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
