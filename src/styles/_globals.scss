@@ -31,8 +31,7 @@ body {
 }
 
 // --- a darkened, blurred still of the game behind everything; episode pages fade their own thumbnail in on top
-// (--bg-image, set by the page), toned down to the same darkness so the switch reads as a tint, not a new backdrop.
-// ?bg=none turns the layer off for comparison
+// (--bg-image, set by the page), toned down to the same darkness so the switch reads as a tint, not a new backdrop
 .bg-still {
 	position: fixed;
 	inset: 0;
@@ -66,10 +65,6 @@ body {
 		transition: none;
 	}
 }
-.bg-none .bg-still {
-	display: none;
-}
-
 // --- scanlines and vignette sit behind the content, which is semi-transparent above them
 body::before,
 body::after {
@@ -90,14 +85,6 @@ body::after {
 a {
 	color: var(--cyan);
 	text-decoration: none;
-	&:hover {
-		text-decoration: underline;
-	}
-}
-
-.button-link {
-	color: var(--cyan);
-	cursor: pointer;
 	&:hover {
 		text-decoration: underline;
 	}

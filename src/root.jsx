@@ -25,7 +25,6 @@ export function Layout({ children }) {
 				<link rel="icon" href="/favicon.ico" />
 				<link rel="manifest" href="/manifest.json" />
 				<link rel="search" href="/opensearch-vault.xml" type="application/opensearchdescription+xml" title="Search starfarer.space vault" />
-				<script dangerouslySetInnerHTML={{ __html: "if(/[?&]bg=none(&|$)/.test(location.search))document.documentElement.classList.add('bg-none')" }} />
 				<Meta />
 				<Links />
 			</head>
