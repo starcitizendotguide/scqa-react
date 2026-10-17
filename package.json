@@ -30,11 +30,16 @@
 		]
 	},
 	"devDependencies": {
+		"@eslint/js": "^10.0.1",
 		"@react-router/dev": "^8.4.0",
 		"autoprefixer": "^10.4.20",
+		"eslint": "^10.13.0",
+		"eslint-plugin-react-hooks": "^7.1.1",
+		"globals": "^17.13.0",
 		"postcss": "^8.4.47",
 		"sass": "^1.105.2",
-		"vite": "^8.3.4"
+		"vite": "^8.3.4",
+		"vitest": "^5.0.5"
 	},
 	"type": "module",
 	"engines": {

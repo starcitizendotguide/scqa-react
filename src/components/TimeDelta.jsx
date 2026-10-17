@@ -1,41 +1,35 @@
-import { useEffect, useState } from "react";
-import Tooltip from "./Tooltip";
+import React, { useSyncExternalStore } from 'react';
 
-const TimeDelta = ({ timestamp, format }) => {
-    const [now, setNow] = useState(null);
-    useEffect(() => setNow(Date.now()), []);
-    const delta = now === null ? null : now / 1000 - timestamp;
-    const yearInSeconds = 60 * 60 * 24 * 365;
+import Tooltip from './Tooltip';
 
-    const getClassAndTooltip = () => {
-        if (delta === null) {
-            return { tooltip: 'Published on this date.' };
-        } else if (delta > 3 * yearInSeconds) {
-            return { tooltip: 'This answer is older than 3 years.' };
-        } else if (delta > 1 * yearInSeconds) {
-            return { tooltip: 'This answer is older than 1 year.' };
-        } else {
-            return { tooltip: 'This answer is less than 1 year old.' };
-        }
-    };
+const YEAR = 365 * 24 * 60 * 60;
 
-    const { tooltip } = getClassAndTooltip();
+// --- "now" is when the page was opened: fixed, so renders stay pure; none while pre-rendering
+const openedAt = typeof window === 'undefined' ? null : Date.now();
+const subscribe = () => () => {};
 
-    try {
-        const formattedDate = format ? format(timestamp) : new Date(timestamp * 1000).toISOString().split('T')[0];
+// --- how old an answer is, for the tooltip (only after hydration: the pre-rendered page doesn't know "now")
+function age(timestamp, now) {
+	if (now === null) {
+		return 'Published on this date.';
+	}
+	const delta = now / 1000 - timestamp;
+	if (delta > 3 * YEAR) {
+		return 'This answer is older than 3 years.';
+	}
+	return delta > YEAR ? 'This answer is older than 1 year.' : 'This answer is less than 1 year old.';
+}
 
-        return (
-            <span>
-                <Tooltip message={tooltip}>
-                    {formattedDate}
-                </Tooltip>
-            </span>
-        );
-    } catch(error) {
-        console.log(timestamp);
-        console.error(error);
-    } 
+const isoDate = (timestamp) => new Date(timestamp * 1000).toISOString().split('T')[0];
 
-};
-
-export default TimeDelta;
+export default function TimeDelta({ timestamp, format = isoDate }) {
+	const now = useSyncExternalStore(subscribe, () => openedAt, () => null);
+	if (!Number.isFinite(timestamp)) {
+		return null;
+	}
+	return (
+		<span>
+			<Tooltip message={age(timestamp, now)}>{format(timestamp)}</Tooltip>
+		</span>
+	);
+}

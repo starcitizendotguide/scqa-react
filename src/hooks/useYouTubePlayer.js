@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const YT_ORIGIN = 'https://www.youtube-nocookie.com';
 
@@ -15,10 +15,10 @@ export function useYouTubePlayer(frame) {
 	// --- reports come a few times a second; in between, the position is counted forward from the last one
 	const last = useRef({ time: null, at: 0, playing: false, rate: 1 });
 
-	const now = () => {
+	const now = useCallback(() => {
 		const { time: at, at: when, playing, rate } = last.current;
 		return at == null ? null : at + (playing ? ((performance.now() - when) / 1000) * rate : 0);
-	};
+	}, []);
 
 	useEffect(() => {
 		const onMessage = (event) => {
@@ -52,9 +52,9 @@ export function useYouTubePlayer(frame) {
 		};
 		window.addEventListener('message', onMessage);
 		return () => window.removeEventListener('message', onMessage);
-	}, [frame]);
+	}, [frame, now]);
 
-	const post = (message) => frame.current?.contentWindow?.postMessage(JSON.stringify({ id: 1, channel: 'widget', ...message }), YT_ORIGIN);
+	const post = useCallback((message) => frame.current?.contentWindow?.postMessage(JSON.stringify({ id: 1, channel: 'widget', ...message }), YT_ORIGIN), [frame]);
 	const onLoad = () => {
 		readyRef.current = false;
 		setReady(false);
@@ -66,7 +66,7 @@ export function useYouTubePlayer(frame) {
 			}
 		}, 250);
 	};
-	const command = (func, args = []) => post({ event: 'command', func, args });
+	const command = useCallback((func, args = []) => post({ event: 'command', func, args }), [post]);
 
 	return { ready, time, duration, onLoad, command, now };
 }

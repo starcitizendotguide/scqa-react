@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useEffectEvent, useState } from 'react';
 import { InstantSearch, InstantSearchSSRProvider, Index, Configure, useInstantSearch } from 'react-instantsearch';
 import { history } from 'instantsearch.js/es/lib/routers';
 
@@ -27,7 +27,6 @@ const stateMapping = {
 	routeToState(routeState) {
 		const list = (value) => (value === undefined ? undefined : [].concat(value));
 		return {
-			// eslint-disable-next-line
 			['']: {
 				query: routeState.question,
 			},
@@ -52,21 +51,22 @@ const createRouting = () => ({
 // results are fetched (and re-rendered) again.
 function IndexTotal({ total, onTotal, prerendered }) {
 	const { refresh } = useInstantSearch();
-	const latest = useRef({ refresh, onTotal, total });
-	latest.current = { refresh, onTotal, total };
+	const compare = useEffectEvent((estimatedTotalHits) => {
+		if (estimatedTotalHits !== total) {
+			onTotal(estimatedTotalHits);
+			if (prerendered) {
+				refresh();
+			}
+		}
+	});
 	useEffect(() => afterLoad(async () => {
 		try {
 			const { estimatedTotalHits } = await meiliSearchInstance.index(INDEX).search('', { limit: 0 });
-			if (estimatedTotalHits !== latest.current.total) {
-				latest.current.onTotal(estimatedTotalHits);
-				if (prerendered) {
-					latest.current.refresh();
-				}
-			}
+			compare(estimatedTotalHits);
 		} catch {
 			// --- keep the pre-rendered results
 		}
-	}), [prerendered]);
+	}), []);
 	return null;
 }
 

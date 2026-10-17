@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useEffectEvent, useRef, useState } from 'react';
 
 const LIMIT = 15.5; // em, as .answer's max-height
 
@@ -45,20 +45,19 @@ export default function AnswerClamp({ children, full = false, short = false }) {
 	};
 
 	// --- a card the page points at (a #rec-… link) opens up by itself
-	const latest = useRef(null);
-	latest.current = () => {
+	const openFromLink = useEffectEvent(() => {
 		const el = box.current;
 		if (el && !el.classList.contains('open') && el.scrollHeight > limit(el) + 4) {
 			setClipped(true);
 			expand();
 		}
-	};
+	});
 	useEffect(() => {
 		const card = box.current?.closest('.card');
 		if (full || !card) {
 			return undefined;
 		}
-		const onFocus = () => latest.current();
+		const onFocus = () => openFromLink();
 		card.addEventListener('record:focus', onFocus);
 		return () => card.removeEventListener('record:focus', onFocus);
 	}, [full]);

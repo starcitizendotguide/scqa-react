@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { data } from 'react-router';
 
 import { INDEX } from '../searchConfig';
@@ -13,6 +13,7 @@ import EpisodeScreen from '../components/EpisodeScreen';
 import TransmissionLog from '../components/TransmissionLog';
 import { PLAYERS, PlayerContext } from '../components/Actions';
 import { useAfterLoad } from '../hooks/useAfterLoad';
+import { useHydrated } from '../hooks/useHydrated';
 import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import { playingIndex } from '../utils/follow';
 
@@ -58,9 +59,9 @@ export function meta({ loaderData, params }) {
 export default function Episode({ loaderData, params }) {
 	const { items, summary } = loaderData;
 	const { videoId } = params;
-	const [start, setStart] = useState(0);
+	const [start, setStart] = useState(null);
 	const [autoplay, setAutoplay] = useState(false);
-	const [active, setActive] = useState(null);
+	const [selected, setSelected] = useState(null);
 	const screen = useRef(null);
 	const frame = useRef(null);
 	const player = useYouTubePlayer(frame);
@@ -86,36 +87,30 @@ export default function Episode({ loaderData, params }) {
 	}, [youtube, thumb]);
 
 	// --- a link to one question (#rec-<id>) cues the player there and marks its row; the card below opens by itself
-	useEffect(() => {
-		const row = items.findIndex((i) => window.location.hash === `#rec-${i.id}`);
-		if (row >= 0) {
-			setStart(items[row].source.start || 0);
-			setActive(row);
-		}
-	}, [items]);
+	const hydrated = useHydrated();
+	const linked = useMemo(() => (hydrated ? items.findIndex((i) => window.location.hash === `#rec-${i.id}`) : -1), [hydrated, items]);
 
+	// --- the marked row: the question playing right now, else the one clicked or linked
 	const playing = useMemo(() => playingIndex(items, player.time), [items, player.time]);
-	useEffect(() => {
-		if (playing != null) {
-			setActive(playing);
-		}
-	}, [playing]);
+	const active = playing ?? selected ?? (linked >= 0 ? linked : null);
+	const cue = start ?? (linked >= 0 ? items[linked].source.start || 0 : 0);
 
-	const jump = (seconds, row = null) => {
-		if (player.ready) {
-			player.command('seekTo', [seconds || 0, true]);
-			player.command('playVideo');
+	const { ready, command } = player;
+	const jump = useCallback((seconds, row = null) => {
+		if (ready) {
+			command('seekTo', [seconds || 0, true]);
+			command('playVideo');
 		} else {
 			setStart(seconds || 0);
 			setAutoplay(true);
 		}
-		setActive(row);
+		setSelected(row);
 		const box = screen.current?.getBoundingClientRect();
 		if (box && (box.top < 0 || box.bottom > window.innerHeight)) {
 			screen.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
 		}
-	};
-	const context = useMemo(() => ({ videoId, jump: (seconds) => jump(seconds, items.findIndex((i) => i.source.start === seconds)) }), [videoId, items, player.ready]);
+	}, [ready, command]);
+	const context = useMemo(() => ({ videoId, jump: (seconds) => jump(seconds, items.findIndex((i) => i.source.start === seconds)) }), [videoId, items, jump]);
 
 	return (
 		<PlayerContext.Provider value={youtube ? context : null}>
@@ -134,7 +129,7 @@ export default function Episode({ loaderData, params }) {
 						frame={frame}
 						player={player}
 						external={external}
-						embed={loaded || autoplay ? { start, autoplay } : null}
+						embed={loaded || autoplay ? { start: cue, autoplay } : null}
 						onPlay={() => jump(0)}
 					/>
 				</div>

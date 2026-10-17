@@ -137,7 +137,7 @@ export default function Developer({ loaderData }) {
 				Recent transmissions
 				<small>latest {dev.recent.length} of {fmt(dev.count)}</small>
 			</h2>
-			{dev.recent.map((item, i) => (
+			{dev.recent.map((item) => (
 				<Hit key={item.id} highlightQuery={false} {...item} />
 			))}
 			{dev.count > dev.recent.length && (

@@ -1,48 +1,44 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+import { useHydrated } from './useHydrated';
+
+const YEAR = 365 * 24 * 60 * 60 * 1000;
 
 function setCookie(name, value) {
-  const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax; Secure`;
+	document.cookie = `${name}=${encodeURIComponent(value)}; expires=${new Date(Date.now() + YEAR).toUTCString()}; path=/; SameSite=Lax; Secure`;
 }
 
 function getCookie(name) {
-  if (typeof document === 'undefined') {
-    return null;
-  }
-  const cookieArr = document.cookie.split('; ');
-  for (const cookie of cookieArr) {
-    const [cookieName, cookieValue] = cookie.split('=');
-    if (cookieName === name) {
-      return decodeURIComponent(cookieValue);
-    }
-  }
-  return null;
+	const found = document.cookie.split('; ').find((cookie) => cookie.split('=')[0] === name);
+	return found ? decodeURIComponent(found.split('=')[1]) : null;
 }
 
 function parse(value) {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return value;
-  }
+	try {
+		return JSON.parse(value);
+	} catch {
+		return value;
+	}
 }
 
-// --- starts with `initialValue` so the first render matches the pre-rendered page; the cookie is applied after hydration
+// --- `initialValue` until hydration, so the first render matches the pre-rendered page; then the cookie's value
 export function useCookieState(key, initialValue) {
-  const [state, setState] = useState(initialValue);
+	const hydrated = useHydrated();
+	const [chosen, setChosen] = useState(undefined);
+	const stored = hydrated ? getCookie(key) : null;
 
-  useEffect(() => {
-    const cookieValue = getCookie(key);
-    if (cookieValue !== null) {
-      setState(parse(cookieValue));
-      setCookie(key, cookieValue);
-    }
-  }, [key]);
+	// --- a visit keeps the cookie for another year
+	useEffect(() => {
+		const value = getCookie(key);
+		if (value !== null) {
+			setCookie(key, value);
+		}
+	}, [key]);
 
-  const update = (value) => {
-    setCookie(key, JSON.stringify(value));
-    setState(value);
-  };
+	const update = (value) => {
+		setCookie(key, JSON.stringify(value));
+		setChosen(value);
+	};
 
-  return [state, update];
+	return [chosen !== undefined ? chosen : stored !== null ? parse(stored) : initialValue, update];
 }

@@ -12,6 +12,7 @@ const speakerNames = (item) => [...new Set(item.answer.map((t) => t.speaker).fil
 // the marked row stays in view inside the list, and the playing row's bar fills as its segment plays
 export default function TransmissionLog({ items, active, playing, player, external, onJump }) {
 	const list = useRef(null);
+	const { duration, now } = player;
 	// --- following pauses while someone scrolls the list by hand
 	const touched = useRef(0);
 	const touch = () => {
@@ -31,13 +32,13 @@ export default function TransmissionLog({ items, active, playing, player, extern
 	// --- drawn every frame from the counted-forward position, straight on the row, so the bar fills smoothly
 	useEffect(() => {
 		const row = playing != null && list.current?.children[playing];
-		const span = row && segment(items, playing, player?.duration);
+		const span = row && segment(items, playing, duration);
 		if (!span) {
 			return undefined;
 		}
 		let frame;
 		const draw = () => {
-			const t = player.now();
+			const t = now();
 			if (t != null) {
 				row.style.setProperty('--progress', progress(span, t).toFixed(4));
 			}
@@ -48,7 +49,7 @@ export default function TransmissionLog({ items, active, playing, player, extern
 			cancelAnimationFrame(frame);
 			row.style.removeProperty('--progress');
 		};
-	}, [playing, items, player?.duration]);
+	}, [playing, items, duration, now]);
 
 	return (
 		<section className="frame ep-log" aria-label="Transmission log">

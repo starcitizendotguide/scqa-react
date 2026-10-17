@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { useCookieState } from '../hooks/useCookieState';
+import { useHydrated } from '../hooks/useHydrated';
 import { initialSearchState } from '../searchState.server';
 
 import searchClient from '../searchClient';
@@ -31,11 +32,8 @@ export default function Home({ loaderData }) {
   // --- the pre-rendered page is the bare search page. A URL with a query hydrates that page first and then
   // starts a fresh search from the URL.
   const [withQuery] = useState(() => typeof window !== 'undefined' && hasQuery());
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
-
-  const live = withQuery && mounted;
+  const hydrated = useHydrated();
+  const live = withQuery && hydrated;
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
