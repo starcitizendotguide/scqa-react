@@ -189,10 +189,10 @@ export default function Episode({ loaderData, params }) {
 												<Icon name="hud-list" />
 											</a>
 											<CopyButton
-												value={() => `${window.location.origin}/episode/${videoId}#rec-${item.id}`}
+												value={() => `${window.location.origin}/star/vault/${item.id}`}
 												icon="hud-link"
 												className="dim"
-												title="Copy a link to this question in the episode"
+												title="Copy the permalink of this answer"
 											/>
 										</span>
 									</li>
