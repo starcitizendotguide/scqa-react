@@ -15,7 +15,9 @@
 	"scripts": {
 		"dev": "react-router dev --host 0.0.0.0",
 		"build": "react-router build",
-		"start": "react-router dev"
+		"start": "react-router dev",
+		"lint": "eslint src *.js",
+		"test": "vitest run"
 	},
 	"browserslist": {
 		"production": [
