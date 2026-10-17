@@ -29,16 +29,18 @@ const initials = (name) => {
 	return letters || name.slice(0, 2).toUpperCase();
 };
 
-function FilterLink({ attribute, param, value, className, children }) {
+function FilterLink({ attribute, param, value, className, title, children }) {
 	const filter = useContext(FilterContext);
 	const href = param === 'topic' ? topicUrl(value) : `/?${param}=${encodeURIComponent(value)}`;
-	const onClick = filter ? (event) => {
-		if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) {
+	// --- never also expands a clipped answer it sits in
+	const onClick = (event) => {
+		event.stopPropagation();
+		if (filter && !event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) {
 			event.preventDefault();
 			filter(attribute, value);
 		}
-	} : undefined;
-	return <a href={href} className={className} onClick={onClick}>{children}</a>;
+	};
+	return <a href={href} className={className} onClick={onClick} title={title}>{children}</a>;
 }
 
 function Turn({ turn, developers, children }) {
@@ -49,7 +51,7 @@ function Turn({ turn, developers, children }) {
 			<div className="min-w-0">
 				<div className="who">
 					{turn.speaker && developers?.includes(turn.speaker)
-						? <FilterLink attribute="developers" param="developer" value={turn.speaker}>{turn.speaker}</FilterLink>
+						? <FilterLink attribute="developers" param="developer" value={turn.speaker} title={`All answers by ${turn.speaker}`}>{turn.speaker}</FilterLink>
 						: name || 'Cloud Imperium'}
 					{turn.role && <span>{turn.role}</span>}
 				</div>
