@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCurrentRefinements, useInstantSearch } from 'react-instantsearch';
 import Icon from './Icon';
+import { topicLabel } from '../topics';
 
 const fmt = (n) => n.toLocaleString('en-US');
 
@@ -14,7 +15,9 @@ const ResultsBar = ({ highlight, onHighlight }) => {
 		if (contiguous) {
 			return [{ attribute: 'year', value: 'range', label: `${years[0]} – ${years[years.length - 1]}`, all: group.refinements }];
 		}
-		return group.refinements;
+		return group.attribute === 'topics'
+			? group.refinements.map((r) => ({ ...r, label: topicLabel(r.label) }))
+			: group.refinements;
 	});
 	const remove = (chip) => (chip.all ? chip.all.forEach((r) => refine(r)) : refine(chip));
 

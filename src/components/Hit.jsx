@@ -10,6 +10,7 @@ import { Highlighted, RichText } from './RichText';
 import YouTubeModal from './YouTubeModal';
 import TwitchModal from './TwitchModal';
 import Icon from './Icon';
+import { topicLabel, topicUrl } from '../topics';
 
 function Hit({ highlightQuery, ...hit }) {
 	return <div className='hit mt-4'>
@@ -39,7 +40,7 @@ function SpeakerLabel({ turn }) {
 }
 
 function QaHit({ hit, highlightQuery }) {
-	const { id, question, asked_by, answer, source, credit } = hit;
+	const { id, question, asked_by, answer, source, credit, topics } = hit;
 	const text = formatted(hit, highlightQuery);
 	const card = useRef();
 	const labelled = answer.length > 1 || answer.some((t) => t.speaker || t.role);
@@ -64,6 +65,15 @@ function QaHit({ hit, highlightQuery }) {
 							</div>
 						))}
 					</blockquote>
+					{topics?.length > 0 && (
+						<div className='no-capture flex flex-wrap gap-1 mb-2'>
+							{topics.map((topic) => (
+								<a key={topic} href={topicUrl(topic)} className='px-2 py-0.5 rounded-full text-xs no-underline border border-sc-blue-800 text-gray-300 hover:border-sc-blue-300 hover:text-sc-blue-300'>
+									{topicLabel(topic)}
+								</a>
+							))}
+						</div>
+					)}
 					<div className='flex flex-row justify-between'>
 						<div>
 							- {introductionText(source, asked_by)} <SourceLink source={source} /> | <TimeDelta timestamp={source.published_at} />

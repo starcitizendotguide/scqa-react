@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useClearRefinements, useInstantSearch, useRefinementList } from 'react-instantsearch';
 import Icon from './Icon';
+import { topicLabel } from '../topics';
 
 export const FACETS = [
 	{ attribute: 'source.show', param: 'show' },
+	{ attribute: 'topics', param: 'topic' },
 	{ attribute: 'year', param: 'year' },
 	{ attribute: 'developers', param: 'developer' },
 ];
@@ -42,6 +44,36 @@ function ShowFacet() {
 		<section className="mb-5">
 			<Title>Show</Title>
 			{items.map((item) => <Row key={item.value} item={item} refine={refine} fill={(item.count / max) * 100} />)}
+		</section>
+	);
+}
+
+const TOPICS_SHOWN = 12;
+
+function TopicFacet() {
+	const [all, setAll] = useState(false);
+	const { items, refine } = useRefinementList({ attribute: 'topics', limit: 100, sortBy: ['isRefined', 'count:desc', 'name:asc'] });
+	const shown = all ? items : items.slice(0, TOPICS_SHOWN);
+	return (
+		<section className="mb-5">
+			<Title>Topic</Title>
+			<div className="flex flex-wrap gap-1">
+				{shown.map((item) => (
+					<button
+						key={item.value}
+						onClick={() => refine(item.value)}
+						aria-pressed={item.isRefined}
+						className={`px-2 py-0.5 rounded-full text-xs border ${item.isRefined
+							? 'bg-sc-blue-300 border-sc-blue-300 text-sc-blue-950'
+							: 'border-sc-blue-800 text-gray-200 hover:border-sc-blue-300 hover:text-sc-blue-300'}`}
+					>
+						{topicLabel(item.label)} <span className={item.isRefined ? 'text-sc-blue-900' : 'text-gray-400'}>{fmt(item.count)}</span>
+					</button>
+				))}
+			</div>
+			{items.length > TOPICS_SHOWN && (
+				<button className="button-link text-xs mt-1" onClick={() => setAll(!all)}>{all ? 'Show less' : `Show all ${items.length}`}</button>
+			)}
 		</section>
 	);
 }
@@ -164,6 +196,7 @@ const FacetRail = ({ open, onClose }) => {
 				</div>
 				<div className={ready ? '' : 'hidden'}>
 					<ShowFacet />
+					<TopicFacet />
 					<YearFacet />
 					<DeveloperFacet />
 				</div>
