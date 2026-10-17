@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useClearRefinements, useRefinementList } from 'react-instantsearch';
+import { useClearRefinements, useInstantSearch, useRefinementList } from 'react-instantsearch';
 import Icon from './Icon';
 
 export const FACETS = [
@@ -144,6 +144,9 @@ function DeveloperFacet() {
 
 const FacetRail = ({ open, onClose }) => {
 	const { refine: clearAll, canRefine } = useClearRefinements();
+	// --- the facets appear together with the first results instead of growing (and pushing each other) one by one
+	const { results } = useInstantSearch();
+	const ready = results && !results.__isArtificial;
 	return (
 		<>
 			{open && <div className="md:hidden fixed inset-0 bg-black/60 z-40" onClick={onClose}></div>}
@@ -155,9 +158,11 @@ const FacetRail = ({ open, onClose }) => {
 						<button className="md:hidden text-gray-300" onClick={onClose} aria-label="Close filters"><Icon name="xmark" /></button>
 					</span>
 				</div>
-				<ShowFacet />
-				<YearFacet />
-				<DeveloperFacet />
+				<div className={ready ? '' : 'hidden'}>
+					<ShowFacet />
+					<YearFacet />
+					<DeveloperFacet />
+				</div>
 			</aside>
 		</>
 	);

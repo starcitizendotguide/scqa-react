@@ -75,7 +75,7 @@ const Search = () => {
         <Index indexName={sortIndex} indexId="vault">
           <SortController newest={newestFirst} />
           <Configure hitsPerPage={30} />
-          <div className="flex gap-4 items-start">
+          <div className="flex gap-4 items-start min-h-screen">
             <FacetRail open={filtersOpen} onClose={() => setFiltersOpen(false)} />
             <main className="flex-1 min-w-0">
               <ResultsBar highlight={highlightQuery} onHighlight={setHighlightQuery} />
