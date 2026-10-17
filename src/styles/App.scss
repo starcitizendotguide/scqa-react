@@ -639,10 +639,14 @@ a {
 		color: var(--cyan);
 	}
 	&.on::before {
-		content: '▸';
+		content: '';
 		position: absolute;
 		left: -12px;
-		color: var(--amber);
+		top: 50%;
+		transform: translateY(-50%);
+		border-left: 6px solid var(--amber);
+		border-top: 4px solid transparent;
+		border-bottom: 4px solid transparent;
 	}
 	b {
 		font: 12px/21px var(--hud);
