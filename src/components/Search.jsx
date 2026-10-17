@@ -47,27 +47,33 @@ const createRouting = () => ({
 	stateMapping,
 });
 
-// --- results pre-rendered at build time stay until the index has changed since: a one-hit request once the page
-// is idle compares the total, and only then the results are fetched (and re-rendered) again
-function RefreshIfStale({ total }) {
+// --- the size of the whole index, for the header and the search field. Results pre-rendered at build time stay
+// until the index has changed since: a one-hit request once the page is idle compares the total, and only then the
+// results are fetched (and re-rendered) again.
+function IndexTotal({ total, onTotal, prerendered }) {
 	const { refresh } = useInstantSearch();
-	const latest = useRef(refresh);
-	latest.current = refresh;
+	const latest = useRef({ refresh, onTotal, total });
+	latest.current = { refresh, onTotal, total };
 	useEffect(() => afterLoad(async () => {
 		try {
 			const { estimatedTotalHits } = await meiliSearchInstance.index(INDEX).search('', { limit: 0 });
-			if (estimatedTotalHits !== total) {
-				latest.current();
+			if (estimatedTotalHits !== latest.current.total) {
+				latest.current.onTotal(estimatedTotalHits);
+				if (prerendered) {
+					latest.current.refresh();
+				}
 			}
 		} catch {
 			// --- keep the pre-rendered results
 		}
-	}), [total]);
+	}), [prerendered]);
 	return null;
 }
 
-const Search = ({ searchClient, serverState, routing = true, highlightQuery, onHighlight, newestFirst, onNewestFirst }) => {
+const Search = ({ searchClient, serverState, total: knownTotal, routing = true, highlightQuery, onHighlight, newestFirst, onNewestFirst }) => {
 	const [filtersOpen, setFiltersOpen] = useState(false);
+	const prerenderedTotal = serverState?.initialResults?.vault?.results?.[0]?.nbHits;
+	const [total, setTotal] = useState(knownTotal ?? prerenderedTotal);
 	const [setup] = useState(() => ({
 		routing: routing ? createRouting() : undefined,
 		sortIndex: initialSort(newestFirst, routing && typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('question') : ''),
@@ -80,19 +86,19 @@ const Search = ({ searchClient, serverState, routing = true, highlightQuery, onH
 				routing={setup.routing}
 				future={{ preserveSharedStateOnUnmount: true, }}
 			>
-				{serverState && <RefreshIfStale total={serverState.initialResults?.vault?.results?.[0]?.nbHits} />}
-				<div className="container" data-prerendered={serverState ? '' : undefined}>
-					<SearchHeader newest={newestFirst} onSortChange={onNewestFirst} onOpenFilters={() => setFiltersOpen(true)} />
+				<IndexTotal total={total} onTotal={setTotal} prerendered={!!serverState} />
+				<div data-prerendered={serverState ? '' : undefined}>
+					<SearchHeader total={total} newest={newestFirst} onSortChange={onNewestFirst} onOpenFilters={() => setFiltersOpen(true)} />
 					<noscript>
-						<p className="mt-4 bg-sc-blue-950 p-4">The search needs JavaScript. Every answer also has its own page, listed in the <a href="/sitemap-index.xml">sitemap</a>.</p>
+						<p className="frame message mt-4">The search needs JavaScript. Every answer also has its own page, listed in the <a href="/sitemap-index.xml">sitemap</a>.</p>
 					</noscript>
 					<Index indexName={setup.sortIndex} indexId="vault">
 						<SortController newest={newestFirst} />
 						<Configure hitsPerPage={30} />
-						<div className="flex gap-4 items-start min-h-screen">
+						<ResultsBar total={total} highlight={highlightQuery} onHighlight={onHighlight} />
+						<div className="layout">
 							<FacetRail open={filtersOpen} onClose={() => setFiltersOpen(false)} />
-							<main className="flex-1 min-w-0">
-								<ResultsBar highlight={highlightQuery} onHighlight={onHighlight} />
+							<main className="min-w-0">
 								<SearchResults highlightQuery={highlightQuery} />
 							</main>
 						</div>

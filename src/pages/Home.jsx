@@ -40,6 +40,7 @@ export default function Home({ loaderData }) {
         key={live ? 'live' : 'prerendered'}
         searchClient={searchClient}
         serverState={live ? null : loaderData?.serverState}
+        total={loaderData?.serverState?.initialResults?.vault?.results?.[0]?.nbHits}
         routing={!withQuery || live}
         highlightQuery={highlightQuery}
         onHighlight={setHighlightQuery}

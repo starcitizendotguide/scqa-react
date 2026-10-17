@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSearchBox } from 'react-instantsearch';
-import Tooltip from './Tooltip';
 import Icon from './Icon';
+import { fmt } from '../utils/format';
 
 
 const queryHook = (query, search) => {
@@ -9,7 +9,9 @@ const queryHook = (query, search) => {
 	queryHook.timerId = setTimeout(() => search(query), 150);
 };
 
-function CustomSearchBox(props) {
+const typing = (target) => target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName);
+
+function CustomSearchBox({ total, onOpenFilters }) {
 
 	const inputRef = useRef(null);
 	const { query, refine } = useSearchBox({
@@ -18,6 +20,21 @@ function CustomSearchBox(props) {
 
 	const [inputValue, setInputValue] = useState(query);
 
+	// --- focused right away on wide screens (no on-screen keyboard popping up); "/" focuses it from anywhere
+	useEffect(() => {
+		if (window.matchMedia('(min-width: 980px)').matches) {
+			inputRef.current?.focus();
+		}
+		const onKey = (event) => {
+			if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && !typing(event.target)) {
+				event.preventDefault();
+				inputRef.current?.focus();
+				inputRef.current?.select();
+			}
+		};
+		document.addEventListener('keydown', onKey);
+		return () => document.removeEventListener('keydown', onKey);
+	}, []);
 
 	function setQuery(newQuery) {
 		setInputValue(newQuery);
@@ -25,7 +42,7 @@ function CustomSearchBox(props) {
 	}
 
 	return (
-		<div className="flex items-center w-full">
+		<div className="qrow">
 			<form
 				action=""
 				role="search"
@@ -48,44 +65,26 @@ function CustomSearchBox(props) {
 						inputRef.current.focus();
 					}
 				}}
-				className="flex-1"
 			>
-				<div className="relative z-0 w-full group">
+				<div className="field" onClick={() => inputRef.current?.focus()}>
+					<Icon name="hud-search" />
 					<input
-						className="block font-bold w-full text-lg text-gray-200 bg-transparent border-b-2 focus:outline-none focus:ring-0 focus:border-sc-blue-300 peer h-10"
+						ref={inputRef}
 						type="search"
 						id="searchbox"
-						placeholder=''
+						placeholder={`Search ${total ? `${fmt(total)} ` : ''}answers — ships, features, systems…`}
 						autoComplete='off'
 						autoCorrect='off'
 						spellCheck='false'
 						maxLength={512}
-						autoFocus={true}
 						value={inputValue}
 						onChange={(event) => setQuery(event.currentTarget.value)}
 					/>
-					<label
-						htmlFor="searchbox"
-						className="md:animate-typing overflow-hidden whitespace-nowrap peer-focus:font-medium absolute text-lg font-bold text-sc-blue-300 duration-300 transform -translate-y-6 scale-75 top-1 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-sc-blue-300 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
-						What are you looking for?
-					</label>
+					<kbd title='Press / to search'>/</kbd>
 				</div>
+				<button type="submit" className="go">Search</button>
+				<button type="button" className="act filters-btn" onClick={onOpenFilters}><Icon name="hud-filter" />Filters</button>
 			</form>
-			<Tooltip
-				className='ml-2'
-				position='left'
-				message={
-					<>
-						<b>Advanced Search Query</b>
-						<ul>
-							<li>Phrase Search: Use quotes (" ") around words for exact matches, e.g., <b>"star citizen"</b>.</li>
-							<li>Exclude Words: Add a minus (-) before a word to exclude it, e.g., <b>star -citizen</b>.</li>
-							<li>Note: Typos aren't tolerated within quotes, and "-" inside quotes is not treated as exclusion.</li>
-						</ul>
-					</>
-				}>
-				<label className='text-sc-blue-300'><Icon name="circle-question" /></label>
-			</Tooltip>
 		</div>
 	);
 };
