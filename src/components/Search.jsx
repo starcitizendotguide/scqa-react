@@ -9,6 +9,8 @@ import SearchResults from './SearchResults';
 import SortController, { initialSort } from './SortController';
 import FacetRail, { FACETS } from './FacetRail';
 import { afterLoad } from '../utils/afterLoad';
+import { meiliSearchInstance } from '../searchClient';
+import { INDEX } from '../searchConfig';
 
 export const QUERY_PARAMS = ['question', ...FACETS.map((f) => f.param)];
 
@@ -45,12 +47,22 @@ const createRouting = () => ({
 	stateMapping,
 });
 
-// --- results that were pre-rendered at build time are refreshed once the page is idle
-function RefreshWhenIdle() {
+// --- results pre-rendered at build time stay until the index has changed since: a one-hit request once the page
+// is idle compares the total, and only then the results are fetched (and re-rendered) again
+function RefreshIfStale({ total }) {
 	const { refresh } = useInstantSearch();
 	const latest = useRef(refresh);
 	latest.current = refresh;
-	useEffect(() => afterLoad(() => latest.current()), []);
+	useEffect(() => afterLoad(async () => {
+		try {
+			const { estimatedTotalHits } = await meiliSearchInstance.index(INDEX).search('', { limit: 0 });
+			if (estimatedTotalHits !== total) {
+				latest.current();
+			}
+		} catch {
+			// --- keep the pre-rendered results
+		}
+	}), [total]);
 	return null;
 }
 
@@ -68,7 +80,7 @@ const Search = ({ searchClient, serverState, routing = true, highlightQuery, onH
 				routing={setup.routing}
 				future={{ preserveSharedStateOnUnmount: true, }}
 			>
-				{serverState && <RefreshWhenIdle />}
+				{serverState && <RefreshIfStale total={serverState.initialResults?.vault?.results?.[0]?.nbHits} />}
 				<div className="container" data-prerendered={serverState ? '' : undefined}>
 					<SearchHeader newest={newestFirst} onSortChange={onNewestFirst} onOpenFilters={() => setFiltersOpen(true)} />
 					<noscript>

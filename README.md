@@ -31,8 +31,8 @@ pre-renders the home page and one answer and episode from the public search endp
 data in the browser. Paths that were not pre-rendered are served by `build/client/__spa-fallback.html`.
 
 The home page is pre-rendered with the first page of results for the bare search, fetched from the search endpoint
-during the build (and refreshed in the browser once the page is idle). If the endpoint is unreachable the build still
-succeeds and the page searches in the browser instead.
+during the build (the browser fetches them again only if the index has changed since). If the endpoint is unreachable
+the build still succeeds and the page searches in the browser instead.
 
 The sitemap (`sitemap-index.xml`, referenced by `robots.txt`) is generated from the archive when a release is built
 and is not part of this repository.
