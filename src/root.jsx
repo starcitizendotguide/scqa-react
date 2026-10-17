@@ -8,6 +8,7 @@ import video_poster from './styles/assets/background-poster.webp';
 import GenericNotFound from './pages/GenericNotFound';
 import { pageMeta } from './meta';
 import { afterLoad } from './utils/afterLoad';
+import { IconSprite } from './components/Icon';
 
 // --- the poster (the video's first frame) paints right away; the video itself only loads once the page is idle,
 // so it never competes with the page's own requests. Skipped for reduced motion and data saver.
@@ -42,6 +43,7 @@ export function Layout({ children }) {
 				<Links />
 			</head>
 			<body>
+				<IconSprite />
 				<div className="z-[-1] fixed w-full h-full overflow-hidden inset-y-0">
 					<BackgroundVideo />
 				</div>
