@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useClearRefinements, useRefinementList } from 'react-instantsearch';
+import Icon from './Icon';
 
 export const FACETS = [
 	{ attribute: 'source.show', param: 'show' },
@@ -148,10 +149,10 @@ const FacetRail = ({ open, onClose }) => {
 			{open && <div className="md:hidden fixed inset-0 bg-black/60 z-40" onClick={onClose}></div>}
 			<aside className={`${open ? 'fixed inset-y-0 left-0 z-50 w-80 overflow-y-auto' : 'hidden'} md:block md:w-72 md:shrink-0 md:sticky md:top-4 md:mt-4 md:max-h-[calc(100vh-2rem)] md:overflow-y-auto bg-sc-blue-950 p-4`}>
 				<div className="flex justify-between items-baseline mb-3">
-					<h2 className="font-semibold text-gray-100"><i className="fas fa-filter text-sc-blue-300 mr-1"></i>Filters</h2>
+					<h2 className="font-semibold text-gray-100"><Icon name="filter" className="text-sc-blue-300 mr-1" />Filters</h2>
 					<span className="flex gap-3">
 						{canRefine && <button className="button-link text-xs" onClick={clearAll}>Reset</button>}
-						<button className="md:hidden text-gray-300" onClick={onClose} aria-label="Close filters"><i className="fas fa-xmark"></i></button>
+						<button className="md:hidden text-gray-300" onClick={onClose} aria-label="Close filters"><Icon name="xmark" /></button>
 					</span>
 				</div>
 				<ShowFacet />

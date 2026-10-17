@@ -9,6 +9,7 @@ import { pageMeta } from '../meta';
 import Hit from '../components/Hit';
 import BackLink from '../components/BackLink';
 import TimeDelta from '../components/TimeDelta';
+import Icon from '../components/Icon';
 
 const clock = (s) => {
 	const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
@@ -94,7 +95,7 @@ export default function Episode({ loaderData, params }) {
 					{youtube && item.source.start != null && (
 						<button className='mt-4 px-3 py-1 bg-sc-blue-950 text-sc-blue-300 text-sm font-mono hover:opacity-80'
 							onClick={() => jump(item.source.start)} aria-label={`Play from ${clock(item.source.start)}`}>
-							<i className="fas fa-play mr-1"></i>{clock(item.source.start)}
+							<Icon name="play" className="mr-1" />{clock(item.source.start)}
 						</button>
 					)}
 					<Hit highlightQuery={false} {...item} />

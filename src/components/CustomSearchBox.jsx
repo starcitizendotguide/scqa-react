@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useSearchBox } from 'react-instantsearch';
 import Tooltip from './Tooltip';
+import Icon from './Icon';
 
 
 const queryHook = (query, search) => {
@@ -83,7 +84,7 @@ function CustomSearchBox(props) {
 						</ul>
 					</>
 				}>
-				<label className='fas fa-circle-question text-sc-blue-300'></label>
+				<label className='text-sc-blue-300'><Icon name="circle-question" /></label>
 			</Tooltip>
 		</div>
 	);

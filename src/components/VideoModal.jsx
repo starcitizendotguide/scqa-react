@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import Icon from './Icon';
 
 const VideoModal = ({ src, title, linkUrl, platform, onClose }) => {
 	const closeRef = useRef(null);
@@ -24,7 +25,7 @@ const VideoModal = ({ src, title, linkUrl, platform, onClose }) => {
 					<span className="flex-1 min-w-0 truncate text-sm font-semibold text-sc-blue-300">{title}</span>
 					{linkUrl && (
 						<a href={linkUrl} target="_blank" rel="noopener noreferrer" className="text-sm whitespace-nowrap">
-							Open on {platform} <i className="fas fa-arrow-up-right-from-square ml-1"></i>
+							Open on {platform} <Icon name="arrow-up-right-from-square" className="ml-1" />
 						</a>
 					)}
 					<button
@@ -33,7 +34,7 @@ const VideoModal = ({ src, title, linkUrl, platform, onClose }) => {
 						className="w-8 h-8 flex items-center justify-center text-gray-200 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-sc-blue-300"
 						aria-label="Close video"
 					>
-						<i className="fas fa-xmark text-lg"></i>
+						<Icon name="xmark" className="text-lg" />
 					</button>
 				</div>
 				<div className="aspect-video bg-black">

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from 'react-router';
 
-import '@fortawesome/fontawesome-free/css/all.min.css';
 import './styles/App.scss';
 import video_background from './styles/assets/background.webm';
 import video_poster from './styles/assets/header.webp';

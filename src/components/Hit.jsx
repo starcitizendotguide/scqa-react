@@ -9,6 +9,7 @@ import { Highlighted, RichText } from './RichText';
 
 import YouTubeModal from './YouTubeModal';
 import TwitchModal from './TwitchModal';
+import Icon from './Icon';
 
 function Hit({ highlightQuery, ...hit }) {
 	return <div className='hit mt-4'>
@@ -70,7 +71,7 @@ function QaHit({ hit, highlightQuery }) {
 						<div>
 							<Tooltip message='Save Card as Image' className='no-capture float-right pr-2'>
 								<button className='button-link' aria-label="Save Card as Image" onClick={() => captureComponent(question, card)}>
-									<i className="fas fa-camera-retro"></i>
+									<Icon name="camera-retro" />
 								</button>
 							</Tooltip>
 							<ClipboardButtons id={id} />
@@ -131,7 +132,7 @@ function EpisodeLink({ source }) {
 	return (
 		<Tooltip className='no-capture float-right pr-2' message='All Q&As from this episode'>
 			<Link to={`/episode/${source.video_id}`} className="button-link" aria-label="All Q&As from this episode">
-				<i className="fas fa-list-ul"></i>
+				<Icon name="list-ul" />
 			</Link>
 		</Tooltip>
 	);
@@ -151,7 +152,7 @@ function CreditLink({ credit }) {
 				className="float-right pr-2 group relative"
 				aria-label='Go to the transcriber of this card'
 			>
-				<i className="fas fa-scroll"></i>
+				<Icon name="scroll" />
 			</a>
 		</Tooltip>
 	);
@@ -163,14 +164,14 @@ function ClipboardButtons({ id }) {
 			<CopyToClipboard copyValue={id}>
 				<Tooltip className='no-capture float-right pr-2' message={`ID: ${id} (Click to copy)`}>
 					<button className="button-link" aria-label="Copy Card Fingerprint ID">
-						<i className="fas fa-fingerprint"></i>
+						<Icon name="fingerprint" />
 					</button>
 				</Tooltip>
 			</CopyToClipboard>
 			<CopyToClipboard copyValue={() => `${window.location.origin}/star/vault/${id}`}>
 				<Tooltip className='no-capture float-right pr-2' message='Perma link (Click to copy)'>
 					<button className="button-link" aria-label="Copy Permalink to Card">
-						<i className="fas fa-link"></i>
+						<Icon name="link" />
 					</button>
 				</Tooltip>
 			</CopyToClipboard>

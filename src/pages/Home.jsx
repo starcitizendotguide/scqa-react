@@ -15,6 +15,7 @@ import SortController from '../components/SortController';
 import FacetRail, { FACETS } from '../components/FacetRail';
 
 import { getHashFromUrl } from '../utils/helpers';
+import Icon from '../components/Icon';
 
 
 const Search = () => {
@@ -93,7 +94,7 @@ const SearchShell = () => (
       <div className="absolute h-full w-full bg-[conic-gradient(#58b4f6_20deg,transparent_120deg)]"></div>
       <header className='relative z-20 bg-sc-blue-950 p-4 flex flex-col md:flex-row md:items-center gap-3'>
         <a href="/" className="no-underline text-sc-blue-300 font-bold tracking-wide whitespace-nowrap">
-          <i className="fas fa-star mr-1"></i>starfarer<span className="text-gray-400">.space</span>
+          <Icon name="star" className="mr-1" />starfarer<span className="text-gray-400">.space</span>
         </a>
         <h1 className="flex-1 min-w-0 text-gray-400">Search thousands of answers Star Citizen developers gave in official shows, streams and posts.</h1>
       </header>

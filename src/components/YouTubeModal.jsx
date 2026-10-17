@@ -3,6 +3,7 @@ import React, { useCallback, useState } from "react";
 import CopyToClipboard from "./CopyToClipboard";
 import Tooltip from "./Tooltip";
 import VideoModal from "./VideoModal";
+import Icon from './Icon';
 
 function YouTubeModal({ videoId, start, title }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -18,13 +19,13 @@ function YouTubeModal({ videoId, start, title }) {
 			</Tooltip>
 			<Tooltip className="no-capture" message={`Open in new tab`}>
 				<a href={linkUrl} target="_blank" rel="noopener noreferrer" aria-label='Go to YouTube source'>
-					<i className="pl-2 fas fa-arrow-up-right-from-square"></i>
+					<Icon name="arrow-up-right-from-square" className="pl-2" />
 				</a>
 			</Tooltip>
 			<CopyToClipboard copyValue={linkUrl}>
 				<Tooltip className="no-capture" message={`Click to copy link to YouTube`}>
 					<button className="button-link pl-2" aria-label='Copy Link to YouTube Source'>
-						<i className="fas fa-brands fa-youtube"></i>
+						<Icon name="youtube" />
 					</button>
 				</Tooltip>
 			</CopyToClipboard>

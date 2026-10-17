@@ -25,3 +25,20 @@ blockquote {
         @apply list-disc ml-10;
     }
 } 
+.icon {
+    display: inline-block;
+    box-sizing: content-box;
+    height: 1em;
+    overflow: visible;
+    vertical-align: -0.125em;
+}
+
+.icon-spin {
+    animation: icon-spin 2s linear infinite;
+}
+
+@keyframes icon-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

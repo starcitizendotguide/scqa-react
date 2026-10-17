@@ -1,5 +1,6 @@
 import React from 'react';
 import { useCurrentRefinements, useInstantSearch } from 'react-instantsearch';
+import Icon from './Icon';
 
 const fmt = (n) => n.toLocaleString('en-US');
 
@@ -29,7 +30,7 @@ const ResultsBar = ({ highlight, onHighlight }) => {
 					onClick={() => remove(refinement)}
 					aria-label={`Remove filter ${refinement.label}`}
 				>
-					{refinement.label} <i className="fas fa-xmark ml-1"></i>
+					{refinement.label} <Icon name="xmark" className="ml-1" />
 				</button>
 			))}
 			<label className="ml-auto inline-flex items-center gap-2 text-gray-300 cursor-pointer">
