@@ -280,31 +280,7 @@ a {
 	}
 }
 
-.status {
-	margin-left: auto;
-	font: 12px/1.5 var(--hud);
-	letter-spacing: .06em;
-	color: var(--dim);
-	text-align: right;
-	white-space: nowrap;
-	text-transform: uppercase;
-	b {
-		color: var(--amber);
-		font: 700 18px var(--head);
-		letter-spacing: .05em;
-	}
-}
 
-.dot {
-	display: inline-block;
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: var(--green);
-	box-shadow: 0 0 8px var(--green);
-	margin-right: 6px;
-	vertical-align: 1px;
-}
 
 // --- query panel
 .query {
@@ -1049,9 +1025,6 @@ a {
 	}
 	.tabs {
 		display: none;
-	}
-	.status {
-		margin-left: 0;
 	}
 	.qlabel {
 		align-items: flex-start;

@@ -45,7 +45,7 @@ function SyntaxHelp() {
 
 const SearchHeader = ({ total, newest, onSortChange, onOpenFilters }) => (
 	<>
-		<TopBar total={total} home />
+		<TopBar home />
 		<h1 className="sr-only">Search thousands of answers Star Citizen developers gave in official shows, streams and posts.</h1>
 		<section className="frame cut query">
 			<span className="cut-bg" aria-hidden="true"></span>
