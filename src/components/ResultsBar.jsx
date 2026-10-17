@@ -1,13 +1,12 @@
 import React from 'react';
-import { useCurrentRefinements, useInstantSearch } from 'react-instantsearch';
-import Icon from './Icon';
+import { useClearRefinements, useCurrentRefinements, useInstantSearch } from 'react-instantsearch';
 import { topicLabel } from '../topics';
+import { fmt } from '../utils/format';
 
-const fmt = (n) => n.toLocaleString('en-US');
-
-const ResultsBar = ({ highlight, onHighlight }) => {
+const ResultsBar = ({ total, highlight, onHighlight }) => {
 	const { results, uiState } = useInstantSearch();
 	const { items, refine } = useCurrentRefinements();
+	const { refine: clearAll } = useClearRefinements();
 	const query = uiState['']?.query?.trim();
 	const chips = items.flatMap((group) => {
 		const years = group.attribute === 'year' ? group.refinements.map((r) => Number(r.value)).sort((a, b) => a - b) : [];
@@ -20,25 +19,29 @@ const ResultsBar = ({ highlight, onHighlight }) => {
 			: group.refinements;
 	});
 	const remove = (chip) => (chip.all ? chip.all.forEach((r) => refine(r)) : refine(chip));
+	const found = results?.nbHits ?? 0;
 
 	return (
-		<div className="mt-4 bg-sc-blue-950 px-4 py-2 flex flex-wrap items-center gap-2 text-sm">
-			<span className="text-gray-300">
-				<b>{fmt(results?.nbHits ?? 0)}</b> answers{query ? <> for “{query}”</> : ''}
+		<div className="active">
+			<span className="count">
+				<b>{fmt(found)}</b>{total && (query || chips.length) ? ` of ${fmt(total)}` : ''} records
+				{query ? <> for <q>{query}</q></> : ''}{chips.length ? ' · filters:' : ''}
 			</span>
 			{chips.map((refinement) => (
 				<button
 					key={`${refinement.attribute}-${refinement.value}`}
-					className="px-2 py-0.5 text-[0.8rem] font-semibold bg-sc-blue-300 text-sc-blue-950 hover:opacity-80"
+					type="button"
+					className="pill"
 					onClick={() => remove(refinement)}
 					aria-label={`Remove filter ${refinement.label}`}
 				>
-					{refinement.label} <Icon name="xmark" className="ml-1" />
+					{refinement.label}<span aria-hidden="true">✕</span>
 				</button>
 			))}
-			<label className="ml-auto inline-flex items-center gap-2 text-gray-300 cursor-pointer">
-				<input type="checkbox" checked={highlight} onChange={() => onHighlight(!highlight)} className="accent-yellow-400" />
-				<span className={highlight ? 'highlight-query' : ''}>Highlight matches</span>
+			{chips.length > 0 && <button type="button" className="act" onClick={clearAll}>Reset</button>}
+			<label className="toggle">
+				<input type="checkbox" checked={highlight} onChange={() => onHighlight(!highlight)} />
+				<span>Highlight matches</span>
 			</label>
 		</div>
 	);
