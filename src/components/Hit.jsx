@@ -1,21 +1,19 @@
-import React, { useRef } from 'react';
+import React, { createContext, useContext, useRef } from 'react';
 import { Link, useLocation } from 'react-router';
 
-import CopyToClipboard from './CopyToClipboard';
 import TimeDelta from './TimeDelta';
-import Tooltip from './Tooltip';
-import Card from './Card';
+import AnswerClamp from './AnswerClamp';
+import { PlayButton, CopyButton } from './Actions';
 import { Highlighted, RichText } from './RichText';
 
-import YouTubeModal from './YouTubeModal';
-import TwitchModal from './TwitchModal';
 import Icon from './Icon';
 import { topicLabel, topicUrl } from '../topics';
 
-function Hit({ highlightQuery, ...hit }) {
-	return <div className='hit mt-4'>
-		<QaHit highlightQuery={highlightQuery} hit={hit} />
-	</div>;
+// --- on the search page topic tags and speaker names filter the results in place; elsewhere they link to the search
+export const FilterContext = createContext(null);
+
+function Hit({ highlightQuery, index, full = false, ...hit }) {
+	return <QaHit highlightQuery={highlightQuery} index={index} full={full} hit={hit} />;
 }
 
 const formatted = (hit, highlight) => (path, raw) => {
@@ -26,113 +24,110 @@ const formatted = (hit, highlight) => (path, raw) => {
 	return value ?? raw;
 };
 
-function SpeakerLabel({ turn }) {
-	const who = turn.speaker || turn.initials;
-	if (!who && !turn.role) {
-		return null;
-	}
+const initials = (name) => {
+	const letters = name.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('').slice(0, 2);
+	return letters || name.slice(0, 2).toUpperCase();
+};
+
+function FilterLink({ attribute, param, value, className, children }) {
+	const filter = useContext(FilterContext);
+	const href = param === 'topic' ? topicUrl(value) : `/?${param}=${encodeURIComponent(value)}`;
+	const onClick = filter ? (event) => {
+		if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) {
+			event.preventDefault();
+			filter(attribute, value);
+		}
+	} : undefined;
+	return <a href={href} className={className} onClick={onClick}>{children}</a>;
+}
+
+function Turn({ turn, developers, children }) {
+	const name = turn.speaker || turn.initials;
 	return (
-		<div className="text-sm mb-1">
-			{who && <span className="font-semibold text-sc-blue-300">{who}</span>}
-			{turn.role && <span className="text-gray-400">{who ? ' · ' : ''}{turn.role}</span>}
+		<div className="turn">
+			<span className={`hex${name ? '' : ' cig'}`} aria-hidden="true">{turn.speaker ? initials(turn.speaker) : turn.initials || '★'}</span>
+			<div className="min-w-0">
+				<div className="who">
+					{turn.speaker && developers?.includes(turn.speaker)
+						? <FilterLink attribute="developers" param="developer" value={turn.speaker}>{turn.speaker}</FilterLink>
+						: name || 'Cloud Imperium'}
+					{turn.role && <span>{turn.role}</span>}
+				</div>
+				<div className="txt">{children}</div>
+			</div>
 		</div>
 	);
 }
 
-function QaHit({ hit, highlightQuery }) {
-	const { id, question, asked_by, answer, source, credit, topics } = hit;
+function QaHit({ hit, index, full, highlightQuery }) {
+	const { id, question, asked_by, answer, source, credit, topics, developers } = hit;
 	const text = formatted(hit, highlightQuery);
 	const card = useRef();
-	const labelled = answer.length > 1 || answer.some((t) => t.speaker || t.role);
+	const Heading = full ? 'h1' : 'h2';
+	const title = <Highlighted text={text(['question'], question)} highlight={highlightQuery} />;
 
 	return (
-		<Card
-			ref={card}
-			title={
-				<div className="text-lg text-sc-blue-300 font-semibold">
-					<Highlighted text={text(['question'], question)} highlight={highlightQuery} />
-				</div>
-			}
-
-			content={
-				<>
-					<div className='border-b relative'></div>
-					<blockquote>
-						{answer.map((turn, i) => (
-							<div key={i} className={i > 0 ? 'mt-3' : ''}>
-								{labelled && <SpeakerLabel turn={turn} />}
-								<RichText text={text(['answer', i, 'text'], turn.text)} highlight={highlightQuery} />
-							</div>
+		<article ref={card} className="frame card hit">
+			<div className="card-hd">
+				<span className="label">{index ? `REC-${String(index).padStart(4, '0')}` : 'REC'}{source.show ? ` · ${source.show}` : ''}</span>
+				<span className="label whitespace-nowrap"><TimeDelta timestamp={source.published_at} /></span>
+			</div>
+			<Heading className="card-q">{full ? title : <Link to={`/star/vault/${id}`}>{title}</Link>}</Heading>
+			{asked_by && <div className="label asked">asked by {asked_by}</div>}
+			<AnswerClamp full={full}>
+				{answer.map((turn, i) => (
+					<Turn key={i} turn={turn} developers={developers}>
+						<RichText text={text(['answer', i, 'text'], turn.text)} highlight={highlightQuery} />
+					</Turn>
+				))}
+			</AnswerClamp>
+			<div className="acts no-capture">
+				<PlayButton source={source} />
+				<CopyButton value={() => `${window.location.origin}/star/vault/${id}`} icon="hud-link" label="Link" title="Copy the permalink of this answer" />
+				<EpisodeLink source={source} />
+				<button type="button" className="act dim" title="Save card as image" aria-label="Save card as image" onClick={() => captureComponent(question, card)}>
+					<Icon name="hud-camera" />
+				</button>
+				<CopyButton value={id} icon="hud-id" className="dim" title={`ID: ${id} (click to copy)`} />
+				<CreditLink credit={credit} />
+				{topics?.length > 0 && (
+					<span className="tags">
+						{topics.map((topic) => (
+							<FilterLink key={topic} attribute="topics" param="topic" value={topic} className="tag">{topicLabel(topic)}</FilterLink>
 						))}
-					</blockquote>
-					{topics?.length > 0 && (
-						<div className='no-capture flex flex-wrap gap-1 mb-2'>
-							{topics.map((topic) => (
-								<a key={topic} href={topicUrl(topic)} className='px-2 py-0.5 rounded-full text-xs no-underline border border-sc-blue-800 text-gray-300 hover:border-sc-blue-300 hover:text-sc-blue-300'>
-									{topicLabel(topic)}
-								</a>
-							))}
-						</div>
-					)}
-					<div className='flex flex-row justify-between'>
-						<div>
-							- {introductionText(source, asked_by)} <SourceLink source={source} /> | <TimeDelta timestamp={source.published_at} />
-						</div>
-						<div>
-							<Tooltip message='Save Card as Image' className='no-capture float-right pr-2'>
-								<button className='button-link' aria-label="Save Card as Image" onClick={() => captureComponent(question, card)}>
-									<Icon name="camera-retro" />
-								</button>
-							</Tooltip>
-							<ClipboardButtons id={id} />
-							<EpisodeLink source={source} />
-							<CreditLink credit={credit} />
-						</div>
-					</div>
-				</>
-			}
-		/>
+					</span>
+				)}
+			</div>
+			<div className="hidden capture-visible label mt-3">starfarer.space · {source.title}</div>
+		</article>
 	);
 }
 
 const captureComponent = async (title, componentRef) => {
 	if (componentRef.current) {
-		const captureVisibleElements = componentRef.current.querySelectorAll('.capture-visible');
+		const node = componentRef.current;
+		const captureVisibleElements = node.querySelectorAll('.capture-visible');
 		captureVisibleElements.forEach((el) => el.classList.remove('hidden'));
+		node.classList.add('capturing');
 
-		const { default: html2canvas } = await import('html2canvas');
-		const canvas = await html2canvas(componentRef.current, {
-			ignoreElements: (element) => element.classList.contains('no-capture'),
-			logging: false,
-		});
+		try {
+			const { default: html2canvas } = await import('html2canvas');
+			const canvas = await html2canvas(node, {
+				ignoreElements: (element) => element.classList.contains('no-capture'),
+				backgroundColor: '#02080f',
+				logging: false,
+			});
 
-		captureVisibleElements.forEach((el) => el.classList.add('hidden'));
-
-		const imgData = canvas.toDataURL('image/png');
-
-		const link = document.createElement('a');
-		link.href = imgData;
-		link.download = `${title.replace(/[ ]/g, '-').replace(/[^-a-zA-Z0-9]/g, '')}.png`;
-		link.click();
+			const link = document.createElement('a');
+			link.href = canvas.toDataURL('image/png');
+			link.download = `${title.replace(/[ ]/g, '-').replace(/[^-a-zA-Z0-9]/g, '')}.png`;
+			link.click();
+		} finally {
+			captureVisibleElements.forEach((el) => el.classList.add('hidden'));
+			node.classList.remove('capturing');
+		}
 	}
 };
-
-function SourceLink({ source }) {
-	if (source.platform === 'youtube') {
-		return <YouTubeModal videoId={source.video_id} start={source.start} title={source.title} />;
-	}
-	if (source.platform === 'twitch') {
-		return <TwitchModal videoId={source.video_id} start={source.start} title={source.title} />;
-	}
-	return <a target="_blank" rel="noopener noreferrer" href={source.url}>{source.title}</a>;
-}
-
-function introductionText(source, askedBy) {
-	if (askedBy) {
-		return `asked by ${askedBy} in`;
-	}
-	return source.kind === 'article' ? 'published in' : '';
-}
 
 function EpisodeLink({ source }) {
 	const { pathname } = useLocation();
@@ -140,11 +135,9 @@ function EpisodeLink({ source }) {
 		return null;
 	}
 	return (
-		<Tooltip className='no-capture float-right pr-2' message='All Q&As from this episode'>
-			<Link to={`/episode/${source.video_id}`} className="button-link" aria-label="All Q&As from this episode">
-				<Icon name="list-ul" />
-			</Link>
-		</Tooltip>
+		<Link to={`/episode/${source.video_id}`} className="act" title={`All Q&As from “${source.title}”`}>
+			<Icon name="hud-list" />Episode
+		</Link>
 	);
 }
 
@@ -154,39 +147,9 @@ function CreditLink({ credit }) {
 	}
 	const host = new URL(credit).hostname;
 	return (
-		<Tooltip className='no-capture' message={`Transcribed by ${host}`}>
-			<a
-				target="_blank"
-				rel="noreferrer"
-				href={credit}
-				className="float-right pr-2 group relative"
-				aria-label='Go to the transcriber of this card'
-			>
-				<Icon name="scroll" />
-			</a>
-		</Tooltip>
-	);
-}
-
-function ClipboardButtons({ id }) {
-	return (
-		<>
-			<CopyToClipboard copyValue={id}>
-				<Tooltip className='no-capture float-right pr-2' message={`ID: ${id} (Click to copy)`}>
-					<button className="button-link" aria-label="Copy Card Fingerprint ID">
-						<Icon name="fingerprint" />
-					</button>
-				</Tooltip>
-			</CopyToClipboard>
-			<CopyToClipboard copyValue={() => `${window.location.origin}/star/vault/${id}`}>
-				<Tooltip className='no-capture float-right pr-2' message='Perma link (Click to copy)'>
-					<button className="button-link" aria-label="Copy Permalink to Card">
-						<Icon name="link" />
-					</button>
-				</Tooltip>
-			</CopyToClipboard>
-			<b className='hidden capture-visible'>starfarer.space</b>
-		</>
+		<a target="_blank" rel="noreferrer" href={credit} className="act dim" title={`Transcribed by ${host}`} aria-label={`Transcribed by ${host}`}>
+			<Icon name="hud-scroll" />
+		</a>
 	);
 }
 

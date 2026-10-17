@@ -1,14 +1,11 @@
 import React, { forwardRef } from 'react';
 
+// --- a plain panel, used for status messages and simple pages
 const Card = forwardRef((props, ref) => {
 	return (
-		<div ref={ref} className="bg-sc-blue-950 shadow-md w-full">
-			<div className="p-4 pb-2">
-				{props.title}
-			</div>
-			<div className="p-4 pt-2 text-gray-200">
-				{props.content}
-			</div>
+		<div ref={ref} className="frame card">
+			{props.title}
+			{props.content && <div className="message">{props.content}</div>}
 		</div>
 	);
 });
