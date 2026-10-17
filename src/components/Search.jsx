@@ -84,6 +84,7 @@ const Search = ({ searchClient, serverState, total: knownTotal, routing = true, 
 			<InstantSearch
 				searchClient={searchClient}
 				routing={setup.routing}
+				stalledSearchDelay={250}
 				future={{ preserveSharedStateOnUnmount: true, }}
 			>
 				<IndexTotal total={total} onTotal={setTotal} prerendered={!!serverState} />

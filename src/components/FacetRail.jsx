@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useClearRefinements, useInstantSearch, useRefinementList } from 'react-instantsearch';
 import Icon from './Icon';
+import { SkeletonPanels } from './Skeleton';
 import { topicLabel } from '../topics';
 import { fmt } from '../utils/format';
 
@@ -183,6 +184,7 @@ const FacetRail = ({ open, onClose }) => {
 						<button type="button" className="act dim" onClick={onClose} aria-label="Close filters"><Icon name="hud-close" /></button>
 					</span>
 				</div>
+				{!ready && <SkeletonPanels />}
 				<div className={ready ? '' : 'hidden'}>
 					<TopicFacet />
 					<YearFacet />

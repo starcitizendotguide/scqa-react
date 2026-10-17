@@ -4,7 +4,7 @@ import { topicLabel } from '../topics';
 import { fmt } from '../utils/format';
 
 const ResultsBar = ({ total, highlight, onHighlight }) => {
-	const { results, uiState } = useInstantSearch();
+	const { results, uiState, status } = useInstantSearch();
 	const { items, refine } = useCurrentRefinements();
 	const { refine: clearAll } = useClearRefinements();
 	const query = uiState['']?.query?.trim();
@@ -20,12 +20,16 @@ const ResultsBar = ({ total, highlight, onHighlight }) => {
 	});
 	const remove = (chip) => (chip.all ? chip.all.forEach((r) => refine(r)) : refine(chip));
 	const found = results?.nbHits ?? 0;
+	const pending = !results || results.__isArtificial || status === 'stalled' || (found === 0 && status === 'loading');
 
 	return (
 		<div className="active">
-			<span className="count">
-				<b>{fmt(found)}</b>{total && (query || chips.length) ? ` of ${fmt(total)}` : ''} records
-				{query ? <> for <q>{query}</q></> : ''}{chips.length ? ' · filters:' : ''}
+			{status === 'stalled' && <span className="scanbar" aria-hidden="true"></span>}
+			<span className="count" aria-live="polite">
+				{pending
+					? <>Scanning{query ? <> for <q>{query}</q></> : ''}…</>
+					: <><b>{fmt(found)}</b>{total && (query || chips.length) ? ` of ${fmt(total)}` : ''} records{query ? <> for <q>{query}</q></> : ''}</>}
+				{chips.length ? ' · filters:' : ''}
 			</span>
 			{chips.map((refinement) => (
 				<button

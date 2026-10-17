@@ -3,6 +3,7 @@ import { useInfiniteHits, useInstantSearch } from 'react-instantsearch';
 import Hit, { FilterContext } from './Hit';
 import Card from './Card';
 import Icon from './Icon';
+import { SkeletonCards } from './Skeleton';
 
 const SearchResults = ({ highlightQuery }) => {
 
@@ -37,7 +38,7 @@ const SearchResults = ({ highlightQuery }) => {
         return <Card content={<>Searching stalled. There might be an issue with your internet connection.</>} />;
     }
     if (items.length === 0 && (status === 'loading' || status === 'stalled' || !results || results.__isArtificial)) {
-        return <Card content={<>Searching <Icon name="spinner" spin /></>} />;
+        return <SkeletonCards />;
     }
     if (items.length === 0) {
         return <Card content={<>No transmissions match. Try fewer or different words.</>} />;
@@ -45,9 +46,11 @@ const SearchResults = ({ highlightQuery }) => {
 
     return (
         <FilterContext.Provider value={filter}>
+            <div className={status === 'stalled' ? 'results stale' : 'results'} aria-busy={status === 'stalled' || undefined}>
             {items.map((element, i) => (
                 <Hit key={element.id} index={i + 1} highlightQuery={highlightQuery} {...element} />
             ))}
+            </div>
             {!isLastPage && (
                 <div ref={sentinel}>
                     <Card content={<>Loading more <Icon name="spinner" spin /></>} />
