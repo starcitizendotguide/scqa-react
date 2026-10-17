@@ -19,22 +19,30 @@ function getCookie(name) {
   return null;
 }
 
+function parse(value) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+// --- starts with `initialValue` so the first render matches the pre-rendered page; the cookie is applied after hydration
 export function useCookieState(key, initialValue) {
-  const [state, setState] = useState(() => {
-    const cookieValue = getCookie(key);
-    if (cookieValue !== null) {
-      try {
-        return JSON.parse(cookieValue);
-      } catch {
-        return cookieValue; 
-      }
-    }
-    return initialValue;
-  });
+  const [state, setState] = useState(initialValue);
 
   useEffect(() => {
-    setCookie(key, JSON.stringify(state)); 
-  }, [key, state]);
+    const cookieValue = getCookie(key);
+    if (cookieValue !== null) {
+      setState(parse(cookieValue));
+      setCookie(key, cookieValue);
+    }
+  }, [key]);
 
-  return [state, setState];
+  const update = (value) => {
+    setCookie(key, JSON.stringify(value));
+    setState(value);
+  };
+
+  return [state, update];
 }

@@ -6,6 +6,7 @@ const SearchHeader = ({ newest, onSortChange, activeFilters, onOpenFilters }) =>
 	<div className='relative z-10 overflow-hidden md:p-1 mt-4'>
 		<div className="md:animate-rotate transform-gpu absolute h-full w-full bg-[conic-gradient(#58b4f6_20deg,transparent_120deg)]"></div>
 		<header className='relative z-20 bg-sc-blue-950 p-4 flex flex-col md:flex-row md:items-center gap-3'>
+			<h1 className="sr-only">Search thousands of answers Star Citizen developers gave in official shows, streams and posts.</h1>
 			<a href="/" className="no-underline text-sc-blue-300 font-bold tracking-wide whitespace-nowrap">
 				<Icon name="star" className="mr-1" />starfarer<span className="text-gray-400">.space</span>
 			</a>

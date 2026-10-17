@@ -30,5 +30,9 @@ are pre-rendered when `STARFARER_DATA` points to a JSON export of the search doc
 pre-renders the home page and one answer and episode from the public search endpoint, and the other pages load their
 data in the browser. Paths that were not pre-rendered are served by `build/client/__spa-fallback.html`.
 
+The home page is pre-rendered with the first page of results for the bare search, fetched from the search endpoint
+during the build (and refreshed in the browser once the page is idle). If the endpoint is unreachable the build still
+succeeds and the page searches in the browser instead.
+
 The sitemap (`sitemap-index.xml`, referenced by `robots.txt`) is generated from the archive when a release is built
 and is not part of this repository.

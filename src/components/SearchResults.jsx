@@ -6,7 +6,7 @@ import Icon from './Icon';
 
 const SearchResults = ({ highlightQuery }) => {
 
-    const { status } = useInstantSearch();
+    const { status, results } = useInstantSearch();
     const { items, isLastPage, showMore } = useInfiniteHits({ escapeHTML: false });
     const sentinel = useRef(null);
     const hasItems = items.length > 0;
@@ -27,7 +27,7 @@ const SearchResults = ({ highlightQuery }) => {
     if (status === 'error') {
         return <div className='mt-4'><Card content={<>Searching stalled. There might be an issue with your internet connection.</>} /></div>;
     }
-    if (items.length === 0 && (status === 'loading' || status === 'stalled')) {
+    if (items.length === 0 && (status === 'loading' || status === 'stalled' || !results || results.__isArtificial)) {
         return <div className='mt-4'><Card content={<>Searching <Icon name="spinner" spin /></>} /></div>;
     }
     if (items.length === 0) {

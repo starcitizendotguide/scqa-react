@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useClearRefinements, useInstantSearch, useRefinementList } from 'react-instantsearch';
 import Icon from './Icon';
 
@@ -51,8 +51,12 @@ const FIRST_YEAR = 2012;
 function YearFacet() {
 	const { items: found, refine } = useRefinementList({ attribute: 'year', limit: 50, sortBy: ['name:asc'] });
 	const byYear = Object.fromEntries(found.map((i) => [i.value, i]));
+	// --- the current year only after hydration, so a page pre-rendered last year still hydrates
+	const [thisYear, setThisYear] = useState(0);
+	useEffect(() => setThisYear(new Date().getFullYear()), []);
+	const lastYear = Math.max(thisYear, ...found.map((i) => Number(i.value)).filter(Number.isFinite));
 	const items = [];
-	for (let y = FIRST_YEAR; y <= new Date().getFullYear(); y++) {
+	for (let y = FIRST_YEAR; y <= lastYear; y++) {
 		items.push(byYear[String(y)] || { value: String(y), label: String(y), count: 0, isRefined: false });
 	}
 	const [drag, setDrag] = useState(null);
