@@ -6,6 +6,9 @@ import { initialSearchState } from '../searchState.server';
 import searchClient from '../searchClient';
 import Search, { QUERY_PARAMS } from '../components/Search';
 
+// --- only the search page talks to the search server; answer and episode pages don't load the client at all
+export const links = () => [{ rel: 'preconnect', href: 'https://search.starfarer.space', crossOrigin: 'anonymous' }];
+
 export async function loader() {
   return { serverState: await initialSearchState() };
 }

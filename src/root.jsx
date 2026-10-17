@@ -23,7 +23,6 @@ export function Layout({ children }) {
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<meta name="theme-color" content="#02080f" />
 				<link rel="icon" href="/favicon.ico" />
-				<link crossOrigin="" href="https://search.starfarer.space" rel="preconnect" />
 				<link rel="manifest" href="/manifest.json" />
 				<link rel="search" href="/opensearch-vault.xml" type="application/opensearchdescription+xml" title="Search starfarer.space vault" />
 				<script dangerouslySetInnerHTML={{ __html: "if(/[?&]bg=none(&|$)/.test(location.search))document.documentElement.classList.add('bg-none')" }} />
