@@ -2,15 +2,15 @@
 @use 'tailwindcss/components';
 @use 'tailwindcss/utilities';
 
-// --- self-hosted fonts (SIL Open Font License, via Fontsource), Latin only. The fallbacks are metric-matched so
-// text keeps its line breaks when the web fonts swap in.
+// --- self-hosted fonts (SIL Open Font License, via Fontsource), subset to Latin-1 and common punctuation with only
+// kerning kept. The fallbacks are metric-matched so text keeps its line breaks when the web fonts swap in.
 @font-face {
 	font-family: 'Exo 2';
 	font-style: normal;
 	font-weight: 400;
 	font-display: swap;
 	src: url('./fonts/exo-2-latin-400-normal.woff2') format('woff2');
-	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+	unicode-range: U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+2013-2014, U+2018-201E, U+2022, U+2026, U+2032-2033, U+20AC, U+2122;
 }
 @font-face {
 	font-family: 'Rajdhani';
@@ -18,7 +18,7 @@
 	font-weight: 600;
 	font-display: swap;
 	src: url('./fonts/rajdhani-latin-600-normal.woff2') format('woff2');
-	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+	unicode-range: U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+2013-2014, U+2018-201E, U+2022, U+2026, U+2032-2033, U+20AC, U+2122;
 }
 @font-face {
 	font-family: 'Rajdhani';
@@ -26,7 +26,7 @@
 	font-weight: 700;
 	font-display: swap;
 	src: url('./fonts/rajdhani-latin-700-normal.woff2') format('woff2');
-	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+	unicode-range: U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+2013-2014, U+2018-201E, U+2022, U+2026, U+2032-2033, U+20AC, U+2122;
 }
 @font-face {
 	font-family: 'JetBrains Mono';
@@ -34,7 +34,7 @@
 	font-weight: 400;
 	font-display: swap;
 	src: url('./fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
-	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+	unicode-range: U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+2013-2014, U+2018-201E, U+2022, U+2026, U+2032-2033, U+20AC, U+2122;
 }
 @font-face {
 	font-family: 'Exo 2 fallback';
@@ -112,8 +112,9 @@ body::after {
 	pointer-events: none;
 	z-index: 0;
 }
+// --- a tiny tiled image rather than a gradient: it paints with the first frame, before the page's own content
 body::before {
-	background: repeating-linear-gradient(0deg, rgba(89, 224, 255, .03) 0 1px, transparent 1px 3px);
+	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAADCAYAAABS3WWCAAAAD0lEQVR42mOIfPCfgwEOAByZAkE/9yOKAAAAAElFTkSuQmCC') repeat;
 }
 body::after {
 	background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, .55) 100%);
@@ -1019,9 +1020,6 @@ a {
 @media (max-width: 979px) {
 	.wrap {
 		padding: 14px 16px 20px;
-	}
-	body::before {
-		display: none;
 	}
 	.topbar {
 		flex-wrap: wrap;
