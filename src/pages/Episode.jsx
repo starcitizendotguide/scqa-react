@@ -155,7 +155,7 @@ export default function Episode({ loaderData, params }) {
 				</div>
 				<div className="ep-side">
 					<section className="frame ep-log" aria-label="Transmission log">
-						<h2 className="panel-title">Transmission log <small>{youtube ? 'click to jump' : `opens ${external?.name || 'the source'}`}</small></h2>
+						<h2 className="panel-title">Transmission log {!youtube && <small>opens {external?.name || 'the source'}</small>}</h2>
 						<ol ref={log}>
 							{items.map((item, i) => {
 								const at = item.source.start;
