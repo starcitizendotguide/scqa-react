@@ -57,6 +57,52 @@ export function meta({ loaderData, params }) {
 
 const speakerNames = (item) => [...new Set(item.answer.map((t) => t.speaker).filter(Boolean))];
 
+const YT_ORIGIN = 'https://www.youtube-nocookie.com';
+
+// --- the embedded player reports its position over postMessage once it is told the page listens (the YouTube iframe
+// API protocol, without loading YouTube's API script); it also takes commands, so a jump seeks instead of reloading
+function usePlayerTime(frame) {
+	const [ready, setReady] = useState(false);
+	const [time, setTime] = useState(null);
+	const readyRef = useRef(false);
+	useEffect(() => {
+		const onMessage = (event) => {
+			if (event.origin !== YT_ORIGIN || event.source !== frame.current?.contentWindow) {
+				return;
+			}
+			let msg;
+			try {
+				msg = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+			} catch {
+				return;
+			}
+			if (msg?.event === 'onReady' || msg?.event === 'initialDelivery' || msg?.event === 'infoDelivery') {
+				readyRef.current = true;
+				setReady(true);
+			}
+			if (typeof msg?.info?.currentTime === 'number') {
+				setTime(msg.info.currentTime);
+			}
+		};
+		window.addEventListener('message', onMessage);
+		return () => window.removeEventListener('message', onMessage);
+	}, [frame]);
+	const post = (message) => frame.current?.contentWindow?.postMessage(JSON.stringify({ id: 1, channel: 'widget', ...message }), YT_ORIGIN);
+	const onLoad = () => {
+		readyRef.current = false;
+		setReady(false);
+		let tries = 0;
+		const timer = setInterval(() => {
+			post({ event: 'listening' });
+			if (readyRef.current || ++tries > 20) {
+				clearInterval(timer);
+			}
+		}, 250);
+	};
+	const command = (func, args = []) => post({ event: 'command', func, args });
+	return { ready, time, onLoad, command };
+}
+
 export default function Episode({ loaderData, params }) {
 	const { items, summary } = loaderData;
 	const { videoId } = params;
@@ -65,6 +111,12 @@ export default function Episode({ loaderData, params }) {
 	const [active, setActive] = useState(null);
 	const screen = useRef(null);
 	const log = useRef(null);
+	const frame = useRef(null);
+	const yt = usePlayerTime(frame);
+	// --- the log follows the video, but not while someone scrolls it by hand
+	const touched = useRef(0);
+	const [origin, setOrigin] = useState('');
+	useEffect(() => setOrigin(window.location.origin), []);
 	// --- the player (about a megabyte of YouTube scripts that can hold up the first paint) loads after the page itself;
 	// until then the thumbnail stands in for it
 	const loaded = useAfterLoad();
@@ -93,24 +145,53 @@ export default function Episode({ loaderData, params }) {
 		}
 	}, [items]);
 
+	// --- the row of the question being answered right now: the last one that started before this point in the video
+	const playing = useMemo(() => {
+		if (yt.time == null) {
+			return null;
+		}
+		let best = null;
+		items.forEach((item, i) => {
+			const at = item.source.start;
+			if (at != null && at <= yt.time + 1 && (best == null || at >= items[best].source.start)) {
+				best = i;
+			}
+		});
+		return best;
+	}, [yt.time, items]);
+	useEffect(() => {
+		if (playing != null) {
+			setActive(playing);
+		}
+	}, [playing]);
+
 	// --- keep the marked row in view inside the log (without scrolling the page)
 	useEffect(() => {
 		const list = log.current, item = active != null && list?.children[active];
+		if (Date.now() - touched.current < 8000) {
+			return;
+		}
 		if (item && (item.offsetTop < list.scrollTop || item.offsetTop + item.offsetHeight > list.scrollTop + list.clientHeight)) {
 			list.scrollTo({ top: item.offsetTop - list.clientHeight / 3, behavior: 'smooth' });
 		}
 	}, [active]);
 
 	const jump = (seconds, row = null) => {
-		setStart(seconds || 0);
-		setAutoplay(true);
+		touched.current = 0;
+		if (yt.ready) {
+			yt.command('seekTo', [seconds || 0, true]);
+			yt.command('playVideo');
+		} else {
+			setStart(seconds || 0);
+			setAutoplay(true);
+		}
 		setActive(row);
 		const box = screen.current?.getBoundingClientRect();
 		if (box && (box.top < 0 || box.bottom > window.innerHeight)) {
 			screen.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
 		}
 	};
-	const player = useMemo(() => ({ videoId, jump: (seconds) => jump(seconds, items.findIndex((i) => i.source.start === seconds)) }), [videoId, items]);
+	const player = useMemo(() => ({ videoId, jump: (seconds) => jump(seconds, items.findIndex((i) => i.source.start === seconds)) }), [videoId, items, yt.ready]);
 	const external = PLAYERS[source.platform];
 
 	return (
@@ -123,8 +204,10 @@ export default function Episode({ loaderData, params }) {
 						<div ref={screen} className="screen">
 							{youtube && (loaded || autoplay) ? (
 								<iframe
+									ref={frame}
 									key={`${start}-${autoplay}`}
-									src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0${start ? `&start=${start}` : ''}${autoplay ? '&autoplay=1' : ''}`}
+									onLoad={yt.onLoad}
+									src={`${YT_ORIGIN}/embed/${videoId}?rel=0&enablejsapi=1${origin ? `&origin=${encodeURIComponent(origin)}` : ''}${start ? `&start=${start}` : ''}${autoplay ? '&autoplay=1' : ''}`}
 									title={source.title}
 									frameBorder="0"
 									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -156,7 +239,7 @@ export default function Episode({ loaderData, params }) {
 				<div className="ep-side">
 					<section className="frame ep-log" aria-label="Transmission log">
 						<h2 className="panel-title">Transmission log {!youtube && <small>opens {external?.name || 'the source'}</small>}</h2>
-						<ol ref={log}>
+						<ol ref={log} onWheel={() => { touched.current = Date.now(); }} onTouchMove={() => { touched.current = Date.now(); }}>
 							{items.map((item, i) => {
 								const at = item.source.start;
 								const body = (
@@ -169,7 +252,7 @@ export default function Episode({ loaderData, params }) {
 									</>
 								);
 								return (
-									<li key={item.id} className={`tli${active === i ? ' on' : ''}`}>
+									<li key={item.id} className={`tli${active === i ? ' on' : ''}${playing === i ? ' now' : ''}`}>
 										{youtube ? (
 											<button type="button" onClick={() => jump(at, i)} aria-label={`Play from ${at != null ? clock(at) : 'the start'}: ${item.question}`}>{body}</button>
 										) : (

@@ -1215,6 +1215,11 @@ a {
 		background: var(--panel2);
 		box-shadow: inset 2px 0 0 var(--amber);
 	}
+	// --- the question being answered at this moment in the video
+	&.now b {
+		color: var(--cyan);
+		text-shadow: 0 0 8px rgba(89, 224, 255, .55);
+	}
 }
 
 .tli-acts {
