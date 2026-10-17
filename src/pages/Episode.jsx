@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import { data } from 'react-router';
 
 import { meiliSearchInstance, INDEX } from '../searchClient';
-import { getEpisode } from '../data.server';
+import { getEpisode, getEpisodeSummary } from '../data.server';
+import { VIDEO_ID } from '../ids';
 import { pageMeta } from '../meta';
 
 import Hit from '../components/Hit';
 import BackLink from '../components/BackLink';
 import TimeDelta from '../components/TimeDelta';
-
-const VALID_ID = /^[\w-]{6,20}$/;
 
 const clock = (s) => {
 	const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
@@ -17,18 +16,18 @@ const clock = (s) => {
 };
 
 export async function loader({ params }) {
-	const items = VALID_ID.test(params.videoId) ? await getEpisode(params.videoId) : [];
+	const items = VIDEO_ID.test(params.videoId) ? await getEpisode(params.videoId) : [];
 	if (!items.length) {
 		throw data(null, { status: 404 });
 	}
-	return { items };
+	return { items, summary: await getEpisodeSummary(params.videoId) };
 }
 
 export async function clientLoader({ params, serverLoader }) {
 	try {
 		return await serverLoader();
 	} catch {
-		const res = VALID_ID.test(params.videoId)
+		const res = VIDEO_ID.test(params.videoId)
 			? await meiliSearchInstance.index(INDEX).search('', { filter: `source.video_id = "${params.videoId}"`, sort: ['source.start:asc'], limit: 500 })
 			: { hits: [] };
 		if (!res.hits.length) {
@@ -42,18 +41,18 @@ export function meta({ loaderData, params }) {
 	if (!loaderData) {
 		return [{ title: 'Not found | starfarer.space' }];
 	}
-	const { items } = loaderData;
+	const { items, summary } = loaderData;
 	const source = items[0].source;
 	return pageMeta({
 		title: `${source.title} | starfarer.space`,
-		description: `${items.length} questions answered in ${source.title} (${source.show}): ${items.slice(0, 3).map((i) => i.question).join(' · ')}`,
+		description: summary || `${items.length} questions answered in ${source.title} (${source.show}): ${items.slice(0, 3).map((i) => i.question).join(' · ')}`,
 		path: `/episode/${params.videoId}`,
 		type: 'video.episode',
 	});
 }
 
 export default function Episode({ loaderData, params }) {
-	const { items } = loaderData;
+	const { items, summary } = loaderData;
 	const { videoId } = params;
 	const [start, setStart] = useState(0);
 	const [autoplay, setAutoplay] = useState(false);
@@ -74,6 +73,7 @@ export default function Episode({ loaderData, params }) {
 				<div className='text-sm text-gray-400 mb-3'>
 					{source.show} · <TimeDelta timestamp={source.published_at} /> · {items.length} Q&As
 				</div>
+				{summary && <p className='text-gray-300 mb-3'>{summary}</p>}
 				{youtube ? (
 					<iframe
 						key={`${start}-${autoplay}`}

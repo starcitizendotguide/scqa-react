@@ -1,17 +1,19 @@
 import React from 'react';
-import { data } from 'react-router';
+import { data, redirect } from 'react-router';
 
 import { meiliSearchInstance, INDEX } from '../searchClient';
 import { getRecord } from '../data.server';
-import { pageMeta, speakers, answerText, clip } from '../meta';
+import { RECORD_ID } from '../ids';
+import { pageMeta, speakers, answerText, clip, isoTime } from '../meta';
 
 import Hit from '../components/Hit';
 import BackLink from '../components/BackLink';
 
-const VALID_ID = /^[A-Za-z0-9_-]+$/;
-
 export async function loader({ params }) {
-	const item = VALID_ID.test(params.id) ? await getRecord(params.id) : null;
+	if (params.index !== 'vault' && RECORD_ID.test(params.id)) {
+		throw redirect(`/star/vault/${params.id}`);
+	}
+	const item = RECORD_ID.test(params.id) ? await getRecord(params.id) : null;
 	if (!item) {
 		throw data(null, { status: 404 });
 	}
@@ -19,10 +21,13 @@ export async function loader({ params }) {
 }
 
 export async function clientLoader({ params, serverLoader }) {
+	if (params.index !== 'vault' && RECORD_ID.test(params.id)) {
+		throw redirect(`/star/vault/${params.id}`);
+	}
 	try {
 		return await serverLoader();
 	} catch {
-		const res = VALID_ID.test(params.id)
+		const res = RECORD_ID.test(params.id)
 			? await meiliSearchInstance.index(INDEX).search('', { filter: `id = "${params.id}"`, limit: 1 })
 			: { hits: [] };
 		if (!res.hits.length) {
@@ -44,7 +49,7 @@ export function meta({ loaderData }) {
 		description: `${by}${answerText(item.answer)}`,
 		path: `/star/vault/${item.id}`,
 		type: 'article',
-		extra: [{ property: 'article:published_time', content: new Date(item.source.published_at * 1000).toISOString() }],
+		extra: isoTime(item.source.published_at) ? [{ property: 'article:published_time', content: isoTime(item.source.published_at) }] : [],
 	});
 }
 

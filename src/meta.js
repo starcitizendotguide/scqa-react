@@ -28,5 +28,9 @@ export function pageMeta({ title, description = DEFAULT_DESCRIPTION, path = '/',
 
 export const speakers = (answer) => [...new Set(answer.map((t) => t.speaker).filter(Boolean))];
 export const answerText = (answer) => answer.map((t) => t.text).join(' ');
-export const isoDate = (ts) => (ts ? new Date(ts * 1000).toISOString().slice(0, 10) : null);
+export const isoTime = (ts) => {
+	const d = new Date(ts * 1000);
+	return ts && !Number.isNaN(d.getTime()) ? d.toISOString() : null;
+};
+export const isoDate = (ts) => isoTime(ts)?.slice(0, 10) ?? null;
 export { clip };

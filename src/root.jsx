@@ -39,7 +39,7 @@ export function Layout({ children }) {
 }
 
 export const meta = ({ error }) => (error
-	? [{ title: 'Not found | starfarer.space' }, { name: 'robots', content: 'noindex' }]
+	? [{ title: `${isRouteErrorResponse(error) && error.status === 404 ? 'Not found' : 'Error'} | starfarer.space` }, { name: 'robots', content: 'noindex' }]
 	: pageMeta({ title: 'Star Citizen Q&A Search | starfarer.space' }));
 
 export default function App() {

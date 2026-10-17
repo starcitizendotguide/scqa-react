@@ -1,10 +1,14 @@
 import { readFile } from 'node:fs/promises';
 
+import { RECORD_ID, VIDEO_ID } from './ids.js';
+
 const MEILI_URL = process.env.VITE_MEILI_URL || 'https://search.starfarer.space';
 const MEILI_KEY = process.env.VITE_MEILI_KEY || 'a161a5ba126ca5f1523ddbbb44f67024935b0190968971adc63e3c80301cd971';
 const SITE = process.env.SITE_URL || 'https://starfarer.space';
 
+
 let cache;
+let episodes;
 
 async function load() {
 	if (!process.env.STARFARER_DATA) {
@@ -41,13 +45,14 @@ async function search(filter, extra = {}) {
 
 export async function prerenderPaths() {
 	const data = await load();
-	if (!data) {
-		return [];
+	const records = data ? data.records : await search('source.kind = "video"', { limit: 1 });
+	const videos = [...new Set(records.map((r) => r.source.video_id).filter((vid) => vid && VIDEO_ID.test(vid)))];
+	const ids = records.map((r) => r.id).filter((id) => RECORD_ID.test(id));
+	const skipped = records.length - ids.length;
+	if (skipped) {
+		console.warn(`prerender: skipped ${skipped} records with unusable ids`);
 	}
-	return [
-		...[...data.byVideo.keys()].map((vid) => `/episode/${vid}`),
-		...data.records.map((r) => `/star/vault/${r.id}`),
-	];
+	return [...videos.map((vid) => `/episode/${vid}`), ...ids.map((id) => `/star/vault/${id}`)];
 }
 
 export async function getRecord(id) {
@@ -64,4 +69,12 @@ export async function getEpisode(videoId) {
 		return data.byVideo.get(videoId) || [];
 	}
 	return search(`source.video_id = "${videoId}"`, { sort: ['source.start:asc'] });
+}
+
+export async function getEpisodeSummary(videoId) {
+	if (!process.env.STARFARER_EPISODES) {
+		return null;
+	}
+	episodes ??= JSON.parse(await readFile(process.env.STARFARER_EPISODES, 'utf8'));
+	return episodes[videoId]?.summary || null;
 }

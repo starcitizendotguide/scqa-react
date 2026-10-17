@@ -26,6 +26,9 @@ npm run build
 ```
 
 Writes a static site to `build/client`. Answer pages (`/star/vault/<id>`) and episode pages (`/episode/<video id>`)
-are pre-rendered when `STARFARER_DATA` points to a JSON export of the search documents; without it only the home
-page is pre-rendered and the other pages load their data in the browser. Paths that were not pre-rendered are
-served by `build/client/__spa-fallback.html`.
+are pre-rendered when `STARFARER_DATA` points to a JSON export of the search documents; without it the build
+pre-renders the home page and one answer and episode from the public search endpoint, and the other pages load their
+data in the browser. Paths that were not pre-rendered are served by `build/client/__spa-fallback.html`.
+
+The sitemap (`sitemap-index.xml`, referenced by `robots.txt`) is generated from the archive when a release is built
+and is not part of this repository.
