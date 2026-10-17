@@ -22,3 +22,29 @@ export async function copyText(text) {
 		area.remove();
 	}
 }
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+// --- unix seconds -> "5 Oct 2026" (UTC, so pre-rendered and hydrated pages agree)
+export const shortDate = (timestamp) => {
+	const d = new Date(timestamp * 1000);
+	return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+};
+
+// --- "Star Citizen Live: Vehicle Q&A" under the show "Star Citizen Live" is just "Vehicle Q&A"
+export function episodeTitle(show, title) {
+	if (!show || !title) {
+		return title;
+	}
+	const at = title.toLowerCase().indexOf(show.toLowerCase());
+	if (at < 0 || at > 16) {
+		return title;
+	}
+	return title.slice(at + show.length).replace(/^[\s:|\-–—.]+/, '') || title;
+}
+
+// --- "Richard Towler" -> "RT", for the speaker hexagons
+export const initials = (name) => {
+	const letters = name.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('').slice(0, 2);
+	return letters || name.slice(0, 2).toUpperCase();
+};

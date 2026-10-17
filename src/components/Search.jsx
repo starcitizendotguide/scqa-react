@@ -8,7 +8,7 @@ import Footer from './Footer';
 import SearchResults from './SearchResults';
 import SortController, { initialSort } from './SortController';
 import FacetRail, { FACETS } from './FacetRail';
-import { afterLoad } from '../utils/afterLoad';
+import { afterLoad } from '../hooks/useAfterLoad';
 import { meiliSearchInstance } from '../searchClient';
 import { INDEX } from '../searchConfig';
 

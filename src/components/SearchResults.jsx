@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useInfiniteHits, useInstantSearch } from 'react-instantsearch';
-import Hit, { FilterContext } from './Hit';
+import Hit from './Hit';
+import { FilterContext } from './FilterLink';
 import Card from './Card';
 import Icon from './Icon';
 import { SkeletonCards } from './Skeleton';

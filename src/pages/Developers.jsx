@@ -7,7 +7,7 @@ import { rosterFromSearch } from '../archive';
 import { pageMeta } from '../meta';
 import { fmt } from '../utils/format';
 
-import { initials } from '../components/Hit';
+import { initials } from '../utils/format';
 import TopBar from '../components/TopBar';
 
 export async function loader() {

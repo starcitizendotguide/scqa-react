@@ -8,7 +8,8 @@ import { pageMeta } from '../meta';
 import { topicLabel } from '../topics';
 import { fmt } from '../utils/format';
 
-import Hit, { initials } from '../components/Hit';
+import Hit from '../components/Hit';
+import { initials } from '../utils/format';
 import TopBar from '../components/TopBar';
 import Icon from '../components/Icon';
 

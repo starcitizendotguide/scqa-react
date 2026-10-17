@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { useCookieState } from '../utils/useCookieState';
+import { useCookieState } from '../hooks/useCookieState';
 import { initialSearchState } from '../searchState.server';
 
 import searchClient from '../searchClient';
