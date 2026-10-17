@@ -6,5 +6,7 @@ export default {
 	prerender: {
 		paths: ['/', ...(await prerenderPaths())],
 		concurrency: 8,
+		// --- a page that stalls once (a busy build machine) is tried again instead of failing the whole release
+		retryCount: 2,
 	},
 };
