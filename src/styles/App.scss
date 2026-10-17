@@ -184,10 +184,6 @@ a {
 
 // --- a 1px line along a clipped (diagonal) edge, as a background layer over the corner box of `$size`; the line runs
 // through the box's other two corners and sits on the inner side of the clip
-@function edge($to, $at, $size) {
-	@return linear-gradient(to #{$to}, transparent 50%, var(--edge) 50%, var(--edge) calc(50% + 1.25px), transparent calc(50% + 1.25px)) #{$at} / #{$size} no-repeat border-box;
-}
-
 // --- chamfered panels: the clipped shape (with its border) is a decorative layer behind the content, so nothing
 // inside (tooltips, focus rings) gets clipped with it
 .cut {
@@ -203,8 +199,29 @@ a {
 	z-index: -1;
 	border: 1px solid var(--edge);
 	clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
-	background: edge(bottom left, right top, 18px 18px), edge(top right, left bottom, 18px 18px), var(--panel);
+	background: var(--panel);
 	pointer-events: none;
+	// --- the diagonal border edges: rotated 1px bars just inside the clipped corners (anti-aliased, unlike gradients)
+	&::before,
+	&::after {
+		content: '';
+		position: absolute;
+		width: 25.46px;
+		height: 1.2px;
+		background: var(--edge);
+	}
+	&::before {
+		left: calc(100% - 17px);
+		top: -1px;
+		transform-origin: 0 0;
+		transform: rotate(45deg);
+	}
+	&::after {
+		left: -1px;
+		top: calc(100% - 18.2px);
+		transform-origin: 0 100%;
+		transform: rotate(45deg);
+	}
 }
 
 .label {
@@ -519,18 +536,28 @@ a {
 }
 
 .tag {
+	position: relative;
+	isolation: isolate;
 	display: inline-block;
-	margin: 0 6px 7px 0;
-	padding: 3px 10px;
+	margin: 0 8px 7px 0;
+	padding: 3px 11px;
 	font: 11.5px/1.5 var(--hud);
 	letter-spacing: .04em;
 	--edge: var(--line);
-	border: 1px solid var(--edge);
 	color: var(--soft);
 	cursor: pointer;
-	clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
-	background: edge(bottom right, left top, 6px 100%), edge(top left, right top, 6px 100%);
-	transition: color .12s, border-color .12s, background-color .12s;
+	transition: color .12s;
+	// --- the slanted box is a skewed layer behind the label: transformed borders are anti-aliased, clip-path and
+	// hard-stop gradients are not
+	&::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		border: 1px solid var(--edge);
+		transform: skewX(-16deg);
+		transition: border-color .12s, background-color .12s;
+	}
 	&:hover {
 		--edge: var(--cyan);
 		color: var(--cyan);
@@ -538,8 +565,10 @@ a {
 	}
 	&.on {
 		--edge: var(--cyan);
-		background-color: var(--cyan);
 		color: #012;
+		&::before {
+			background-color: var(--cyan);
+		}
 	}
 	small {
 		font-size: inherit;
