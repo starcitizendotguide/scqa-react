@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import CustomSearchBox from './CustomSearchBox';
 import TopBar from './TopBar';
-import Tooltip from './Tooltip';
 import Icon from './Icon';
 
 const SYNTAX = (
@@ -15,17 +14,45 @@ const SYNTAX = (
 	</>
 );
 
+// --- shown on hover, and toggled by click, tap or keyboard; closes on Escape or a click elsewhere
+function SyntaxHelp() {
+	const [open, setOpen] = useState(false);
+	const ref = useRef(null);
+
+	useEffect(() => {
+		if (!open) {
+			return;
+		}
+		const away = (event) => !ref.current?.contains(event.target) && setOpen(false);
+		const escape = (event) => event.key === 'Escape' && setOpen(false);
+		document.addEventListener('pointerdown', away);
+		document.addEventListener('keydown', escape);
+		return () => {
+			document.removeEventListener('pointerdown', away);
+			document.removeEventListener('keydown', escape);
+		};
+	}, [open]);
+
+	return (
+		<span ref={ref} className="syntax">
+			<button type="button" className="help" aria-label="Search syntax" aria-expanded={open} aria-controls="syntax-help" onClick={() => setOpen(!open)}>
+				<Icon name="circle-question" />
+			</button>
+			<div id="syntax-help" role="tooltip" className={`tip syntax-tip${open ? ' open' : ''}`}>{SYNTAX}</div>
+		</span>
+	);
+}
+
 const SearchHeader = ({ total, newest, onSortChange, onOpenFilters }) => (
 	<>
 		<TopBar total={total} home />
 		<h1 className="sr-only">Search thousands of answers Star Citizen developers gave in official shows, streams and posts.</h1>
 		<section className="frame cut query">
+			<span className="cut-bg" aria-hidden="true"></span>
 			<div className="qlabel">
 				<span>
 					<label htmlFor="searchbox">Query the developer record</label>
-					<Tooltip message={SYNTAX} position="bottom" className="align-middle">
-						<button type="button" className="help" aria-label="Search syntax"><Icon name="circle-question" /></button>
-					</Tooltip>
+					<SyntaxHelp />
 				</span>
 				<div className="seg" role="group" aria-label="Sort results">
 					<button type="button" className={newest ? '' : 'on'} aria-pressed={!newest} onClick={() => onSortChange(false)}

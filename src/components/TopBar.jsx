@@ -9,6 +9,7 @@ const TopBar = ({ total, home = false }) => {
 	const Anchor = home ? 'a' : Link;
 	return (
 		<header className="frame cut topbar">
+			<span className="cut-bg" aria-hidden="true"></span>
 			<Anchor {...to} className="logo" aria-label="starfarer.space – search">Starfarer<i>//</i>Archive</Anchor>
 			<nav className="tabs" aria-label="Sections">
 				<Anchor {...to} className={`tab${home ? ' on' : ''}`} aria-current={home ? 'page' : undefined}>Search</Anchor>

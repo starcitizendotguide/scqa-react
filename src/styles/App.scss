@@ -187,10 +187,23 @@ a {
 	@return linear-gradient(to #{$to}, transparent 50%, var(--edge) 50%, var(--edge) calc(50% + 1.25px), transparent calc(50% + 1.25px)) #{$at} / #{$size} no-repeat border-box;
 }
 
+// --- chamfered panels: the clipped shape (with its border) is a decorative layer behind the content, so nothing
+// inside (tooltips, focus rings) gets clipped with it
 .cut {
+	isolation: isolate;
+	border-color: transparent;
+	background: none;
+}
+
+.cut-bg {
 	--edge: var(--line);
+	position: absolute;
+	inset: -1px;
+	z-index: -1;
+	border: 1px solid var(--edge);
 	clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
 	background: edge(bottom left, right top, 18px 18px), edge(top right, left bottom, 18px 18px), var(--panel);
+	pointer-events: none;
 }
 
 .label {
@@ -296,9 +309,11 @@ a {
 .query {
 	margin-top: 16px;
 	padding: 14px 16px 16px;
+	z-index: 3;
 }
 
 .qlabel {
+	position: relative;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -402,6 +417,28 @@ a {
 			background: var(--cyan);
 			color: #012;
 		}
+	}
+}
+
+.syntax-tip {
+	display: none;
+	position: absolute;
+	top: calc(100% + 6px);
+	left: 0;
+	z-index: 60;
+	width: min(24rem, 100%);
+	b {
+		color: var(--amber);
+		font-weight: 400;
+	}
+	&.open {
+		display: block;
+	}
+}
+
+@media (hover: hover) {
+	.syntax:hover .syntax-tip {
+		display: block;
 	}
 }
 
