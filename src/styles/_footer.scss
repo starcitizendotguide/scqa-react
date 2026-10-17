@@ -1,0 +1,34 @@
+// --- footer
+.footer {
+	margin-top: 32px;
+	padding: 16px 20px;
+	font: 12px/1.7 var(--hud);
+	color: var(--dim);
+	p {
+		font-family: var(--body);
+		font-size: 13px;
+		color: var(--soft);
+	}
+}
+
+.icon {
+	display: inline-block;
+	box-sizing: content-box;
+	height: 1em;
+	overflow: visible;
+	vertical-align: -0.125em;
+}
+
+.icon-spin {
+	animation: icon-spin 2s linear infinite;
+}
+
+@keyframes icon-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.filters-btn {
+	display: none;
+}

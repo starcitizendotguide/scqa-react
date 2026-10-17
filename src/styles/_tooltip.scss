@@ -1,0 +1,9 @@
+// --- tooltips
+.tip {
+	font: 11.5px/1.5 var(--hud);
+	color: var(--txt);
+	background: #061a2b;
+	border: 1px solid var(--line);
+	padding: 8px 10px;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, .5);
+}

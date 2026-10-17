@@ -1,0 +1,172 @@
+@media (max-width: 979px) {
+	.ep,
+	.single,
+	.dev-charts {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.ep-side {
+		min-height: 0;
+	}
+	.tli {
+		> button,
+		> a:first-child {
+			grid-template-columns: 46px minmax(0, 1fr);
+		}
+	}
+	.tli-acts {
+		flex-direction: column;
+	}
+	.ep-log {
+		position: static;
+		max-height: 75vh;
+	}
+	.ep-title {
+		font-size: 25px;
+	}
+	.single .card {
+		padding: 16px;
+	}
+	.single .card-q {
+		font-size: 25px;
+	}
+	.dev-head {
+		flex-wrap: wrap;
+		gap: 14px 18px;
+		padding: 18px;
+		.hex {
+			width: 60px;
+			height: 67px;
+			font-size: 22px;
+		}
+		h1 {
+			font-size: 30px;
+		}
+	}
+	.dev-all {
+		margin-left: 0;
+	}
+	.stats {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
+	}
+	.stat b {
+		font-size: 22px;
+	}
+	.bars .b {
+		grid-template-columns: 120px minmax(0, 1fr) 40px;
+	}
+	.roster ul {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.roster small {
+		display: none;
+	}
+	.roster-head {
+		flex-wrap: wrap;
+		.find {
+			width: 100%;
+		}
+	}
+	.wrap {
+		padding: 14px 16px 20px;
+	}
+	.topbar {
+		flex-wrap: wrap;
+		gap: 6px 18px;
+	}
+	.logo {
+		font-size: 20px;
+		letter-spacing: .12em;
+	}
+	.tabs {
+		margin-left: -6px;
+	}
+	.tab {
+		font-size: 12.5px;
+		padding: 6px 13px;
+	}
+	.qlabel {
+		align-items: flex-start;
+	}
+	.qrow {
+		flex-wrap: wrap;
+		form {
+			flex: 1 1 100%;
+			flex-wrap: wrap;
+		}
+	}
+	.field {
+		flex: 1 1 100%;
+		kbd {
+			display: none;
+		}
+		input {
+			font-size: 17px;
+		}
+	}
+	.go {
+		flex: 1;
+		padding: 13px 10px;
+	}
+	.filters-btn {
+		display: inline-flex;
+		justify-content: center;
+		padding: 0 18px;
+		font-size: 12.5px;
+		line-height: 1;
+	}
+	.layout {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.rail {
+		display: none;
+		&.open {
+			display: block;
+			position: fixed;
+			inset: 0 auto 0 0;
+			z-index: 50;
+			width: min(340px, 88vw);
+			max-height: none;
+			margin: 0;
+			padding: 16px 16px 24px;
+			background: var(--bg);
+			border-right: 1px solid var(--line);
+		}
+	}
+	.rail-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 14px;
+		.panel-title {
+			margin: 0;
+		}
+	}
+	.rail-backdrop {
+		display: block;
+		position: fixed;
+		inset: 0;
+		z-index: 40;
+		background: rgba(1, 6, 12, .75);
+	}
+	.acts .tags {
+		margin-left: 0;
+		width: 100%;
+		justify-content: flex-start;
+	}
+	.card {
+		padding: 16px;
+	}
+	.card-q {
+		font-size: 21px;
+	}
+	.toggle {
+		margin-left: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.answer {
+		transition: none;
+	}
+}

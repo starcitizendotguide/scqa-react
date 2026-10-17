@@ -1,0 +1,102 @@
+// --- loading states: skeletons only when there is nothing to show yet; a slow refinement keeps the old results,
+// dimmed, with a scan line under the results bar (search status "stalled" after 250 ms, so fast answers show nothing)
+.skeleton {
+	.sk-line {
+		display: block;
+		height: 12px;
+		margin: 9px 0;
+		background: rgba(89, 224, 255, .09);
+		animation: sk-pulse 1.6s ease-in-out infinite;
+	}
+	.card-meta .sk-line {
+		height: 10px;
+		margin: 0;
+	}
+	.sk-q .sk-line {
+		height: 20px;
+		margin: 10px 0;
+		background: rgba(234, 250, 255, .1);
+	}
+	.sk-text {
+		flex: 1;
+	}
+	.sk-hex {
+		background: rgba(89, 224, 255, .14);
+		animation: sk-pulse 1.6s ease-in-out infinite;
+	}
+	.sk-pill {
+		display: inline-block;
+		width: 92px;
+		height: 24px;
+		border: 1px solid var(--line);
+		margin-right: 8px;
+	}
+	.sk-tag {
+		width: 110px;
+		transform: skewX(-16deg);
+	}
+	.sk-pill:nth-child(3) {
+		margin-left: auto;
+	}
+	.sk-title {
+		width: 40%;
+		height: 11px;
+		background: rgba(255, 184, 77, .18);
+	}
+	.panel .sk-line:not(.sk-title) {
+		height: 14px;
+	}
+}
+@keyframes sk-pulse {
+	50% {
+		opacity: .45;
+	}
+}
+
+.results {
+	transition: opacity .2s ease;
+	&.stale {
+		opacity: .55;
+	}
+}
+
+.active {
+	position: relative;
+}
+.scanbar {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -6px;
+	height: 2px;
+	overflow: hidden;
+	background: rgba(89, 224, 255, .12);
+	&::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 30%;
+		background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+		animation: scan 1.1s linear infinite;
+	}
+}
+@keyframes scan {
+	from {
+		left: -30%;
+	}
+	to {
+		left: 100%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.skeleton .sk-line,
+	.skeleton .sk-hex,
+	.scanbar::after {
+		animation: none;
+	}
+	.scanbar::after {
+		left: 35%;
+	}
+}

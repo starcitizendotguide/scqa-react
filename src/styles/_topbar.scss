@@ -1,0 +1,47 @@
+// --- top bar
+.topbar {
+	display: flex;
+	align-items: center;
+	gap: 22px;
+	padding: 12px 20px;
+	min-height: 64px;
+}
+
+.logo {
+	font: 700 25px/1.2 var(--head);
+	letter-spacing: .2em;
+	color: var(--cyan);
+	text-transform: uppercase;
+	text-shadow: 0 0 14px rgba(89, 224, 255, .55);
+	white-space: nowrap;
+	&:hover {
+		text-decoration: none;
+		color: #8cebff;
+	}
+	i {
+		font-style: normal;
+		color: var(--amber);
+	}
+}
+
+.tabs {
+	display: flex;
+	gap: 4px;
+}
+
+.tab {
+	font: 600 14px/1.2 var(--head);
+	letter-spacing: .2em;
+	text-transform: uppercase;
+	color: var(--soft);
+	padding: 8px 16px;
+	clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+	&:hover {
+		color: var(--cyan);
+		text-decoration: none;
+	}
+	&.on {
+		color: #012;
+		background: var(--cyan);
+	}
+}

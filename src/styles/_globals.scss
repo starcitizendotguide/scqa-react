@@ -1,0 +1,122 @@
+:root {
+	--bg: #02080f;
+	--panel: rgba(8, 28, 46, .8);
+	--panel2: rgba(12, 40, 64, .6);
+	--line: #17506f;
+	--line2: #0f3a52;
+	--cyan: #59e0ff;
+	--cyan2: #2bb7dd;
+	--amber: #ffb84d;
+	--green: #3cff9e;
+	--txt: #d4ecf7;
+	--soft: #a9c7d6;
+	--dim: #6b8fa3;
+	--hud: 'JetBrains Mono', 'JetBrains Mono fallback', ui-monospace, monospace;
+	--head: 'Rajdhani', 'Rajdhani fallback', sans-serif;
+	--body: 'Exo 2', 'Exo 2 fallback', system-ui, sans-serif;
+	color-scheme: dark;
+}
+
+body {
+	min-height: 100vh;
+	color: var(--txt);
+	font: 16px/1.6 var(--body);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	background:
+		radial-gradient(1300px 700px at 75% -15%, #0d3b5e 0%, transparent 60%),
+		radial-gradient(900px 600px at -15% 110%, #082a42 0%, transparent 60%),
+		var(--bg);
+	background-attachment: fixed;
+}
+
+// --- a darkened, blurred still of the game behind everything; episode pages fade their own thumbnail in on top
+// (--bg-image, set by the page), toned down to the same darkness so the switch reads as a tint, not a new backdrop.
+// ?bg=none turns the layer off for comparison
+.bg-still {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	overflow: hidden;
+	&::before,
+	&::after {
+		content: '';
+		position: absolute;
+	}
+	&::before {
+		inset: 0;
+		background:
+			radial-gradient(1300px 700px at 75% -15%, rgba(13, 59, 94, .55) 0%, transparent 60%),
+			linear-gradient(180deg, rgba(2, 8, 15, .5) 0%, rgba(2, 8, 15, .82) 70%, rgba(2, 8, 15, .92) 100%),
+			url('./assets/bg-still.webp') center / cover no-repeat;
+	}
+	&::after {
+		inset: -60px;
+		background:
+			linear-gradient(180deg, rgba(2, 8, 15, .55) 0%, rgba(2, 8, 15, .84) 70%, rgba(2, 8, 15, .93) 100%),
+			var(--bg-image, none) center / cover no-repeat;
+		filter: blur(24px) saturate(.5) brightness(.75);
+		opacity: var(--bg-image-opacity, 0);
+		transition: opacity .6s ease;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.bg-still::after {
+		transition: none;
+	}
+}
+.bg-none .bg-still {
+	display: none;
+}
+
+// --- scanlines and vignette sit behind the content, which is semi-transparent above them
+body::before,
+body::after {
+	content: '';
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 1;
+}
+// --- a tiny tiled image rather than a gradient: it paints with the first frame, before the page's own content
+body::before {
+	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAADCAYAAABS3WWCAAAAD0lEQVR42mOIfPCfgwEOAByZAkE/9yOKAAAAAElFTkSuQmCC') repeat;
+}
+body::after {
+	background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, .55) 100%);
+}
+
+a {
+	color: var(--cyan);
+	text-decoration: none;
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.button-link {
+	color: var(--cyan);
+	cursor: pointer;
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+::selection {
+	background: var(--cyan);
+	color: #012;
+}
+
+:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+
+.wrap {
+	position: relative;
+	z-index: 2;
+	max-width: 1320px;
+	margin: 0 auto;
+	padding: 18px 20px 24px;
+}
