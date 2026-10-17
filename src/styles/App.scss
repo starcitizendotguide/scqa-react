@@ -103,6 +103,33 @@ body {
 	background-attachment: fixed;
 }
 
+// --- a darkened, blurred still of the game behind everything (episode pages swap in their own thumbnail through
+// --bg-image and blur it); ?bg=none turns it off for comparison
+.bg-still {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	&::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background:
+			radial-gradient(1300px 700px at 75% -15%, rgba(13, 59, 94, .55) 0%, transparent 60%),
+			linear-gradient(180deg, rgba(2, 8, 15, .5) 0%, rgba(2, 8, 15, .82) 70%, rgba(2, 8, 15, .92) 100%);
+	}
+	&::before {
+		content: '';
+		position: absolute;
+		inset: calc(var(--bg-blur, 0px) * -2);
+		background: var(--bg-image, url('./assets/bg-still.webp')) center / cover no-repeat;
+		filter: blur(var(--bg-blur, 0px)) saturate(var(--bg-saturate, 1));
+	}
+}
+.bg-none .bg-still {
+	display: none;
+}
+
 // --- scanlines and vignette sit behind the content, which is semi-transparent above them
 body::before,
 body::after {
@@ -110,7 +137,7 @@ body::after {
 	position: fixed;
 	inset: 0;
 	pointer-events: none;
-	z-index: 0;
+	z-index: 1;
 }
 // --- a tiny tiled image rather than a gradient: it paints with the first frame, before the page's own content
 body::before {

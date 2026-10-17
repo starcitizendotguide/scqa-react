@@ -70,6 +70,7 @@ export default function Episode({ loaderData, params }) {
 
 	return (
 		<>
+			{youtube && <style>{`:root{--bg-image:url(https://i.ytimg.com/vi/${videoId}/hqdefault.jpg);--bg-blur:16px;--bg-saturate:.7}`}</style>}
 			<BackLink />
 			<div className='frame card mt-4'>
 				<h1 className='card-q'>{source.title}</h1>

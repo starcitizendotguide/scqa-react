@@ -14,7 +14,7 @@ export const links = () => [fontBody, fontHead].map((href) => ({ rel: 'preload',
 
 export function Layout({ children }) {
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,10 +23,12 @@ export function Layout({ children }) {
 				<link crossOrigin="" href="https://search.starfarer.space" rel="preconnect" />
 				<link rel="manifest" href="/manifest.json" />
 				<link rel="search" href="/opensearch-vault.xml" type="application/opensearchdescription+xml" title="Search starfarer.space vault" />
+				<script dangerouslySetInnerHTML={{ __html: "if(/[?&]bg=none(&|$)/.test(location.search))document.documentElement.classList.add('bg-none')" }} />
 				<Meta />
 				<Links />
 			</head>
 			<body>
+				<div className="bg-still" aria-hidden="true"></div>
 				<IconSprite />
 				<div className="wrap">
 					{children}
