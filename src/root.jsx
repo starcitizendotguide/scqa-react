@@ -4,13 +4,16 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse }
 import './styles/App.scss';
 import fontBody from './styles/fonts/exo-2-latin-400-normal.woff2';
 import fontHead from './styles/fonts/rajdhani-latin-600-normal.woff2';
+import fontLogo from './styles/fonts/rajdhani-latin-700-normal.woff2';
+import fontHud from './styles/fonts/jetbrains-mono-latin-400-normal.woff2';
 
 import GenericNotFound from './pages/GenericNotFound';
 import { pageMeta } from './meta';
 import { IconSprite } from './components/Icon';
 
-// --- the fonts of the answers and questions are needed for the first paint; the others load from the stylesheet
-export const links = () => [fontBody, fontHead].map((href) => ({ rel: 'preload', href, as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' }));
+// --- every page uses all four fonts above the fold; announcing them here starts them alongside the stylesheet
+// instead of after it (38 KB together)
+export const links = () => [fontBody, fontHead, fontLogo, fontHud].map((href) => ({ rel: 'preload', href, as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' }));
 
 export function Layout({ children }) {
 	return (
