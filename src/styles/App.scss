@@ -729,6 +729,24 @@ a {
 	}
 }
 
+.source {
+	margin: -8px 0 12px;
+	font: 12.5px/1.5 var(--hud);
+	color: var(--soft);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	a {
+		color: inherit;
+		&:hover {
+			color: var(--cyan);
+		}
+	}
+	+ .asked {
+		margin-top: -10px;
+	}
+}
+
 .asked {
 	margin: -8px 0 12px;
 }

@@ -75,6 +75,7 @@ function QaHit({ hit, index, full, highlightQuery }) {
 				<span className="label whitespace-nowrap"><TimeDelta timestamp={source.published_at} /></span>
 			</div>
 			<Heading className="card-q">{full ? title : <Link to={`/star/vault/${id}`}>{title}</Link>}</Heading>
+			<SourceLine source={source} />
 			{asked_by && <div className="label asked">asked by {asked_by}</div>}
 			<AnswerClamp full={full}>
 				{answer.map((turn, i) => (
@@ -130,6 +131,22 @@ const captureComponent = async (title, componentRef) => {
 		}
 	}
 };
+
+// --- the episode (or post) the answer comes from: its page here for videos, the original elsewhere
+function SourceLine({ source }) {
+	const { pathname } = useLocation();
+	if (!source.title) {
+		return null;
+	}
+	const episode = source.kind === 'video' && source.video_id ? `/episode/${source.video_id}` : null;
+	let title = source.title;
+	if (episode && pathname !== episode) {
+		title = <Link to={episode}>{source.title}</Link>;
+	} else if (!episode && source.url) {
+		title = <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a>;
+	}
+	return <div className="source" title={source.title}>{title}</div>;
+}
 
 function EpisodeLink({ source }) {
 	const { pathname } = useLocation();
