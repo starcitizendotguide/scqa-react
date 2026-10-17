@@ -1,37 +1,62 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { data } from 'react-router';
 
 import { meiliSearchInstance, INDEX } from '../searchClient';
+import { getEpisode } from '../data.server';
+import { pageMeta } from '../meta';
+
 import Hit from '../components/Hit';
-import Card from '../components/Card';
+import BackLink from '../components/BackLink';
 import TimeDelta from '../components/TimeDelta';
+
+const VALID_ID = /^[\w-]{6,20}$/;
 
 const clock = (s) => {
 	const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
 	return `${h ? `${h}:${String(m).padStart(2, '0')}` : m}:${String(x).padStart(2, '0')}`;
 };
 
-const Episode = () => {
-	const { videoId } = useParams();
-	const navigate = useNavigate();
-	const [items, setItems] = useState(null);
+export async function loader({ params }) {
+	const items = VALID_ID.test(params.videoId) ? await getEpisode(params.videoId) : [];
+	if (!items.length) {
+		throw data(null, { status: 404 });
+	}
+	return { items };
+}
+
+export async function clientLoader({ params, serverLoader }) {
+	try {
+		return await serverLoader();
+	} catch {
+		const res = VALID_ID.test(params.videoId)
+			? await meiliSearchInstance.index(INDEX).search('', { filter: `source.video_id = "${params.videoId}"`, sort: ['source.start:asc'], limit: 500 })
+			: { hits: [] };
+		if (!res.hits.length) {
+			throw data(null, { status: 404 });
+		}
+		return { items: res.hits };
+	}
+}
+
+export function meta({ loaderData, params }) {
+	if (!loaderData) {
+		return [{ title: 'Not found | starfarer.space' }];
+	}
+	const { items } = loaderData;
+	const source = items[0].source;
+	return pageMeta({
+		title: `${source.title} | starfarer.space`,
+		description: `${items.length} questions answered in ${source.title} (${source.show}): ${items.slice(0, 3).map((i) => i.question).join(' · ')}`,
+		path: `/episode/${params.videoId}`,
+		type: 'video.episode',
+	});
+}
+
+export default function Episode({ loaderData, params }) {
+	const { items } = loaderData;
+	const { videoId } = params;
 	const [start, setStart] = useState(0);
 	const [autoplay, setAutoplay] = useState(false);
-
-	useEffect(() => {
-		if (!/^[\w-]{6,20}$/.test(videoId)) {
-			navigate('/404');
-			return;
-		}
-		meiliSearchInstance.index(INDEX)
-			.search('', { filter: `source.video_id = "${videoId}"`, sort: ['source.start:asc'], limit: 500 })
-			.then((response) => (response.hits.length ? setItems(response.hits) : navigate('/404')))
-			.catch(() => navigate('/404'));
-	}, [videoId, navigate]);
-
-	if (items === null) {
-		return <div className='mt-4'><Card content={<>Loading <i className="fas fa-spin fa-spinner"></i></>} /></div>;
-	}
 
 	const source = items[0].source;
 	const youtube = source.platform === 'youtube';
@@ -43,14 +68,7 @@ const Episode = () => {
 
 	return (
 		<>
-			<Link to="/">
-				<div className='mt-4 bg-sc-blue-950'>
-					<button className='p-4 button-link font-bold' aria-label='Back to Search'>
-						<i className="fa-solid fa-arrow-left mr-1"></i>
-						Back to Search
-					</button>
-				</div>
-			</Link>
+			<BackLink />
 			<div className='mt-4 bg-sc-blue-950 p-4'>
 				<h1 className='text-xl text-sc-blue-300 font-semibold'>{source.title}</h1>
 				<div className='text-sm text-gray-400 mb-3'>
@@ -84,6 +102,4 @@ const Episode = () => {
 			))}
 		</>
 	);
-};
-
-export default Episode;
+}

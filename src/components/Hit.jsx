@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
-import html2canvas from 'html2canvas';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router';
 
 import CopyToClipboard from './CopyToClipboard';
 import TimeDelta from './TimeDelta';
@@ -90,6 +89,7 @@ const captureComponent = async (title, componentRef) => {
 		const captureVisibleElements = componentRef.current.querySelectorAll('.capture-visible');
 		captureVisibleElements.forEach((el) => el.classList.remove('hidden'));
 
+		const { default: html2canvas } = await import('html2canvas');
 		const canvas = await html2canvas(componentRef.current, {
 			ignoreElements: (element) => element.classList.contains('no-capture'),
 			logging: false,
@@ -124,7 +124,8 @@ function introductionText(source, askedBy) {
 }
 
 function EpisodeLink({ source }) {
-	if (source.kind !== 'video' || !source.video_id || window.location.pathname.startsWith('/episode/')) {
+	const { pathname } = useLocation();
+	if (source.kind !== 'video' || !source.video_id || pathname.startsWith('/episode/')) {
 		return null;
 	}
 	return (
@@ -166,7 +167,7 @@ function ClipboardButtons({ id }) {
 					</button>
 				</Tooltip>
 			</CopyToClipboard>
-			<CopyToClipboard copyValue={`${window.location.origin}/star/vault/${id}`}>
+			<CopyToClipboard copyValue={() => `${window.location.origin}/star/vault/${id}`}>
 				<Tooltip className='no-capture float-right pr-2' message='Perma link (Click to copy)'>
 					<button className="button-link" aria-label="Copy Permalink to Card">
 						<i className="fas fa-link"></i>

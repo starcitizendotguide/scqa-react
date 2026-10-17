@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { useCookieState } from '../utils/useCookieState';
 
@@ -17,7 +17,7 @@ import FacetRail, { FACETS } from '../components/FacetRail';
 import { getHashFromUrl } from '../utils/helpers';
 
 
-const Home = () => {
+const Search = () => {
 
   const [highlightQuery, setHighlightQuery] = useCookieState('toggle-highlight-query', true);
   const [newestFirst, setNewestFirst] = useCookieState('sort-newest-first', false);
@@ -87,4 +87,25 @@ const Home = () => {
   );
 };
 
-export default Home;
+const SearchShell = () => (
+  <div className="container">
+    <div className='relative z-10 overflow-hidden md:p-1 mt-4'>
+      <div className="absolute h-full w-full bg-[conic-gradient(#58b4f6_20deg,transparent_120deg)]"></div>
+      <header className='relative z-20 bg-sc-blue-950 p-4 flex flex-col md:flex-row md:items-center gap-3'>
+        <a href="/" className="no-underline text-sc-blue-300 font-bold tracking-wide whitespace-nowrap">
+          <i className="fas fa-star mr-1"></i>starfarer<span className="text-gray-400">.space</span>
+        </a>
+        <h1 className="flex-1 min-w-0 text-gray-400">Search thousands of answers Star Citizen developers gave in official shows, streams and posts.</h1>
+      </header>
+    </div>
+    <noscript>
+      <p className="mt-4 bg-sc-blue-950 p-4">The search needs JavaScript. Every answer also has its own page, listed in the <a href="/sitemap-index.xml">sitemap</a>.</p>
+    </noscript>
+  </div>
+);
+
+export default function Home() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted ? <Search /> : <SearchShell />;
+}

@@ -6,6 +6,9 @@ function setCookie(name, value) {
 }
 
 function getCookie(name) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
   const cookieArr = document.cookie.split('; ');
   for (const cookie of cookieArr) {
     const [cookieName, cookieValue] = cookie.split('=');

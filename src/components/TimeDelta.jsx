@@ -1,11 +1,16 @@
+import { useEffect, useState } from "react";
 import Tooltip from "./Tooltip";
 
 const TimeDelta = ({ timestamp }) => {
-    const delta = Date.now() / 1000 - timestamp;
+    const [now, setNow] = useState(null);
+    useEffect(() => setNow(Date.now()), []);
+    const delta = now === null ? null : now / 1000 - timestamp;
     const yearInSeconds = 60 * 60 * 24 * 365;
 
     const getClassAndTooltip = () => {
-        if (delta > 3 * yearInSeconds) {
+        if (delta === null) {
+            return { tooltip: 'Published on this date.' };
+        } else if (delta > 3 * yearInSeconds) {
             return { tooltip: 'This answer is older than 3 years.' };
         } else if (delta > 1 * yearInSeconds) {
             return { tooltip: 'This answer is older than 1 year.' };

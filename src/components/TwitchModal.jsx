@@ -11,7 +11,7 @@ function TwitchModal({ videoId, start, title }) {
 	const close = useCallback(() => setIsOpen(false), []);
 
 	const linkUrl = `https://www.twitch.tv/videos/${videoId}${start ? `?t=${twitchTime(start)}` : ''}`;
-	const embedUrl = `https://player.twitch.tv/?video=${videoId}&parent=${window.location.hostname}&autoplay=true${start ? `&time=${twitchTime(start)}` : ''}`;
+	const embedUrl = () => `https://player.twitch.tv/?video=${videoId}&parent=${window.location.hostname}&autoplay=true${start ? `&time=${twitchTime(start)}` : ''}`;
 
 	return (
 		<>
@@ -30,7 +30,7 @@ function TwitchModal({ videoId, start, title }) {
 					</button>
 				</Tooltip>
 			</CopyToClipboard>
-			{isOpen && <VideoModal src={embedUrl} title={title} linkUrl={linkUrl} platform="Twitch" onClose={close} />}
+			{isOpen && <VideoModal src={embedUrl()} title={title} linkUrl={linkUrl} platform="Twitch" onClose={close} />}
 		</>
 	);
 }
