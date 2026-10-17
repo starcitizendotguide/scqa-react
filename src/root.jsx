@@ -1,33 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from 'react-router';
 
 import './styles/App.scss';
-import video_background from './styles/assets/background.webm';
-import video_poster from './styles/assets/background-poster.webp';
+import fontBody from './styles/fonts/exo-2-latin-400-normal.woff2';
+import fontHead from './styles/fonts/rajdhani-latin-600-normal.woff2';
 
 import GenericNotFound from './pages/GenericNotFound';
 import { pageMeta } from './meta';
-import { afterLoad } from './utils/afterLoad';
 import { IconSprite } from './components/Icon';
 
-// --- the poster (the video's first frame) paints right away; the video itself only loads once the page is idle,
-// so it never competes with the page's own requests. Skipped for reduced motion and data saver.
-function BackgroundVideo() {
-	const ref = useRef(null);
-
-	useEffect(() => {
-		const video = ref.current;
-		if (!video || window.matchMedia('(prefers-reduced-motion: reduce)').matches || navigator.connection?.saveData || !video.canPlayType('video/webm')) {
-			return;
-		}
-		return afterLoad(() => {
-			video.src = video_background;
-			video.play().catch(() => {});
-		});
-	}, []);
-
-	return <video ref={ref} muted loop playsInline preload="none" poster={video_poster} className="object-cover w-screen h-screen fixed left-0 top-0" />;
-}
+// --- the fonts of the answers and questions are needed for the first paint; the others load from the stylesheet
+export const links = () => [fontBody, fontHead].map((href) => ({ rel: 'preload', href, as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' }));
 
 export function Layout({ children }) {
 	return (
@@ -35,6 +18,7 @@ export function Layout({ children }) {
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<meta name="theme-color" content="#02080f" />
 				<link rel="icon" href="/favicon.ico" />
 				<link crossOrigin="" href="https://search.starfarer.space" rel="preconnect" />
 				<link rel="manifest" href="/manifest.json" />
@@ -44,10 +28,7 @@ export function Layout({ children }) {
 			</head>
 			<body>
 				<IconSprite />
-				<div className="z-[-1] fixed w-full h-full overflow-hidden inset-y-0">
-					<BackgroundVideo />
-				</div>
-				<div className="md:container md:mx-auto">
+				<div className="wrap">
 					{children}
 				</div>
 				<ScrollRestoration />
