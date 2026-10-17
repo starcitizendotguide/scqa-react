@@ -59,7 +59,9 @@ export default function Star({ loaderData }) {
 	return (
 		<>
 			<BackLink />
-			<Hit highlightQuery={false} {...loaderData.item} />
+			<div className="mt-4">
+				<Hit highlightQuery={false} full {...loaderData.item} />
+			</div>
 		</>
 	);
 }

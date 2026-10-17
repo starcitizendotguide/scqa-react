@@ -11,11 +11,8 @@ import BackLink from '../components/BackLink';
 import TimeDelta from '../components/TimeDelta';
 import { useAfterLoad } from '../utils/afterLoad';
 import Icon from '../components/Icon';
+import { clock } from '../utils/format';
 
-const clock = (s) => {
-	const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
-	return `${h ? `${h}:${String(m).padStart(2, '0')}` : m}:${String(x).padStart(2, '0')}`;
-};
 
 export async function loader({ params }) {
 	const items = VIDEO_ID.test(params.videoId) ? await getEpisode(params.videoId) : [];
@@ -74,12 +71,12 @@ export default function Episode({ loaderData, params }) {
 	return (
 		<>
 			<BackLink />
-			<div className='mt-4 bg-sc-blue-950 p-4'>
-				<h1 className='text-xl text-sc-blue-300 font-semibold'>{source.title}</h1>
-				<div className='text-sm text-gray-400 mb-3'>
+			<div className='frame card mt-4'>
+				<h1 className='card-q'>{source.title}</h1>
+				<div className='label mb-3'>
 					{source.show} · <TimeDelta timestamp={source.published_at} /> · {items.length} Q&As
 				</div>
-				{summary && <p className='text-gray-300 mb-3'>{summary}</p>}
+				{summary && <p className='txt mb-3'>{summary}</p>}
 				{youtube ? (
 					<iframe
 						key={`${start}-${autoplay}`}
@@ -95,15 +92,15 @@ export default function Episode({ loaderData, params }) {
 					<a href={source.url} target="_blank" rel="noopener noreferrer">Watch on {source.platform}</a>
 				)}
 			</div>
-			{items.map((item) => (
+			{items.map((item, i) => (
 				<div key={item.id}>
 					{youtube && item.source.start != null && (
-						<button className='mt-4 px-3 py-1 bg-sc-blue-950 text-sc-blue-300 text-sm font-mono hover:opacity-80'
+						<button className='act mb-2'
 							onClick={() => jump(item.source.start)} aria-label={`Play from ${clock(item.source.start)}`}>
-							<Icon name="play" className="mr-1" />{clock(item.source.start)}
+							<Icon name="hud-play" />{clock(item.source.start)}
 						</button>
 					)}
-					<Hit highlightQuery={false} {...item} />
+					<Hit index={i + 1} highlightQuery={false} {...item} />
 				</div>
 			))}
 		</>
