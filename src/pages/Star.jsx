@@ -1,10 +1,14 @@
 import React from 'react';
-import { data, redirect } from 'react-router';
+import { Link, data, redirect } from 'react-router';
 
 import { INDEX } from '../searchConfig';
-import { getRecord } from '../data.server';
+import { getRecord, getRelated } from '../data.server';
 import { RECORD_ID } from '../ids';
-import { pageMeta, speakers, answerText, clip, isoTime, OG_URL } from '../meta';
+import { pageMeta, speakers, answerText, clip, isoTime, isoDate, OG_URL } from '../meta';
+import { relatedFromSearch } from '../archive';
+import { devUrl } from '../slug';
+import { topicLabel, topicUrl } from '../topics';
+import { clock } from '../utils/format';
 
 import Hit from '../components/Hit';
 import BackLink from '../components/BackLink';
@@ -17,7 +21,7 @@ export async function loader({ params }) {
 	if (!item) {
 		throw data(null, { status: 404 });
 	}
-	return { item };
+	return { item, related: await getRelated(item) };
 }
 
 export async function clientLoader({ params, serverLoader }) {
@@ -34,7 +38,9 @@ export async function clientLoader({ params, serverLoader }) {
 		if (!res.hits.length) {
 			throw data(null, { status: 404 });
 		}
-		return { item: res.hits[0] };
+		const item = res.hits[0];
+		const related = await relatedFromSearch(({ q, ...rest }) => meiliSearchInstance.index(INDEX).search(q, rest), item).catch(() => []);
+		return { item, related };
 	}
 }
 
@@ -55,12 +61,76 @@ export function meta({ loaderData }) {
 	});
 }
 
+function SourceLink({ source }) {
+	if (source.kind === 'video' && source.video_id) {
+		return <Link to={`/episode/${source.video_id}`}>{source.title}</Link>;
+	}
+	return source.url ? <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a> : source.title;
+}
+
+function RecordData({ item }) {
+	const { source, developers = [], topics = [] } = item;
+	const names = speakers(item.answer);
+	return (
+		<section className="frame panel">
+			<h2 className="panel-title">Record data</h2>
+			<dl className="meta-grid">
+				<dt>source</dt><dd><SourceLink source={source} /></dd>
+				<dt>date</dt><dd>{isoDate(source.published_at) || '—'}</dd>
+				<dt>timestamp</dt><dd>{source.start ? clock(source.start) : '—'}</dd>
+				<dt>speakers</dt>
+				<dd>
+					{names.length ? names.map((name, i) => (
+						<React.Fragment key={name}>
+							{i > 0 && ', '}
+							{developers.includes(name) ? <Link to={devUrl(name)}>{name}</Link> : name}
+						</React.Fragment>
+					)) : 'Cloud Imperium'}
+				</dd>
+				{topics.length > 0 && (
+					<>
+						<dt>topics</dt>
+						<dd>{topics.map((t, i) => <React.Fragment key={t}>{i > 0 && ', '}<a href={topicUrl(t)}>{topicLabel(t)}</a></React.Fragment>)}</dd>
+					</>
+				)}
+				<dt>record</dt><dd className="break-all">{item.id}</dd>
+			</dl>
+		</section>
+	);
+}
+
+function Related({ items }) {
+	return (
+		<section className="frame panel">
+			<h2 className="panel-title">Related records</h2>
+			{items.length === 0 && <div className="none">No related records yet.</div>}
+			<ul className="related">
+				{items.map((r) => (
+					<li key={r.id}>
+						<Link to={`/star/vault/${r.id}`}>
+							<span>{r.question}</span>
+							<small>{[r.show, isoDate(r.published_at)?.slice(0, 4)].filter(Boolean).join(' · ')}</small>
+						</Link>
+					</li>
+				))}
+			</ul>
+		</section>
+	);
+}
+
 export default function Star({ loaderData }) {
+	const { item, related = [] } = loaderData;
 	return (
 		<>
 			<BackLink />
-			<div className="mt-4">
-				<Hit highlightQuery={false} full {...loaderData.item} />
+			<div className="single">
+				<div className="min-w-0">
+					<Hit highlightQuery={false} full {...item} />
+				</div>
+				<aside className="single-side">
+					<RecordData item={item} />
+					<Related items={related} />
+				</aside>
 			</div>
 		</>
 	);
