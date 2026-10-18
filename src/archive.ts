@@ -36,24 +36,6 @@ export function latestRole(records: Pick<QaRecord, 'answer' | 'year'>[], names: 
 // --- what a link to another answer needs
 export const brief = (record: Pick<QaRecord, 'id' | 'question' | 'source'>): RecordBrief => ({ id: record.id, question: record.question, show: record.source.show, published_at: record.source.published_at });
 
-// --- other answers sharing the most topics, with a bonus for the same speakers or episode, newest first on ties
-export function rankRelated(record: QaRecord, candidates: QaRecord[], limit = 6): RecordBrief[] {
-	const topics = new Set(record.topics || []);
-	const people = new Set(record.developers || []);
-	const video = record.source.video_id;
-	return candidates
-		.filter((c) => c.id !== record.id)
-		.map((c) => {
-			const shared = (c.topics || []).filter((t) => topics.has(t)).length;
-			const bonus = (video && c.source.video_id === video ? 1 : 0) + ((c.developers || []).some((d) => people.has(d)) ? 1 : 0);
-			return { c, shared, score: shared && shared + bonus };
-		})
-		.filter((x) => x.shared > 0)
-		.sort((a, b) => b.score - a.score || (b.c.source.published_at || 0) - (a.c.source.published_at || 0))
-		.slice(0, limit)
-		.map((x) => brief(x.c));
-}
-
 // --- developer names grouped by slug: [slug, [names, most used first]]
 export function groupNames(counts: Counts): [string, string[], number][] {
 	const groups = new Map<string, [string, number][]>();
@@ -118,17 +100,15 @@ export async function rosterFromSearch(run: SearchRun): Promise<RosterEntry[]> {
 }
 
 export async function relatedFromSearch(run: SearchRun, record: QaRecord): Promise<RecordBrief[]> {
-	if (!record.topics?.length) {
+	if (!record.related?.length) {
 		return [];
 	}
-	const res = await run({
-		q: '',
-		filter: [record.topics.map((t) => `topics = ${JSON.stringify(t)}`), `id != ${JSON.stringify(record.id)}`],
-		attributesToRetrieve: ['id', 'question', 'source', 'topics', 'developers'],
-		sort: ['source.published_at:desc'],
-		limit: 200,
+	const res = await run({ q: '', filter: `id IN ${JSON.stringify(record.related)}`, attributesToRetrieve: ['id', 'question', 'source'], limit: record.related.length });
+	const byId = new Map(res.hits.map((r) => [r.id, r]));
+	return record.related.flatMap((id) => {
+		const r = byId.get(id);
+		return r ? [brief(r)] : [];
 	});
-	return rankRelated(record, res.hits);
 }
 
 // --- topic and show pages

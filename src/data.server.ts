@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 
-import { count, developerFromSearch, developerStats, groupNames, hostNames, hubsFromSearch, latestRole, rankRelated, relatedFromSearch, rosterFromSearch, showFromSearch, showHub, topicFromSearch, topicHub } from './archive.js';
+import { brief, count, developerFromSearch, developerStats, groupNames, hostNames, hubsFromSearch, latestRole, relatedFromSearch, rosterFromSearch, showFromSearch, showHub, topicFromSearch, topicHub } from './archive.js';
 import { slugify } from './slug.js';
 import { hasShowPage } from './topics.js';
 import type { DeveloperStats, HubEntry, QaRecord, RecordBrief, RosterEntry, SearchParams, SearchResponse, ShowHub, TopicHub } from './types.js';
@@ -14,9 +14,7 @@ interface Data {
 	records: QaRecord[];
 	byId: Map<string, QaRecord>;
 	byVideo: Map<string, QaRecord[]>;
-	byTopic: Map<string, QaRecord[]>;
 	devs: Map<string, { names: string[]; records: QaRecord[] }>;
-	related: Map<string, RecordBrief[]>;
 	topics: Map<string, { name: string; records: QaRecord[] }>;
 	shows: Map<string, { name: string; records: QaRecord[] }>;
 	hosts: Set<string>;
@@ -68,7 +66,7 @@ async function load(): Promise<Data | null> {
 				shows.set(slug, { name: show, records: [...(shows.get(slug)?.records || []), r] });
 			}
 		}
-		cache = { records, byId, byVideo, byTopic, devs, related: new Map(), topics, shows, hosts: hostNames(records) };
+		cache = { records, byId, byVideo, devs, topics, shows, hosts: hostNames(records) };
 	}
 	return cache;
 }
@@ -113,18 +111,16 @@ export async function getEpisodeSummary(videoId: string): Promise<string | null>
 	return episodes?.[videoId]?.summary || null;
 }
 
-// --- up to six other answers on the same topics, for an answer page
+// --- the closest other answers by meaning, for an answer page
 export async function getRelated(record: QaRecord): Promise<RecordBrief[]> {
 	const data = await load();
 	if (!data) {
 		return relatedFromSearch(run, record);
 	}
-	// --- each page is rendered twice (HTML and its data file); rank once
-	if (!data.related.has(record.id)) {
-		const candidates = new Set((record.topics || []).flatMap((t) => data.byTopic.get(t) || []));
-		data.related.set(record.id, rankRelated(record, [...candidates]));
-	}
-	return data.related.get(record.id) ?? [];
+	return (record.related || []).flatMap((id) => {
+		const r = data.byId.get(id);
+		return r ? [brief(r)] : [];
+	});
 }
 
 // --- every developer with a page, most answers first

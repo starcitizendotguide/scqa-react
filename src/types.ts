@@ -48,6 +48,8 @@ export interface QaRecord {
 	og: string | null;
 	/** one-sentence AI summary of a long answer (never searched) */
 	tldr: string | null;
+	/** ids of the closest other answers by meaning, most similar first */
+	related?: string[];
 }
 
 // --- a search hit: the record plus the search's highlighted copies of its fields
