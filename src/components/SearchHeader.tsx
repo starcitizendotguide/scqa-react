@@ -17,14 +17,14 @@ const SYNTAX = (
 // --- shown on hover, and toggled by click, tap or keyboard; closes on Escape or a click elsewhere
 function SyntaxHelp() {
 	const [open, setOpen] = useState(false);
-	const ref = useRef(null);
+	const ref = useRef<HTMLSpanElement>(null);
 
 	useEffect(() => {
 		if (!open) {
 			return;
 		}
-		const away = (event) => !ref.current?.contains(event.target) && setOpen(false);
-		const escape = (event) => event.key === 'Escape' && setOpen(false);
+		const away = (event: PointerEvent) => !ref.current?.contains(event.target as Node) && setOpen(false);
+		const escape = (event: KeyboardEvent) => event.key === 'Escape' && setOpen(false);
 		document.addEventListener('pointerdown', away);
 		document.addEventListener('keydown', escape);
 		return () => {
@@ -43,7 +43,14 @@ function SyntaxHelp() {
 	);
 }
 
-const SearchHeader = ({ total, newest, onSortChange, onOpenFilters }) => (
+interface Props {
+	total?: number;
+	newest: boolean;
+	onSortChange: (newest: boolean) => void;
+	onOpenFilters: () => void;
+}
+
+const SearchHeader = ({ total, newest, onSortChange, onOpenFilters }: Props) => (
 	<>
 		<TopBar home active="search" />
 		<h1 className="sr-only">Search thousands of answers Star Citizen developers gave in official shows, streams and posts.</h1>

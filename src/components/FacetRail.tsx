@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, type ReactNode } from 'react';
 import { useClearRefinements, useInstantSearch, useRefinementList } from 'react-instantsearch';
 import Icon from './Icon';
 import { SkeletonPanels } from './Skeleton';
@@ -13,7 +13,9 @@ export const FACETS = [
 	{ attribute: 'developers', param: 'developer' },
 ];
 
-function Panel({ title, right, children, className = '' }) {
+type Item = ReturnType<typeof useRefinementList>['items'][number];
+
+function Panel({ title, right, children, className = '' }: { title: string; right?: ReactNode; children: ReactNode; className?: string }) {
 	return (
 		<section className={`frame panel ${className}`}>
 			<h3 className="panel-title"><span>{title}</span>{right !== undefined && <small>{right}</small>}</h3>
@@ -22,7 +24,7 @@ function Panel({ title, right, children, className = '' }) {
 	);
 }
 
-function Row({ item, refine, fill }) {
+function Row({ item, refine, fill }: { item: Item; refine: (value: string) => void; fill?: number }) {
 	return (
 		<button type="button" className={`row${item.isRefined ? ' on' : ''}`} aria-pressed={item.isRefined} onClick={() => refine(item.value)}>
 			<span>{item.label}</span>
@@ -32,7 +34,7 @@ function Row({ item, refine, fill }) {
 	);
 }
 
-function More({ all, count, noun, onClick }) {
+function More({ all, count, noun, onClick }: { all: boolean; count: number; noun: string; onClick: () => void }) {
 	return <div><button type="button" className="more" onClick={onClick}>{all ? '▴ fewer' : `▾ all ${count} ${noun}`}</button></div>;
 }
 
@@ -85,14 +87,15 @@ function YearFacet() {
 	// --- the current year only after hydration, so a page pre-rendered last year still hydrates
 	const thisYear = useHydrated() ? new Date().getFullYear() : 0;
 	const lastYear = Math.max(thisYear, ...found.map((i) => Number(i.value)).filter(Number.isFinite));
-	const items = [];
+	const items: Item[] = [];
 	for (let y = FIRST_YEAR; y <= lastYear; y++) {
-		items.push(byYear[String(y)] || { value: String(y), label: String(y), count: 0, isRefined: false });
+		items.push(byYear[String(y)] || { value: String(y), label: String(y), highlighted: String(y), count: 0, isRefined: false });
 	}
-	const [drag, setDrag] = useState(null);
+	// --- a press-and-drag across the bars: the bar it started on and the one under the pointer
+	const [drag, setDrag] = useState<{ from: number; to: number } | null>(null);
 	const max = Math.max(1, ...items.map((i) => i.count));
 	const selected = items.filter((i) => i.isRefined).map((i) => i.value);
-	const inDrag = (k) => drag && k >= Math.min(drag.from, drag.to) && k <= Math.max(drag.from, drag.to);
+	const inDrag = (k: number) => drag && k >= Math.min(drag.from, drag.to) && k <= Math.max(drag.from, drag.to);
 
 	const apply = () => {
 		if (!drag) {
@@ -168,7 +171,7 @@ function DeveloperFacet() {
 	);
 }
 
-const FacetRail = ({ open, onClose }) => {
+const FacetRail = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
 	const { refine: clearAll, canRefine } = useClearRefinements();
 	// --- the facets appear together with the first results instead of growing (and pushing each other) one by one
 	const { results } = useInstantSearch();

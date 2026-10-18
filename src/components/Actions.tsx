@@ -3,10 +3,20 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import VideoModal from './VideoModal';
 import Icon from './Icon';
 import { clock, copyText } from '../utils/format';
+import type { IconName } from './icons';
+import type { Source } from '../types';
 
-const twitchTime = (s) => `${Math.floor(s / 3600)}h${Math.floor((s % 3600) / 60)}m${s % 60}s`;
+type Cue = Pick<Source, 'video_id' | 'start'>;
 
-export const PLAYERS = {
+export interface ExternalPlayer {
+	name: string;
+	link: (cue: Cue) => string;
+	embed: (cue: Cue) => string;
+}
+
+const twitchTime = (s: number): string => `${Math.floor(s / 3600)}h${Math.floor((s % 3600) / 60)}m${s % 60}s`;
+
+export const PLAYERS: Record<string, ExternalPlayer> = {
 	youtube: {
 		name: 'YouTube',
 		link: ({ video_id, start }) => `https://youtu.be/${video_id}${start ? `?t=${start}` : ''}`,
@@ -20,10 +30,15 @@ export const PLAYERS = {
 };
 
 // --- a page with its own player for a video (the episode page) plays answers from that video there
-export const PlayerContext = createContext(null);
+export interface PagePlayer {
+	videoId: string;
+	jump: (seconds: number | null | undefined) => void;
+}
+
+export const PlayerContext = createContext<PagePlayer | null>(null);
 
 // --- videos open in the overlay at the answer's timestamp; other sources link out
-export function PlayButton({ source }) {
+export function PlayButton({ source }: { source: Source }) {
 	const [open, setOpen] = useState(false);
 	const close = useCallback(() => setOpen(false), []);
 	const page = useContext(PlayerContext);
@@ -32,7 +47,7 @@ export function PlayButton({ source }) {
 
 	if (!player) {
 		return source.url ? (
-			<a className="act" href={source.url} target="_blank" rel="noopener noreferrer" title={source.title}>
+			<a className="act" href={source.url} target="_blank" rel="noopener noreferrer" title={source.title ?? undefined}>
 				<Icon name="hud-external" />Source
 			</a>
 		) : null;
@@ -40,13 +55,13 @@ export function PlayButton({ source }) {
 	const at = source.start ? clock(source.start) : null;
 	return (
 		<>
-			<button type="button" className="act" onClick={() => (here ? page.jump(source.start) : setOpen(true))} title={`Play “${source.title}”${at ? ` at ${at}` : ''}`}>
+			<button type="button" className="act" onClick={() => (here && page ? page.jump(source.start) : setOpen(true))} title={`Play “${source.title}”${at ? ` at ${at}` : ''}`}>
 				<Icon name="hud-play" />Play at {at || 'start'}
 			</button>
 			{open && (
 				<VideoModal
 					src={player.embed(source)}
-					title={source.title}
+					title={source.title ?? ''}
 					label={`Transmission · ${source.title}${at ? ` · T+${at}` : ''}`}
 					linkUrl={player.link(source)}
 					platform={player.name}
@@ -57,7 +72,13 @@ export function PlayButton({ source }) {
 	);
 }
 
-export function CopyButton({ value, icon, label, title, className = '' }) {
+export function CopyButton({ value, icon, label, title, className = '' }: {
+	value: string | (() => string);
+	icon: IconName;
+	label?: string;
+	title?: string;
+	className?: string;
+}) {
 	const [copied, setCopied] = useState(false);
 
 	useEffect(() => {

@@ -1,13 +1,31 @@
-import React from 'react';
+import React, { type RefObject } from 'react';
 import { Link } from 'react-router';
 
 import Icon from './Icon';
 import TimeDelta from './TimeDelta';
 import { useHydrated } from '../hooks/useHydrated';
-import { embedUrl } from '../hooks/useYouTubePlayer';
+import { embedUrl, type Embed, type Player } from '../hooks/useYouTubePlayer';
 import { devUrl } from '../slug';
+import type { ExternalPlayer } from './Actions';
+import type { QaRecord, Source } from '../types';
 
-export default function EpisodeScreen({ source, videoId, thumb, items, summary, developers, screen, frame, player, external, embed, onPlay }) {
+interface Props {
+	source: Source;
+	videoId: string;
+	thumb: string;
+	items: QaRecord[];
+	summary?: string | null;
+	developers: string[];
+	screen: RefObject<HTMLDivElement | null>;
+	frame: RefObject<HTMLIFrameElement | null>;
+	player: Player;
+	external?: ExternalPlayer;
+	/** where the embedded player starts, once it may load */
+	embed: Embed | null;
+	onPlay: () => void;
+}
+
+export default function EpisodeScreen({ source, videoId, thumb, items, summary, developers, screen, frame, player, external, embed, onPlay }: Props) {
 	const youtube = source.platform === 'youtube';
 	const origin = useHydrated() ? window.location.origin : '';
 	return (
@@ -19,7 +37,7 @@ export default function EpisodeScreen({ source, videoId, thumb, items, summary, 
 						key={`${embed.start}-${embed.autoplay}`}
 						onLoad={player.onLoad}
 						src={embedUrl({ videoId, origin, ...embed })}
-						title={source.title}
+						title={source.title ?? ''}
 						frameBorder="0"
 						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 						referrerPolicy="strict-origin-when-cross-origin"
@@ -31,7 +49,7 @@ export default function EpisodeScreen({ source, videoId, thumb, items, summary, 
 						<span className="play"><Icon name="hud-play" /></span>
 					</button>
 				) : (
-					<a className="poster" href={external ? external.link({ ...source, start: 0 }) : source.url} target="_blank" rel="noopener noreferrer">
+					<a className="poster" href={external ? external.link({ ...source, start: 0 }) : source.url ?? undefined} target="_blank" rel="noopener noreferrer">
 						<span className="play"><Icon name="hud-external" /></span>
 						<span className="label">Watch on {external?.name || source.platform}</span>
 					</a>

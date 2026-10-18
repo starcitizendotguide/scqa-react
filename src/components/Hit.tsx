@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router';
 
 import AnswerClamp from './AnswerClamp';
@@ -13,17 +13,19 @@ import { devUrl } from '../slug';
 import { captureCard } from '../utils/captureCard';
 import { focusRecord } from '../utils/focusRecord';
 import { initials, shortDate } from '../utils/format';
+import type { QaHit, Source, Turn as TurnData } from '../types';
 
 // --- the search's highlighted version of a field, or the plain one
-const formatted = (hit, highlight) => (path, raw) => {
+const formatted = (hit: QaHit, highlight: boolean) => (path: (string | number)[], raw: string): string => {
 	if (!highlight) {
 		return raw;
 	}
-	const value = path.reduce((node, key) => node?.[key], hit._highlightResult)?.value;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- a walk through the search's nested highlight copies
+	const value = path.reduce<any>((node, key) => node?.[key], hit._highlightResult)?.value as string | undefined;
 	return value ?? raw;
 };
 
-function Turn({ turn, developers, children }) {
+function Turn({ turn, developers, children }: { turn: TurnData; developers?: string[]; children: ReactNode }) {
 	const name = turn.speaker || turn.initials;
 	return (
 		<div className="turn">
@@ -41,7 +43,7 @@ function Turn({ turn, developers, children }) {
 	);
 }
 
-function EpisodeLink({ source }) {
+function EpisodeLink({ source }: { source: Source }) {
 	const { pathname } = useLocation();
 	if (source.kind !== 'video' || !source.video_id || pathname.startsWith('/episode/')) {
 		return null;
@@ -53,7 +55,7 @@ function EpisodeLink({ source }) {
 	);
 }
 
-function CreditLink({ credit }) {
+function CreditLink({ credit }: { credit: string | null }) {
 	if (!credit) {
 		return null;
 	}
@@ -65,10 +67,10 @@ function CreditLink({ credit }) {
 	);
 }
 
-export default function Hit({ highlightQuery, full = false, ...hit }) {
+export default function Hit({ highlightQuery = false, full = false, ...hit }: QaHit & { highlightQuery?: boolean; full?: boolean }) {
 	const { id, question, asked_by, answer, source, credit, topics, developers, tldr } = hit;
 	const text = formatted(hit, highlightQuery);
-	const card = useRef();
+	const card = useRef<HTMLElement>(null);
 	// --- opened with #rec-<id>: also scrolls there when the card only appeared after the page loaded
 	useEffect(() => {
 		const check = () => window.location.hash === `#rec-${id}` && focusRecord(id, { scroll: 'instant' });

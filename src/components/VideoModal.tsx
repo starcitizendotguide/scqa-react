@@ -1,12 +1,21 @@
-import React, { useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
+import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Icon from './Icon';
 
-const VideoModal = ({ src, title, label, linkUrl, platform, onClose }) => {
-	const closeRef = useRef(null);
+interface Props {
+	src: string;
+	title: string;
+	label?: string;
+	linkUrl?: string;
+	platform?: string;
+	onClose: () => void;
+}
+
+const VideoModal = ({ src, title, label, linkUrl, platform, onClose }: Props) => {
+	const closeRef = useRef<HTMLButtonElement>(null);
 
 	useEffect(() => {
-		const onKey = (event) => event.key === 'Escape' && onClose();
+		const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose();
 		const overflow = document.body.style.overflow;
 		document.body.style.overflow = 'hidden';
 		document.addEventListener('keydown', onKey);

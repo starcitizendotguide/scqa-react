@@ -5,16 +5,16 @@ import { FilterContext } from './FilterLink';
 import Card from './Card';
 import Icon from './Icon';
 import { SkeletonCards } from './Skeleton';
+import type { QaHit } from '../types';
 
-const SearchResults = ({ highlightQuery }) => {
-
+const SearchResults = ({ highlightQuery }: { highlightQuery: boolean }) => {
 	const { status, results, setIndexUiState } = useInstantSearch();
-	const { items, isLastPage, showMore } = useInfiniteHits({ escapeHTML: false });
-	const sentinel = useRef(null);
+	const { items, isLastPage, showMore } = useInfiniteHits<QaHit>({ escapeHTML: false });
+	const sentinel = useRef<HTMLDivElement>(null);
 	const hasItems = items.length > 0;
 
 	// --- a topic tag or speaker name on a card adds that filter and starts over at the top
-	const filter = useCallback((attribute, value) => {
+	const filter = useCallback((attribute: string, value: string) => {
 		setIndexUiState((state) => {
 			const current = state.refinementList?.[attribute] || [];
 			return current.includes(value) ? state : { ...state, refinementList: { ...state.refinementList, [attribute]: [...current, value] } };

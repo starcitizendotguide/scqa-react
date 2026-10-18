@@ -1,17 +1,17 @@
-import React, { useEffect, useEffectEvent, useRef, useState } from 'react';
+import React, { useEffect, useEffectEvent, useRef, useState, type ReactNode } from 'react';
 
 const LIMIT = 15.5; // em, as .answer's max-height
 
 // --- the clamp height in px: the CSS max-height while closed (shorter under a summary), else LIMIT em
-const limit = (el) => {
+const limit = (el: HTMLElement): number => {
 	const max = el.classList.contains('open') ? NaN : parseFloat(getComputedStyle(el).maxHeight);
 	return Number.isFinite(max) ? max : parseFloat(getComputedStyle(el).fontSize) * LIMIT;
 };
 
 // --- the whole answer is clamped to a few lines. Whether it is actually cut off is only known in the browser, so the
 // fade and the button appear after hydration (the button overlays the faded lines and takes no space of its own).
-export default function AnswerClamp({ children, full = false, short = false }) {
-	const box = useRef(null);
+export default function AnswerClamp({ children, full = false, short = false }: { children: ReactNode; full?: boolean; short?: boolean }) {
+	const box = useRef<HTMLDivElement>(null);
 	const [clipped, setClipped] = useState(false);
 	const [open, setOpen] = useState(false);
 
@@ -30,6 +30,9 @@ export default function AnswerClamp({ children, full = false, short = false }) {
 	// --- max-height animates between the clamp and the measured height; 'none' afterwards keeps it right on resize
 	const expand = () => {
 		const el = box.current;
+		if (!el) {
+			return;
+		}
 		const done = () => {
 			if (el.classList.contains('open')) {
 				el.style.maxHeight = 'none';
@@ -64,6 +67,9 @@ export default function AnswerClamp({ children, full = false, short = false }) {
 
 	const collapse = () => {
 		const el = box.current;
+		if (!el) {
+			return;
+		}
 		el.style.maxHeight = `${el.scrollHeight}px`;
 		void el.offsetHeight;
 		el.classList.remove('open');

@@ -5,12 +5,25 @@ import Icon from './Icon';
 import { focusRecord } from '../utils/focusRecord';
 import { clock } from '../utils/format';
 import { progress, segment } from '../utils/follow';
+import type { ExternalPlayer } from './Actions';
+import type { Player } from '../hooks/useYouTubePlayer';
+import type { QaRecord } from '../types';
 
-const speakerNames = (item) => [...new Set(item.answer.map((t) => t.speaker).filter(Boolean))];
+const speakerNames = (item: QaRecord) => [...new Set(item.answer.map((t) => t.speaker).filter(Boolean))];
 
 // --- a row jumps the player there, or opens the source when the video isn't on YouTube
-export default function TransmissionLog({ items, active, playing, player, external, onJump }) {
-	const list = useRef(null);
+interface Props {
+	items: QaRecord[];
+	active: number | null;
+	playing: number | null;
+	player: Player;
+	external?: ExternalPlayer;
+	/** null when the video isn't on YouTube: rows then link to the source */
+	onJump: ((seconds: number | null | undefined, row: number) => void) | null;
+}
+
+export default function TransmissionLog({ items, active, playing, player, external, onJump }: Props) {
+	const list = useRef<HTMLOListElement>(null);
 	const { duration, now } = player;
 	// --- following pauses while someone scrolls the list by hand
 	const touched = useRef(0);
@@ -19,8 +32,8 @@ export default function TransmissionLog({ items, active, playing, player, extern
 	};
 
 	useEffect(() => {
-		const el = list.current, row = active != null && el?.children[active];
-		if (Date.now() - touched.current < 8000 || !row) {
+		const el = list.current, row = active != null ? (el?.children[active] as HTMLElement | undefined) : undefined;
+		if (Date.now() - touched.current < 8000 || !el || !row) {
 			return;
 		}
 		if (row.offsetTop < el.scrollTop || row.offsetTop + row.offsetHeight > el.scrollTop + el.clientHeight) {
@@ -30,12 +43,12 @@ export default function TransmissionLog({ items, active, playing, player, extern
 
 	// --- drawn every frame from the counted-forward position, straight on the row, so the bar fills smoothly
 	useEffect(() => {
-		const row = playing != null && list.current?.children[playing];
-		const span = row && segment(items, playing, duration);
-		if (!span) {
+		const row = playing != null ? (list.current?.children[playing] as HTMLElement | undefined) : undefined;
+		const span = row && playing != null ? segment(items, playing, duration) : null;
+		if (!row || !span) {
 			return undefined;
 		}
-		let frame;
+		let frame: number;
 		const draw = () => {
 			const t = now();
 			if (t != null) {
@@ -79,7 +92,7 @@ export default function TransmissionLog({ items, active, playing, player, extern
 									{body}
 								</button>
 							) : (
-								<a href={external ? external.link(item.source) : item.source.url} target="_blank" rel="noopener noreferrer">{body}</a>
+								<a href={external ? external.link(item.source) : item.source.url ?? undefined} target="_blank" rel="noopener noreferrer">{body}</a>
 							)}
 							<span className="tli-acts">
 								<a

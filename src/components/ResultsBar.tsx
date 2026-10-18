@@ -3,22 +3,31 @@ import { useClearRefinements, useCurrentRefinements, useInstantSearch } from 're
 import { topicLabel } from '../topics';
 import { fmt } from '../utils/format';
 
-const ResultsBar = ({ total, highlight, onHighlight }) => {
+type Refinement = ReturnType<typeof useCurrentRefinements>['items'][number]['refinements'][number];
+
+// --- a filter pill: one refinement, or a run of consecutive years shown as one range
+interface Chip {
+	attribute: string;
+	value: string | number;
+	label: string;
+	refinement?: Refinement;
+	all?: Refinement[];
+}
+
+const ResultsBar = ({ total, highlight, onHighlight }: { total?: number; highlight: boolean; onHighlight: (on: boolean) => void }) => {
 	const { results, uiState, status } = useInstantSearch();
 	const { items, refine } = useCurrentRefinements();
 	const { refine: clearAll } = useClearRefinements();
 	const query = uiState['']?.query?.trim();
-	const chips = items.flatMap((group) => {
+	const chips = items.flatMap((group): Chip[] => {
 		const years = group.attribute === 'year' ? group.refinements.map((r) => Number(r.value)).sort((a, b) => a - b) : [];
 		const contiguous = years.length > 1 && years.every((y, i) => i === 0 || y === years[i - 1] + 1);
 		if (contiguous) {
 			return [{ attribute: 'year', value: 'range', label: `${years[0]} – ${years[years.length - 1]}`, all: group.refinements }];
 		}
-		return group.attribute === 'topics'
-			? group.refinements.map((r) => ({ ...r, label: topicLabel(r.label) }))
-			: group.refinements;
+		return group.refinements.map((r) => ({ attribute: r.attribute, value: r.value, label: group.attribute === 'topics' ? topicLabel(r.label) : r.label, refinement: r }));
 	});
-	const remove = (chip) => (chip.all ? chip.all.forEach((r) => refine(r)) : refine(chip));
+	const remove = (chip: Chip) => (chip.all ? chip.all.forEach((r) => refine(r)) : chip.refinement && refine(chip.refinement));
 	const found = results?.nbHits ?? 0;
 	const pending = !results || results.__isArtificial || status === 'stalled' || (found === 0 && status === 'loading');
 
