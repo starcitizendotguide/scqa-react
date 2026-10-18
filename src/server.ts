@@ -1,5 +1,4 @@
 import { createServer } from 'node:http';
-import { pathToFileURL } from 'node:url';
 import { createRequestListener } from '@react-router/node';
 import { createRequestHandler } from 'react-router';
 import * as build from 'virtual:react-router/server-build';
@@ -9,7 +8,7 @@ import * as build from 'virtual:react-router/server-build';
 // Unix socket systemd hands over as fd 3, or STARFARER_LISTEN (a socket path or port) for a local run
 export * from 'virtual:react-router/server-build';
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (import.meta.main) {
 	// --- one page before listening loads the archive, so no visitor waits for it (systemd queues connections meanwhile)
 	await createRequestHandler(build, 'production')(new Request('http://localhost/topic'));
 	const server = createServer(createRequestListener({ build, mode: 'production' }));
