@@ -5,14 +5,15 @@ import { episodeTitle } from '../utils/format';
 import { hasShowPage, showUrl } from '../topics';
 import type { Source } from '../types';
 
-// --- show › episode (or post): the episode links to its page here for videos, to the original elsewhere
-export default function SourceMeta({ source }: { source: Source }) {
+// --- show › episode (or post): the episode links to its page here for videos (opened at the record `id`, if given), to
+// the original elsewhere
+export default function SourceMeta({ source, id }: { source: Source; id?: string }) {
 	const { pathname } = useLocation();
 	const episode = source.kind === 'video' && source.video_id ? `/episode/${source.video_id}` : null;
 	const name = episodeTitle(source.show, source.title);
 	let title: ReactNode = name;
 	if (episode && pathname !== episode) {
-		title = <Link prefetch="intent" to={episode}>{name}</Link>;
+		title = <Link prefetch="intent" to={id ? `${episode}#rec-${id}` : episode}>{name}</Link>;
 	} else if (!episode && source.url) {
 		title = <a href={source.url} target="_blank" rel="noopener noreferrer">{name}</a>;
 	}

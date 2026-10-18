@@ -43,13 +43,14 @@ function Turn({ turn, developers, children }: { turn: TurnData; developers?: str
 	);
 }
 
-function EpisodeLink({ source }: { source: Source }) {
+// --- to the episode, opened at this question (the page cues the player there and marks its row)
+function EpisodeLink({ source, id }: { source: Source; id: string }) {
 	const { pathname } = useLocation();
 	if (source.kind !== 'video' || !source.video_id || pathname.startsWith('/episode/')) {
 		return null;
 	}
 	return (
-		<Link prefetch="intent" to={`/episode/${source.video_id}`} className="act" title={`All Q&As from “${source.title}”`}>
+		<Link prefetch="intent" to={`/episode/${source.video_id}#rec-${id}`} className="act" title={`All Q&As from “${source.title}”`}>
 			<Icon name="hud-list" />Episode
 		</Link>
 	);
@@ -102,14 +103,14 @@ export default function Hit({ highlightQuery = false, full = false, ...hit }: Qa
 				))}
 			</AnswerClamp>
 			<div className="card-meta">
-				<SourceMeta source={source} />
+				<SourceMeta source={source} id={id} />
 				<span className="sep">·</span>
 				<TimeDelta timestamp={source.published_at} format={shortDate} />
 			</div>
 			<div className="acts no-capture">
 				<PlayButton source={source} />
 				<CopyButton value={() => `${window.location.origin}/star/vault/${id}`} icon="hud-link" label="Link" title="Copy the permalink of this answer" />
-				<EpisodeLink source={source} />
+				<EpisodeLink source={source} id={id} />
 				<button type="button" className="act dim" title="Save card as image" aria-label="Save card as image" onClick={() => card.current && captureCard(card.current, question)}>
 					<Icon name="hud-camera" />
 				</button>

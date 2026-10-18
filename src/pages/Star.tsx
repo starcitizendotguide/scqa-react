@@ -47,9 +47,9 @@ export function meta({ loaderData }: Route.MetaArgs) {
 	});
 }
 
-function SourceLink({ source }: { source: Source }) {
+function SourceLink({ source, id }: { source: Source; id: string }) {
 	if (source.kind === 'video' && source.video_id) {
-		return <Link prefetch="intent" to={`/episode/${source.video_id}`}>{source.title}</Link>;
+		return <Link prefetch="intent" to={`/episode/${source.video_id}#rec-${id}`}>{source.title}</Link>;
 	}
 	return source.url ? <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a> : source.title;
 }
@@ -61,7 +61,7 @@ function RecordData({ item }: { item: QaRecord }) {
 		<section className="frame panel">
 			<h2 className="panel-title">Record data</h2>
 			<dl className="meta-grid">
-				<dt>source</dt><dd><SourceLink source={source} /></dd>
+				<dt>source</dt><dd><SourceLink source={source} id={item.id} /></dd>
 				<dt>date</dt><dd>{isoDate(source.published_at) || '—'}</dd>
 				<dt>timestamp</dt><dd>{source.start ? clock(source.start) : '—'}</dd>
 				<dt>speakers</dt>
