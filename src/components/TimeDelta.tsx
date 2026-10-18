@@ -8,7 +8,7 @@ const YEAR = 365 * 24 * 60 * 60;
 const openedAt = typeof window === 'undefined' ? null : Date.now();
 const subscribe = () => () => {};
 
-function age(timestamp, now) {
+function age(timestamp: number, now: number | null): string {
 	if (now === null) {
 		return 'Published on this date.';
 	}
@@ -19,11 +19,11 @@ function age(timestamp, now) {
 	return delta > YEAR ? 'This answer is older than 1 year.' : 'This answer is less than 1 year old.';
 }
 
-const isoDate = (timestamp) => new Date(timestamp * 1000).toISOString().split('T')[0];
+const isoDate = (timestamp: number): string => new Date(timestamp * 1000).toISOString().split('T')[0];
 
-export default function TimeDelta({ timestamp, format = isoDate }) {
+export default function TimeDelta({ timestamp, format = isoDate }: { timestamp: number | null; format?: (timestamp: number) => string }) {
 	const now = useSyncExternalStore(subscribe, () => openedAt, () => null);
-	if (!Number.isFinite(timestamp)) {
+	if (timestamp == null || !Number.isFinite(timestamp)) {
 		return null;
 	}
 	return (

@@ -5,7 +5,12 @@ import { HIGHLIGHT_PRE, HIGHLIGHT_POST } from '../searchConfig';
 const MARKED = new RegExp(`${HIGHLIGHT_PRE}(.*?)${HIGHLIGHT_POST}`, 'gs');
 
 // --- plain text with highlight markers -> React nodes (no innerHTML)
-export function Highlighted({ text, highlight }) {
+interface TextProps {
+	text: string | null | undefined;
+	highlight?: boolean | string;
+}
+
+export function Highlighted({ text, highlight }: TextProps) {
 	if (!text) {
 		return null;
 	}
@@ -17,7 +22,7 @@ export function Highlighted({ text, highlight }) {
 }
 
 // --- paragraphs separated by a blank line, "- " lines become list items
-export function RichText({ text, highlight }) {
+export function RichText({ text, highlight }: TextProps) {
 	return (text || '').split(/\n\s*\n/).map((para, i) => {
 		const lines = para.split('\n');
 		if (lines.every((line) => line.startsWith('- '))) {

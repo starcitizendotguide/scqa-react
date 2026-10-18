@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router';
-import TopBar from './TopBar';
+import TopBar, { type Section } from './TopBar';
 import Icon from './Icon';
 
-const BackLink = ({ active }) => (
+const BackLink = ({ active }: { active?: Section }) => (
 	<>
 		<TopBar active={active} />
 		<Link to="/" className="act mt-4">

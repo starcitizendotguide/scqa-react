@@ -1,5 +1,7 @@
 // --- a hover/focus tooltip above its content; a long message (not a plain string) wraps at a fixed width
-export default function Tooltip({ message, children, className = '' }) {
+import type { ReactNode } from 'react';
+
+export default function Tooltip({ message, children, className = '' }: { message: ReactNode; children: ReactNode; className?: string }) {
 	const long = typeof message !== 'string';
 	return (
 		<div className={`tip-wrap ${className}`}>

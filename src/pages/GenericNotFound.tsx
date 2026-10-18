@@ -4,7 +4,7 @@ import BackLink from '../components/BackLink';
 
 export const meta = () => [{ title: 'Not found | starfarer.space' }, { name: 'robots', content: 'noindex' }];
 
-const GenericNotFound = ({ message }) => (
+const GenericNotFound = ({ message }: { message?: string }) => (
 	<>
 		<BackLink />
 		<div className="mt-4"></div>
