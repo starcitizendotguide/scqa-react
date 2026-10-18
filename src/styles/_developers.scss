@@ -49,9 +49,6 @@
 	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: 16px;
 	margin-top: 16px;
-	.panel {
-		padding: 18px;
-	}
 }
 
 .bars .b {
@@ -92,7 +89,6 @@
 
 .roster {
 	margin-top: 16px;
-	padding: 18px;
 	ul {
 		margin: 0;
 		padding: 0;

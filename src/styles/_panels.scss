@@ -26,6 +26,10 @@
 	}
 }
 
+.panel {
+	padding: 18px;
+}
+
 // --- chamfered panels: the clipped shape (with its border) is a decorative layer behind the content, so nothing
 // inside (tooltips, focus rings) gets clipped with it
 .cut {
