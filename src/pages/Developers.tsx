@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router';
 
 import { getRoster } from '../data.server';
-import { rosterFromSearch } from '../archive';
 import { pageMeta } from '../meta';
 import { breadcrumbs } from '../structuredData';
 import { fmt, initials } from '../utils/format';
@@ -11,15 +10,6 @@ import type { Route } from './+types/Developers';
 
 export async function loader() {
 	return { roster: await getRoster() };
-}
-
-export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
-	try {
-		return await serverLoader();
-	} catch {
-		const { runSearch } = await import('../searchClient');
-		return { roster: await rosterFromSearch(runSearch) };
-	}
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -56,7 +46,7 @@ export default function Developers({ loaderData }: Route.ComponentProps) {
 				<ul>
 					{shown.map((dev) => (
 						<li key={dev.slug}>
-							<Link to={`/dev/${dev.slug}`}>
+							<Link prefetch="intent" to={`/dev/${dev.slug}`}>
 								<span className="hex" aria-hidden="true">{initials(dev.name)}</span>
 								<span className="who">{dev.name}{dev.role && <span>{dev.role}</span>}</span>
 								<b>{fmt(dev.count)}<small>{dev.first ? (dev.first === dev.last ? ` · ${dev.first}` : ` · ${dev.first}–${dev.last}`) : ''}</small></b>

@@ -2,7 +2,6 @@ import React from 'react';
 import { data } from 'react-router';
 
 import { getShow } from '../data.server';
-import { showFromSearch } from '../archive';
 import { pageMeta } from '../meta';
 import { breadcrumbs } from '../structuredData';
 import { showSearchUrl } from '../topics';
@@ -21,19 +20,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 		throw data(null, { status: 404 });
 	}
 	return { hub };
-}
-
-export async function clientLoader({ params, serverLoader }: Route.ClientLoaderArgs) {
-	try {
-		return await serverLoader();
-	} catch {
-		const { runSearch } = await import('../searchClient');
-		const hub = SLUG.test(params.slug) ? await showFromSearch(runSearch, params.slug) : null;
-		if (!hub) {
-			throw data(null, { status: 404 });
-		}
-		return { hub };
-	}
 }
 
 const detail = (total: number, episodes: number, years: string) =>

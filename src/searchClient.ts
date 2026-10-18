@@ -1,7 +1,6 @@
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 
-import { HIGHLIGHT_POST, HIGHLIGHT_PRE, INDEX } from './searchConfig';
-import type { QaRecord, SearchResponse, SearchRun } from './types';
+import { HIGHLIGHT_POST, HIGHLIGHT_PRE } from './searchConfig';
 
 export { INDEX, HIGHLIGHT_PRE, HIGHLIGHT_POST } from './searchConfig';
 
@@ -41,9 +40,4 @@ const { searchClient, meiliSearchInstance } = createSearchClient();
 
 export { meiliSearchInstance };
 
-// --- the data layer's search function (archive.ts) on top of the browser's search client
-export const runSearch: SearchRun = ({ q, ...rest }) => meiliSearchInstance.index(INDEX).search(q, rest) as unknown as Promise<SearchResponse>;
-
-export const findRecords = async (filter: string, extra: Record<string, unknown> = {}): Promise<QaRecord[]> =>
-	(await meiliSearchInstance.index(INDEX).search('', { filter, ...extra })).hits as unknown as QaRecord[];
 export default searchClient;

@@ -12,14 +12,14 @@ export default function SourceMeta({ source }: { source: Source }) {
 	const name = episodeTitle(source.show, source.title);
 	let title: ReactNode = name;
 	if (episode && pathname !== episode) {
-		title = <Link to={episode}>{name}</Link>;
+		title = <Link prefetch="intent" to={episode}>{name}</Link>;
 	} else if (!episode && source.url) {
 		title = <a href={source.url} target="_blank" rel="noopener noreferrer">{name}</a>;
 	}
 	const withTitle = source.title && pathname !== episode && name !== source.show;
 	return (
 		<span className="meta" title={source.title ?? undefined}>
-			{source.show && (hasShowPage(source.show) ? <Link to={showUrl(source.show)} className="show">{source.show}</Link> : <b>{source.show}</b>)}
+			{source.show && (hasShowPage(source.show) ? <Link prefetch="intent" to={showUrl(source.show)} className="show">{source.show}</Link> : <b>{source.show}</b>)}
 			{withTitle && <>{source.show && <span className="sep">›</span>}{title}</>}
 		</span>
 	);

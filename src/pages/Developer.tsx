@@ -2,7 +2,6 @@ import React from 'react';
 import { Link, data } from 'react-router';
 
 import { getDeveloper } from '../data.server';
-import { developerFromSearch } from '../archive';
 import { pageMeta } from '../meta';
 import { breadcrumbs, developerProfile } from '../structuredData';
 import { topicLabel, topicUrl } from '../topics';
@@ -22,19 +21,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 		throw data(null, { status: 404 });
 	}
 	return { dev };
-}
-
-export async function clientLoader({ params, serverLoader }: Route.ClientLoaderArgs) {
-	try {
-		return await serverLoader();
-	} catch {
-		const { runSearch } = await import('../searchClient');
-		const dev = SLUG.test(params.slug) ? await developerFromSearch(runSearch, params.slug) : null;
-		if (!dev) {
-			throw data(null, { status: 404 });
-		}
-		return { dev };
-	}
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -94,7 +80,7 @@ export default function Developer({ loaderData }: Route.ComponentProps) {
 					<a className="act" href={all}><Icon name="hud-search" />Search all {fmt(dev.count)} answers by {dev.name}</a>
 				</div>
 			)}
-			<p className="mt-4"><Link to="/dev" className="act dim"><Icon name="arrow-left" />All developers</Link></p>
+			<p className="mt-4"><Link prefetch="intent" to="/dev" className="act dim"><Icon name="arrow-left" />All developers</Link></p>
 		</>
 	);
 }

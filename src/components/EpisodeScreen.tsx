@@ -56,12 +56,12 @@ export default function EpisodeScreen({ source, videoId, thumb, items, summary, 
 					</a>
 				)}
 			</div>
-			<div className="label ep-meta">{hasShowPage(source.show) ? <Link to={showUrl(source.show)}>{source.show}</Link> : source.show} · <TimeDelta timestamp={source.published_at} /> · {items.length} Q&amp;As</div>
+			<div className="label ep-meta">{hasShowPage(source.show) ? <Link prefetch="intent" to={showUrl(source.show)}>{source.show}</Link> : source.show} · <TimeDelta timestamp={source.published_at} /> · {items.length} Q&amp;As</div>
 			<h1 className="ep-title">{source.title}</h1>
 			{summary && <p className="summary">{summary}</p>}
 			{developers.length > 0 && (
 				<div className="chips">
-					{developers.map((name) => <Link key={name} to={devUrl(name)} className="tag">{name}</Link>)}
+					{developers.map((name) => <Link prefetch="intent" key={name} to={devUrl(name)} className="tag">{name}</Link>)}
 				</div>
 			)}
 		</section>

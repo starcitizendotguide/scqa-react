@@ -33,7 +33,7 @@ function Turn({ turn, developers, children }: { turn: TurnData; developers?: str
 			<div className="min-w-0">
 				<div className="who">
 					{turn.speaker && developers?.includes(turn.speaker)
-						? <Link to={devUrl(turn.speaker)} onClick={(event) => event.stopPropagation()} title={`Developer dossier: ${turn.speaker}`}>{turn.speaker}</Link>
+						? <Link prefetch="intent" to={devUrl(turn.speaker)} onClick={(event) => event.stopPropagation()} title={`Developer dossier: ${turn.speaker}`}>{turn.speaker}</Link>
 						: name || 'Cloud Imperium'}
 					{turn.role && <span>{turn.role}</span>}
 				</div>
@@ -49,7 +49,7 @@ function EpisodeLink({ source }: { source: Source }) {
 		return null;
 	}
 	return (
-		<Link to={`/episode/${source.video_id}`} className="act" title={`All Q&As from “${source.title}”`}>
+		<Link prefetch="intent" to={`/episode/${source.video_id}`} className="act" title={`All Q&As from “${source.title}”`}>
 			<Icon name="hud-list" />Episode
 		</Link>
 	);
@@ -84,7 +84,7 @@ export default function Hit({ highlightQuery = false, full = false, ...hit }: Qa
 	return (
 		<article ref={card} id={`rec-${id}`} className="frame card hit">
 			<Heading className="card-q">
-				{full ? title : <Link to={`/star/vault/${id}`}>{title}</Link>}
+				{full ? title : <Link prefetch="intent" to={`/star/vault/${id}`}>{title}</Link>}
 				{asked_by && <small className="asker">asked by {asked_by}</small>}
 			</Heading>
 			{tldr && (

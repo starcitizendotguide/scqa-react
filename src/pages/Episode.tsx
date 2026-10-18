@@ -27,19 +27,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 	return { items, summary: await getEpisodeSummary(params.videoId) };
 }
 
-export async function clientLoader({ params, serverLoader }: Route.ClientLoaderArgs) {
-	try {
-		return await serverLoader();
-	} catch {
-		const { findRecords } = await import('../searchClient');
-		const items = VIDEO_ID.test(params.videoId) ? await findRecords(`source.video_id = "${params.videoId}"`, { sort: ['source.start:asc'], limit: 500 }) : [];
-		if (!items.length) {
-			throw data(null, { status: 404 });
-		}
-		return { items, summary: null };
-	}
-}
-
 export function meta({ loaderData, params }: Route.MetaArgs) {
 	if (!loaderData) {
 		return [{ title: 'Not found | starfarer.space' }];

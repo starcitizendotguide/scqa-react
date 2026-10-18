@@ -45,7 +45,7 @@ export function YearLines({ years, more }: { years: HubYear[]; more: (year: numb
 					<ul className="hub-lines">
 						{lines.map((line) => (
 							<li key={line.id}>
-								<Link to={`/star/vault/${line.id}`}>{line.question}</Link>
+								<Link prefetch="intent" to={`/star/vault/${line.id}`}>{line.question}</Link>
 								{line.tldr && <p>{line.tldr}</p>}
 								<small>{line.speakers.join(' · ') || 'Cloud Imperium'} · {line.show} · {line.published_at ? shortDate(line.published_at) : ''}</small>
 							</li>
@@ -60,7 +60,7 @@ export function YearLines({ years, more }: { years: HubYear[]; more: (year: numb
 
 function EpisodeTile({ episode, show }: { episode: HubEpisode; show: string }) {
 	return (
-		<Link to={`/episode/${episode.id}`} className="frame hub-tile">
+		<Link prefetch="intent" to={`/episode/${episode.id}`} className="frame hub-tile">
 			<img src={`https://i.ytimg.com/vi/${episode.id}/mqdefault.jpg`} alt="" width="320" height="180" loading="lazy" />
 			<span>{episodeTitle(show, episode.title)}</span>
 			<small>{episode.published_at ? shortDate(episode.published_at) : ''} · {fmt(episode.count)} Q&amp;As</small>
@@ -94,7 +94,7 @@ function Chips({ title, items, href, label = (v: string) => v }: { title: string
 		<section className="frame panel">
 			<h2 className="panel-title">{title}</h2>
 			<div className="chips">
-				{items.map(([v, n]) => <a key={v} className="tag" href={href(v)}>{label(v)}<small>{fmt(n)}</small></a>)}
+				{items.map(([v, n]) => <Link prefetch="intent" key={v} className="tag" to={href(v)}>{label(v)}<small>{fmt(n)}</small></Link>)}
 			</div>
 		</section>
 	);
@@ -107,7 +107,7 @@ function EpisodeRows({ episodes }: { episodes: HubEpisode[] }) {
 			<ul className="hub-eps">
 				{episodes.map((episode) => (
 					<li key={episode.id}>
-						<Link to={`/episode/${episode.id}`}>
+						<Link prefetch="intent" to={`/episode/${episode.id}`}>
 							<img src={`https://i.ytimg.com/vi/${episode.id}/mqdefault.jpg`} alt="" width="96" height="54" loading="lazy" />
 							<span>
 								{episode.title}

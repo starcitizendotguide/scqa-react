@@ -5,7 +5,6 @@ import { getRecord, getRelated } from '../data.server';
 import { RECORD_ID } from '../ids';
 import { pageMeta, speakers, answerText, clip, isoTime, isoDate, OG_URL } from '../meta';
 import { answerArticle, breadcrumbs } from '../structuredData';
-import { relatedFromSearch } from '../archive';
 import { devUrl } from '../slug';
 import { topicLabel, topicUrl } from '../topics';
 import { clock } from '../utils/format';
@@ -24,23 +23,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 		throw data(null, { status: 404 });
 	}
 	return { item, related: await getRelated(item) };
-}
-
-export async function clientLoader({ params, serverLoader }: Route.ClientLoaderArgs) {
-	if (params.index !== 'vault' && RECORD_ID.test(params.id)) {
-		throw redirect(`/star/vault/${params.id}`);
-	}
-	try {
-		return await serverLoader();
-	} catch {
-		const { findRecords, runSearch } = await import('../searchClient');
-		const item = RECORD_ID.test(params.id) ? (await findRecords(`id = "${params.id}"`, { limit: 1 }))[0] : undefined;
-		if (!item) {
-			throw data(null, { status: 404 });
-		}
-		const related = await relatedFromSearch(runSearch, item).catch((): RecordBrief[] => []);
-		return { item, related };
-	}
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -67,7 +49,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 function SourceLink({ source }: { source: Source }) {
 	if (source.kind === 'video' && source.video_id) {
-		return <Link to={`/episode/${source.video_id}`}>{source.title}</Link>;
+		return <Link prefetch="intent" to={`/episode/${source.video_id}`}>{source.title}</Link>;
 	}
 	return source.url ? <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a> : source.title;
 }
@@ -87,7 +69,7 @@ function RecordData({ item }: { item: QaRecord }) {
 					{names.length ? names.map((name, i) => (
 						<React.Fragment key={name}>
 							{i > 0 && ', '}
-							{developers.includes(name) ? <Link to={devUrl(name)}>{name}</Link> : name}
+							{developers.includes(name) ? <Link prefetch="intent" to={devUrl(name)}>{name}</Link> : name}
 						</React.Fragment>
 					)) : 'Cloud Imperium'}
 				</dd>
@@ -111,7 +93,7 @@ function Related({ items }: { items: RecordBrief[] }) {
 			<ul className="related">
 				{items.map((r) => (
 					<li key={r.id}>
-						<Link to={`/star/vault/${r.id}`}>
+						<Link prefetch="intent" to={`/star/vault/${r.id}`}>
 							<span>{r.question}</span>
 							<small>{[r.show, isoDate(r.published_at)?.slice(0, 4)].filter(Boolean).join(' · ')}</small>
 						</Link>

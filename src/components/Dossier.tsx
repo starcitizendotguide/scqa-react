@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 
 import { fmt } from '../utils/format';
 import type { Counts } from '../types';
@@ -20,11 +21,11 @@ export function Bars({ title, items, label = (v) => v, href }: { title: string; 
 			<h2 className="panel-title">{title}</h2>
 			<div className="bars">
 				{items.map(([value, n]) => (
-					<a key={value} className="b" href={href(value)}>
+					<Link prefetch="intent" key={value} className="b" to={href(value)}>
 						<span>{label(value)}</span>
 						<i style={{ width: `${(100 * n) / max}%` }}></i>
 						<b>{fmt(n)}</b>
-					</a>
+					</Link>
 				))}
 			</div>
 		</section>

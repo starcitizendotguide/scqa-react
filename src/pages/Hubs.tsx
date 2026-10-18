@@ -2,7 +2,6 @@ import React from 'react';
 import { Link, useLocation } from 'react-router';
 
 import { getShows, getTopics } from '../data.server';
-import { hubsFromSearch } from '../archive';
 import { pageMeta } from '../meta';
 import { breadcrumbs } from '../structuredData';
 import { showUrl, topicLabel, topicUrl } from '../topics';
@@ -18,16 +17,6 @@ const kindOf = (path: string) => (path.startsWith('/show') ? 'show' : 'topic');
 export async function loader({ request }: Route.LoaderArgs) {
 	const kind = kindOf(new URL(request.url).pathname);
 	return { kind, hubs: kind === 'topic' ? await getTopics() : await getShows() };
-}
-
-export async function clientLoader({ request, serverLoader }: Route.ClientLoaderArgs) {
-	try {
-		return await serverLoader();
-	} catch {
-		const kind = kindOf(new URL(request.url).pathname);
-		const { runSearch } = await import('../searchClient');
-		return { kind, hubs: await hubsFromSearch(runSearch, kind) };
-	}
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -61,7 +50,7 @@ export default function Hubs({ loaderData }: Route.ComponentProps) {
 			<ul className="frame panel hub-index">
 				{hubs.map((hub) => (
 					<li key={hub.slug}>
-						<Link to={topics ? topicUrl(hub.name) : showUrl(hub.name)}>
+						<Link prefetch="intent" to={topics ? topicUrl(hub.name) : showUrl(hub.name)}>
 							<span>{topics ? topicLabel(hub.name) : hub.name}</span>
 							<b>{fmt(hub.count)}</b>
 						</Link>

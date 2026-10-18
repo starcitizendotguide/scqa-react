@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from 'react-router';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useNavigation } from 'react-router';
 import type { Route } from './+types/root';
 
 import './styles/App.scss';
@@ -47,8 +47,15 @@ export const meta = ({ error }: Route.MetaArgs) => (error
 	? [{ title: `${isRouteErrorResponse(error) && error.status === 404 ? 'Not found' : 'Error'} | starfarer.space` }, { name: 'robots', content: 'noindex' }]
 	: pageMeta({ title: 'Star Citizen Q&A Search | starfarer.space', jsonLd: [website()] }));
 
+// --- a thin bar along the top while the next page loads; it only appears after 150 ms, so a prefetched page never shows it
 export default function App() {
-	return <Outlet />;
+	const loading = useNavigation().state === 'loading';
+	return (
+		<>
+			<div className={`nav-progress${loading ? ' on' : ''}`} aria-hidden="true"></div>
+			<Outlet />
+		</>
+	);
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
