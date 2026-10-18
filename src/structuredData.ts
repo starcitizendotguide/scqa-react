@@ -1,8 +1,9 @@
 // --- schema.org JSON-LD for Google: breadcrumbs everywhere, the site name, an episode's video with one clip per
-// question (key moments; /episode/<id>?t=<s> starts the player there), a developer's profile. No QAPage on answer
-// pages: Google reserves it for questions users can answer themselves.
-import { SITE, SITE_NAME, isoTime } from './meta';
-import type { DeveloperStats, QaRecord } from './types';
+// question (key moments; /episode/<id>?t=<s> starts the player there), a developer's profile, an answer page as an
+// Article. No QAPage or DiscussionForumPosting: Google reserves both for content the site's users post themselves.
+import { OG_URL, SITE, SITE_NAME, isoTime, speakers } from './meta';
+import { devUrl } from './slug';
+import type { DeveloperStats, QaRecord, Source } from './types';
 
 type JsonLd = Record<string, unknown>;
 
@@ -60,6 +61,39 @@ export function episodeVideo(videoId: string, items: QaRecord[], summary: string
 		uploadDate: uploaded,
 		embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}`,
 		...(clips.length ? { hasPart: clips } : {}),
+	};
+}
+
+// --- where the answer was given: the video at its timestamp, or the post
+function original(source: Source): string | null {
+	if (source.platform === 'youtube' && source.video_id) {
+		return `https://www.youtube.com/watch?v=${source.video_id}${source.start ? `&t=${source.start}s` : ''}`;
+	}
+	return source.url;
+}
+
+// --- an answer page: the question as headline, the speaking developers as authors (the words are theirs), the date the
+// answer was given, the original source it is transcribed from
+export function answerArticle(item: QaRecord, headline: string): JsonLd {
+	const published = isoTime(item.source.published_at);
+	const based = original(item.source);
+	const people = speakers(item.answer);
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'Article',
+		headline,
+		url: `${SITE}/star/vault/${item.id}`,
+		...(published ? { datePublished: published } : {}),
+		...(people.length ? {
+			author: people.map((name) => ({
+				'@type': 'Person',
+				name,
+				...(item.developers?.includes(name) ? { url: `${SITE}${devUrl(name)}` } : {}),
+			})),
+		} : {}),
+		publisher: { '@type': 'Organization', name: SITE_NAME, url: `${SITE}/` },
+		...(item.og ? { image: [`${OG_URL}/${item.og}`] } : {}),
+		...(based ? { isBasedOn: based } : {}),
 	};
 }
 

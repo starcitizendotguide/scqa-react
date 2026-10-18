@@ -4,7 +4,7 @@ import { Link, data, redirect } from 'react-router';
 import { getRecord, getRelated } from '../data.server';
 import { RECORD_ID } from '../ids';
 import { pageMeta, speakers, answerText, clip, isoTime, isoDate, OG_URL } from '../meta';
-import { breadcrumbs } from '../structuredData';
+import { answerArticle, breadcrumbs } from '../structuredData';
 import { relatedFromSearch } from '../archive';
 import { devUrl } from '../slug';
 import { topicLabel, topicUrl } from '../topics';
@@ -57,7 +57,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 		type: 'article',
 		...(item.og ? { image: { url: `${OG_URL}/${item.og}`, width: 1200, height: 630 } } : {}),
 		extra: isoTime(item.source.published_at) ? [{ property: 'article:published_time', content: isoTime(item.source.published_at) }] : [],
-		jsonLd: [breadcrumbs([
+		jsonLd: [answerArticle(item, clip(item.question, 110)), breadcrumbs([
 			['Search', '/'],
 			...(item.source.kind === 'video' && item.source.video_id ? [[item.source.title ?? 'Episode', `/episode/${item.source.video_id}`] as [string, string]] : []),
 			[clip(item.question, 90)],

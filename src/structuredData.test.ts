@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { breadcrumbs, episodeVideo } from './structuredData';
+import { answerArticle, breadcrumbs, episodeVideo } from './structuredData';
 import type { QaRecord } from './types';
 
 const record = (id: string, start: number | null, platform = 'youtube'): QaRecord => ({
@@ -28,5 +28,21 @@ describe('breadcrumbs', () => {
 		const items = breadcrumbs([['Search', '/'], ['Developers', '/dev'], ['Jared Huckaby']]).itemListElement as Record<string, unknown>[];
 		expect(items.map((i) => i.item)).toEqual(['https://starfarer.space/', 'https://starfarer.space/dev', undefined]);
 		expect(items.map((i) => i.position)).toEqual([1, 2, 3]);
+	});
+});
+
+describe('answerArticle', () => {
+	it('credits the speakers, dates the answer and points to the original at its timestamp', () => {
+		const item = { ...record('a', 754), developers: ['Richard Towler'], og: 'a1b2.jpg',
+			answer: [{ speaker: 'Richard Towler', initials: 'RT', role: null, text: 'Yes.' }, { speaker: 'Jared Huckaby', initials: 'JH', role: null, text: 'Great.' }] };
+		const article = answerArticle(item, 'Question a?');
+		expect(article['@type']).toBe('Article');
+		expect(article.author).toEqual([
+			{ '@type': 'Person', name: 'Richard Towler', url: 'https://starfarer.space/dev/richard-towler' },
+			{ '@type': 'Person', name: 'Jared Huckaby' },
+		]);
+		expect(article.datePublished).toBe('2024-05-24T12:00:00.000Z');
+		expect(article.isBasedOn).toBe('https://www.youtube.com/watch?v=abcdefghijk&t=754s');
+		expect(article.image).toEqual(['https://og.starfarer.space/a1b2.jpg']);
 	});
 });
