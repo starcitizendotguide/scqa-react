@@ -165,6 +165,26 @@
 	}
 }
 
+// --- phones: the tabs share the full width, "Developers" shortened to "Devs"
+@media (max-width: 520px) {
+	.tabs {
+		width: 100%;
+		margin-left: 0;
+	}
+	.tab {
+		flex: 1;
+		text-align: center;
+		letter-spacing: .1em;
+		padding: 6px 4px;
+	}
+	.tab-long {
+		display: none;
+	}
+	.tab-short {
+		display: inline;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.answer {
 		transition: none;

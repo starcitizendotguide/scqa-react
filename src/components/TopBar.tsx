@@ -14,7 +14,7 @@ export default function TopBar({ home = false, active }: { home?: boolean; activ
 			{toSearch({ className: 'logo', 'aria-label': 'starfarer.space – search', children: <>Starfarer<i>//</i>Archive</> })}
 			<nav className="tabs" aria-label="Sections">
 				{toSearch({ ...tab('search'), children: 'Search' })}
-				<Link prefetch="intent" to="/dev" {...tab('devs')}>Developers</Link>
+				<Link prefetch="intent" to="/dev" {...tab('devs')}><span className="tab-long">Developers</span><span className="tab-short">Devs</span></Link>
 				<Link prefetch="intent" to="/topic" {...tab('topics')}>Topics</Link>
 				<Link prefetch="intent" to="/show" {...tab('shows')}>Shows</Link>
 			</nav>
