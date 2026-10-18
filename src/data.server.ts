@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises';
 
-import { RECORD_ID, VIDEO_ID } from './ids.js';
 import { count, developerFromSearch, developerStats, groupNames, hostNames, hubsFromSearch, latestRole, rankRelated, relatedFromSearch, rosterFromSearch, showFromSearch, showHub, topicFromSearch, topicHub } from './archive.js';
 import { slugify } from './slug.js';
 import { hasShowPage } from './topics.js';
@@ -88,23 +87,6 @@ async function run(params: SearchParams): Promise<SearchResponse> {
 
 async function search(filter: string, extra: Partial<SearchParams> = {}): Promise<QaRecord[]> {
 	return (await run({ q: '', filter, limit: 500, ...extra })).hits;
-}
-
-export async function prerenderPaths(): Promise<string[]> {
-	const data = await load();
-	const records = data ? data.records : await search('source.kind = "video"', { limit: 1 });
-	const videos = [...new Set(records.map((r) => r.source.video_id).filter((vid): vid is string => Boolean(vid && VIDEO_ID.test(vid))))];
-	const ids = records.map((r) => r.id).filter((id) => RECORD_ID.test(id));
-	const skipped = records.length - ids.length;
-	if (skipped) {
-		console.warn(`prerender: skipped ${skipped} records with unusable ids`);
-	}
-	const devs = data ? [...data.devs.keys()] : (await rosterFromSearch(run)).slice(0, 1).map((d) => d.slug);
-	// --- without the data export (dev server) one page per route from the search, so the routes still pre-render
-	const topics = data ? [...data.topics.keys()] : (await hubsFromSearch(run, 'topic')).slice(0, 1).map((h) => h.slug);
-	const shows = data ? [...data.shows.keys()] : (await hubsFromSearch(run, 'show')).slice(0, 1).map((h) => h.slug);
-	const hubs = [...topics.map((slug) => `/topic/${slug}`), ...shows.map((slug) => `/show/${slug}`)];
-	return [...videos.map((vid) => `/episode/${vid}`), ...ids.map((id) => `/star/vault/${id}`), '/dev', ...devs.map((slug) => `/dev/${slug}`), '/topic', '/show', ...hubs];
 }
 
 export async function getRecord(id: string): Promise<QaRecord | null> {

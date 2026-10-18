@@ -1,6 +1,12 @@
 import React from 'react';
+import { data } from 'react-router';
 import Card from '../components/Card';
 import BackLink from '../components/BackLink';
+
+// --- an unknown address answers 404 (the root error boundary renders this page)
+export function loader() {
+	throw data(null, { status: 404 });
+}
 
 export const meta = () => [{ title: 'Not found | starfarer.space' }, { name: 'robots', content: 'noindex' }];
 

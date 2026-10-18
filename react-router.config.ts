@@ -1,12 +1,9 @@
 import type { Config } from '@react-router/dev/config';
 
-import { prerenderPaths } from './src/data.server.js';
-
+// --- pages are rendered per request by the server bundle; only the search page is pre-rendered, because its first
+// results come from the search, which the page server cannot reach
 export default {
 	appDirectory: 'src',
-	ssr: false,
-	prerender: {
-		paths: ['/', ...(await prerenderPaths())],
-		concurrency: 8,
-	},
+	ssr: true,
+	prerender: ['/'],
 } satisfies Config;

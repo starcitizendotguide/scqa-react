@@ -1,10 +1,13 @@
 import { reactRouter } from '@react-router/dev/vite';
 import { defineConfig } from 'vite';
 
-// --- `npm run dev` only: /meili is forwarded to the public search endpoint, which only answers requests from
-// starfarer.space, so the dev server can be used with the live index (VITE_MEILI_URL=http://localhost:5180/meili)
 export default defineConfig({
 	plugins: [reactRouter()],
+	// --- the server build starts from src/server.ts and inlines every dependency, so the server needs no node_modules
+	environments: { ssr: { build: { rollupOptions: { input: './src/server.ts' } } } },
+	ssr: { noExternal: true },
+	// --- `npm run dev` only: /meili is forwarded to the public search endpoint, which only answers requests from
+	// starfarer.space, so the dev server can be used with the live index (VITE_MEILI_URL=http://localhost:5180/meili)
 	server: {
 		proxy: {
 			'/meili': {
