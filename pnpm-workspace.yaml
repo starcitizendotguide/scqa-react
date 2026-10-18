@@ -1,0 +1,7 @@
+# --- supply chain: only versions published at least 7 days ago (most poisoned releases are pulled within hours),
+# and no dependency install scripts unless listed here; urgent fixes go into minimumReleaseAgeExclude by name
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude: []
+allowBuilds:
+  # sass's file watcher: only for `sass --watch`, the build compiles once
+  '@parcel/watcher': false
