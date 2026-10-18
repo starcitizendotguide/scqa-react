@@ -1,0 +1,21 @@
+{
+	"include": ["src/**/*", "*.js", "*.ts", ".react-router/types/**/*"],
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["DOM", "DOM.Iterable", "ES2023"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"jsx": "react-jsx",
+		"types": ["vite/client", "node"],
+		"rootDirs": [".", "./.react-router/types"],
+		"strict": true,
+		"noEmit": true,
+		"allowJs": true,
+		"checkJs": false,
+		"skipLibCheck": true,
+		"isolatedModules": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"verbatimModuleSyntax": true
+	}
+}
