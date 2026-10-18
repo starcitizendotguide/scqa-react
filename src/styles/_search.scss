@@ -113,13 +113,18 @@
 	}
 }
 
-.syntax-tip {
+.tip.syntax-tip {
 	display: none;
 	position: absolute;
 	top: calc(100% + 6px);
+	bottom: auto;
 	left: 0;
 	z-index: 60;
 	width: min(24rem, 100%);
+	margin-bottom: 0;
+	white-space: normal;
+	opacity: 1;
+	transform: none;
 	b {
 		color: var(--amber);
 		font-weight: 400;
