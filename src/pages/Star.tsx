@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, data, redirect } from 'react-router';
 
-import { INDEX } from '../searchConfig';
 import { getRecord, getRelated } from '../data.server';
 import { RECORD_ID } from '../ids';
 import { pageMeta, speakers, answerText, clip, isoTime, isoDate, OG_URL } from '../meta';
@@ -12,8 +11,10 @@ import { clock } from '../utils/format';
 
 import Hit from '../components/Hit';
 import BackLink from '../components/BackLink';
+import type { QaRecord, RecordBrief, Source } from '../types';
+import type { Route } from './+types/Star';
 
-export async function loader({ params }) {
+export async function loader({ params }: Route.LoaderArgs) {
 	if (params.index !== 'vault' && RECORD_ID.test(params.id)) {
 		throw redirect(`/star/vault/${params.id}`);
 	}
@@ -24,27 +25,24 @@ export async function loader({ params }) {
 	return { item, related: await getRelated(item) };
 }
 
-export async function clientLoader({ params, serverLoader }) {
+export async function clientLoader({ params, serverLoader }: Route.ClientLoaderArgs) {
 	if (params.index !== 'vault' && RECORD_ID.test(params.id)) {
 		throw redirect(`/star/vault/${params.id}`);
 	}
 	try {
 		return await serverLoader();
 	} catch {
-		const { meiliSearchInstance } = await import('../searchClient');
-		const res = RECORD_ID.test(params.id)
-			? await meiliSearchInstance.index(INDEX).search('', { filter: `id = "${params.id}"`, limit: 1 })
-			: { hits: [] };
-		if (!res.hits.length) {
+		const { findRecords, runSearch } = await import('../searchClient');
+		const item = RECORD_ID.test(params.id) ? (await findRecords(`id = "${params.id}"`, { limit: 1 }))[0] : undefined;
+		if (!item) {
 			throw data(null, { status: 404 });
 		}
-		const item = res.hits[0];
-		const related = await relatedFromSearch(({ q, ...rest }) => meiliSearchInstance.index(INDEX).search(q, rest), item).catch(() => []);
+		const related = await relatedFromSearch(runSearch, item).catch((): RecordBrief[] => []);
 		return { item, related };
 	}
 }
 
-export function meta({ loaderData }) {
+export function meta({ loaderData }: Route.MetaArgs) {
 	if (!loaderData) {
 		return [{ title: 'Not found | starfarer.space' }];
 	}
@@ -61,14 +59,14 @@ export function meta({ loaderData }) {
 	});
 }
 
-function SourceLink({ source }) {
+function SourceLink({ source }: { source: Source }) {
 	if (source.kind === 'video' && source.video_id) {
 		return <Link to={`/episode/${source.video_id}`}>{source.title}</Link>;
 	}
 	return source.url ? <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a> : source.title;
 }
 
-function RecordData({ item }) {
+function RecordData({ item }: { item: QaRecord }) {
 	const { source, developers = [], topics = [] } = item;
 	const names = speakers(item.answer);
 	return (
@@ -99,7 +97,7 @@ function RecordData({ item }) {
 	);
 }
 
-function Related({ items }) {
+function Related({ items }: { items: RecordBrief[] }) {
 	return (
 		<section className="frame panel">
 			<h2 className="panel-title">Related records</h2>
@@ -118,7 +116,7 @@ function Related({ items }) {
 	);
 }
 
-export default function Star({ loaderData }) {
+export default function Star({ loaderData }: Route.ComponentProps) {
 	const { item, related = [] } = loaderData;
 	return (
 		<>

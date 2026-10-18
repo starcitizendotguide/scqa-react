@@ -21,13 +21,13 @@ export async function initialSearchState() {
 		);
 		// --- the bare search page highlights nothing; the highlight copies of every answer would double the page
 		for (const { results } of Object.values(state.initialResults)) {
-			for (const result of results) {
+			for (const result of results ?? []) {
 				result.hits = result.hits.map(({ _highlightResult, _snippetResult, ...hit }) => hit);
 			}
 		}
 		return state;
 	} catch (error) {
-		console.warn(`prerender: no initial search results (${error.message})`);
+		console.warn(`prerender: no initial search results (${error instanceof Error ? error.message : error})`);
 		return null;
 	}
 }

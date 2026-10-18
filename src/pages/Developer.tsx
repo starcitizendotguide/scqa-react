@@ -1,21 +1,21 @@
 import React from 'react';
 import { Link, data } from 'react-router';
 
-import { INDEX } from '../searchConfig';
 import { getDeveloper } from '../data.server';
 import { developerFromSearch } from '../archive';
 import { pageMeta } from '../meta';
 import { topicLabel } from '../topics';
-import { fmt } from '../utils/format';
+import { fmt, initials } from '../utils/format';
 
 import Hit from '../components/Hit';
-import { initials } from '../utils/format';
 import TopBar from '../components/TopBar';
 import Icon from '../components/Icon';
+import type { Counts } from '../types';
+import type { Route } from './+types/Developer';
 
 const SLUG = /^[a-z0-9-]{1,80}$/;
 
-export async function loader({ params }) {
+export async function loader({ params }: Route.LoaderArgs) {
 	const dev = SLUG.test(params.slug) ? await getDeveloper(params.slug) : null;
 	if (!dev) {
 		throw data(null, { status: 404 });
@@ -23,14 +23,12 @@ export async function loader({ params }) {
 	return { dev };
 }
 
-export async function clientLoader({ params, serverLoader }) {
+export async function clientLoader({ params, serverLoader }: Route.ClientLoaderArgs) {
 	try {
 		return await serverLoader();
 	} catch {
-		const { meiliSearchInstance } = await import('../searchClient');
-		const dev = SLUG.test(params.slug)
-			? await developerFromSearch(({ q, ...rest }) => meiliSearchInstance.index(INDEX).search(q, rest), params.slug)
-			: null;
+		const { runSearch } = await import('../searchClient');
+		const dev = SLUG.test(params.slug) ? await developerFromSearch(runSearch, params.slug) : null;
 		if (!dev) {
 			throw data(null, { status: 404 });
 		}
@@ -38,7 +36,7 @@ export async function clientLoader({ params, serverLoader }) {
 	}
 }
 
-export function meta({ loaderData }) {
+export function meta({ loaderData }: Route.MetaArgs) {
 	if (!loaderData) {
 		return [{ title: 'Not found | starfarer.space' }];
 	}
@@ -53,9 +51,9 @@ export function meta({ loaderData }) {
 }
 
 // --- the search filtered by this developer (every spelling of the name)
-const searchUrl = (names) => `/?${names.map((n) => `developer=${encodeURIComponent(n)}`).join('&')}`;
+const searchUrl = (names: string[]): string => `/?${names.map((n) => `developer=${encodeURIComponent(n)}`).join('&')}`;
 
-function Stat({ value, label }) {
+function Stat({ value, label }: { value: string; label: string }) {
 	return (
 		<div className="frame stat">
 			<b>{value}</b>
@@ -64,7 +62,7 @@ function Stat({ value, label }) {
 	);
 }
 
-function TopicBars({ topics }) {
+function TopicBars({ topics }: { topics: Counts }) {
 	const max = Math.max(1, ...topics.map(([, n]) => n));
 	return (
 		<section className="frame panel">
@@ -82,7 +80,7 @@ function TopicBars({ topics }) {
 	);
 }
 
-function YearBars({ years }) {
+function YearBars({ years }: { years: Counts<number> }) {
 	const known = new Map(years);
 	const first = years[0]?.[0], last = years[years.length - 1]?.[0];
 	const all = [];
@@ -106,7 +104,7 @@ function YearBars({ years }) {
 	);
 }
 
-export default function Developer({ loaderData }) {
+export default function Developer({ loaderData }: Route.ComponentProps) {
 	const { dev } = loaderData;
 	const first = dev.years[0]?.[0], last = dev.years[dev.years.length - 1]?.[0];
 	const all = searchUrl(dev.names);
@@ -125,7 +123,7 @@ export default function Developer({ loaderData }) {
 			</header>
 			<div className="stats">
 				<Stat value={fmt(dev.count)} label="answers" />
-				<Stat value={first === last ? first : `${first}–${last}`} label="active" />
+				<Stat value={first === last ? String(first) : `${first}–${last}`} label="active" />
 				<Stat value={dev.shows[0]?.[0] || '—'} label="most heard in" />
 				<Stat value={dev.topics[0] ? topicLabel(dev.topics[0][0]) : '—'} label="top topic" />
 			</div>

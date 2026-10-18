@@ -1,29 +1,27 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router';
 
-import { INDEX } from '../searchConfig';
 import { getRoster } from '../data.server';
 import { rosterFromSearch } from '../archive';
 import { pageMeta } from '../meta';
-import { fmt } from '../utils/format';
-
-import { initials } from '../utils/format';
+import { fmt, initials } from '../utils/format';
 import TopBar from '../components/TopBar';
+import type { Route } from './+types/Developers';
 
 export async function loader() {
 	return { roster: await getRoster() };
 }
 
-export async function clientLoader({ serverLoader }) {
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
 	try {
 		return await serverLoader();
 	} catch {
-		const { meiliSearchInstance } = await import('../searchClient');
-		return { roster: await rosterFromSearch(({ q, ...rest }) => meiliSearchInstance.index(INDEX).search(q, rest)) };
+		const { runSearch } = await import('../searchClient');
+		return { roster: await rosterFromSearch(runSearch) };
 	}
 }
 
-export function meta({ loaderData }) {
+export function meta({ loaderData }: Route.MetaArgs) {
 	const roster = loaderData?.roster || [];
 	return pageMeta({
 		title: 'Star Citizen developers | starfarer.space',
@@ -32,7 +30,7 @@ export function meta({ loaderData }) {
 	});
 }
 
-export default function Developers({ loaderData }) {
+export default function Developers({ loaderData }: Route.ComponentProps) {
 	const { roster } = loaderData;
 	const [term, setTerm] = useState('');
 	const needle = term.trim().toLowerCase();

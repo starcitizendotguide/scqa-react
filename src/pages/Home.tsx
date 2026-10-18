@@ -6,6 +6,7 @@ import { initialSearchState } from '../searchState.server';
 
 import searchClient from '../searchClient';
 import Search, { QUERY_PARAMS } from '../components/Search';
+import type { Route } from './+types/Home';
 
 // --- only the search page talks to the search server; answer and episode pages don't load the client at all
 export const links = () => [{ rel: 'preconnect', href: 'https://search.starfarer.space', crossOrigin: 'anonymous' }];
@@ -26,7 +27,7 @@ const BOOT_SCRIPT = `(function(){var h=location.hash.split('#')[1];if(h){locatio
 	+ `if(p.some(function(a){return k.some(function(n){return n===a||n.indexOf(a+'[')===0})}))`
 	+ `document.head.insertAdjacentHTML('beforeend','<style>[data-prerendered] main,[data-prerendered] aside{visibility:hidden}</style>')})()`;
 
-export default function Home({ loaderData }) {
+export default function Home({ loaderData }: Route.ComponentProps) {
 	const [highlightQuery, setHighlightQuery] = useCookieState('toggle-highlight-query', true);
 	const [newestFirst, setNewestFirst] = useCookieState('sort-newest-first', false);
 	// --- the pre-rendered page is the bare search page. A URL with a query hydrates that page first and then

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { data } from 'react-router';
 
-import { INDEX } from '../searchConfig';
 import { getEpisode, getEpisodeSummary } from '../data.server';
 import { VIDEO_ID } from '../ids';
 import { pageMeta } from '../meta';
@@ -16,9 +15,10 @@ import { useAfterLoad } from '../hooks/useAfterLoad';
 import { useHydrated } from '../hooks/useHydrated';
 import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import { playingIndex } from '../utils/follow';
+import type { Route } from './+types/Episode';
 
 
-export async function loader({ params }) {
+export async function loader({ params }: Route.LoaderArgs) {
 	const items = VIDEO_ID.test(params.videoId) ? await getEpisode(params.videoId) : [];
 	if (!items.length) {
 		throw data(null, { status: 404 });
@@ -26,22 +26,20 @@ export async function loader({ params }) {
 	return { items, summary: await getEpisodeSummary(params.videoId) };
 }
 
-export async function clientLoader({ params, serverLoader }) {
+export async function clientLoader({ params, serverLoader }: Route.ClientLoaderArgs) {
 	try {
 		return await serverLoader();
 	} catch {
-		const { meiliSearchInstance } = await import('../searchClient');
-		const res = VIDEO_ID.test(params.videoId)
-			? await meiliSearchInstance.index(INDEX).search('', { filter: `source.video_id = "${params.videoId}"`, sort: ['source.start:asc'], limit: 500 })
-			: { hits: [] };
-		if (!res.hits.length) {
+		const { findRecords } = await import('../searchClient');
+		const items = VIDEO_ID.test(params.videoId) ? await findRecords(`source.video_id = "${params.videoId}"`, { sort: ['source.start:asc'], limit: 500 }) : [];
+		if (!items.length) {
 			throw data(null, { status: 404 });
 		}
-		return { items: res.hits };
+		return { items, summary: null };
 	}
 }
 
-export function meta({ loaderData, params }) {
+export function meta({ loaderData, params }: Route.MetaArgs) {
 	if (!loaderData) {
 		return [{ title: 'Not found | starfarer.space' }];
 	}
@@ -56,14 +54,14 @@ export function meta({ loaderData, params }) {
 	});
 }
 
-export default function Episode({ loaderData, params }) {
+export default function Episode({ loaderData, params }: Route.ComponentProps) {
 	const { items, summary } = loaderData;
 	const { videoId } = params;
-	const [start, setStart] = useState(null);
+	const [start, setStart] = useState<number | null>(null);
 	const [autoplay, setAutoplay] = useState(false);
-	const [selected, setSelected] = useState(null);
-	const screen = useRef(null);
-	const frame = useRef(null);
+	const [selected, setSelected] = useState<number | null>(null);
+	const screen = useRef<HTMLDivElement>(null);
+	const frame = useRef<HTMLIFrameElement>(null);
 	const player = useYouTubePlayer(frame);
 	// --- the player (about a megabyte of YouTube scripts that can hold up the first paint) loads after the page itself;
 	// until then the thumbnail stands in for it
@@ -96,7 +94,7 @@ export default function Episode({ loaderData, params }) {
 	const cue = start ?? (linked >= 0 ? items[linked].source.start || 0 : 0);
 
 	const { ready, command } = player;
-	const jump = useCallback((seconds, row = null) => {
+	const jump = useCallback((seconds: number | null | undefined, row: number | null = null) => {
 		if (ready) {
 			command('seekTo', [seconds || 0, true]);
 			command('playVideo');
@@ -107,10 +105,10 @@ export default function Episode({ loaderData, params }) {
 		setSelected(row);
 		const box = screen.current?.getBoundingClientRect();
 		if (box && (box.top < 0 || box.bottom > window.innerHeight)) {
-			screen.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			screen.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 		}
 	}, [ready, command]);
-	const context = useMemo(() => ({ videoId, jump: (seconds) => jump(seconds, items.findIndex((i) => i.source.start === seconds)) }), [videoId, items, jump]);
+	const context = useMemo(() => ({ videoId, jump: (seconds: number | null | undefined) => jump(seconds, items.findIndex((i) => i.source.start === seconds)) }), [videoId, items, jump]);
 
 	return (
 		<PlayerContext.Provider value={youtube ? context : null}>

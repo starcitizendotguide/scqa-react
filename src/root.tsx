@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from 'react-router';
+import type { Route } from './+types/root';
 
 import './styles/App.scss';
 import fontBody from './styles/fonts/exo-2-latin-400-normal.woff2';
@@ -15,7 +16,7 @@ import { IconSprite } from './components/Icon';
 // instead of after it (38 KB together)
 export const links = () => [fontBody, fontHead, fontLogo, fontHud].map((href) => ({ rel: 'preload', href, as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' }));
 
-export function Layout({ children }) {
+export function Layout({ children }: { children: ReactNode }) {
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head>
@@ -41,7 +42,7 @@ export function Layout({ children }) {
 	);
 }
 
-export const meta = ({ error }) => (error
+export const meta = ({ error }: Route.MetaArgs) => (error
 	? [{ title: `${isRouteErrorResponse(error) && error.status === 404 ? 'Not found' : 'Error'} | starfarer.space` }, { name: 'robots', content: 'noindex' }]
 	: pageMeta({ title: 'Star Citizen Q&A Search | starfarer.space' }));
 
@@ -49,7 +50,7 @@ export default function App() {
 	return <Outlet />;
 }
 
-export function ErrorBoundary({ error }) {
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	if (isRouteErrorResponse(error) && error.status === 404) {
 		return <GenericNotFound />;
 	}
