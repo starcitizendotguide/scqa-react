@@ -1,5 +1,5 @@
 // --- save an answer card as a PNG: the .capture-visible footer shows, the .no-capture buttons don't
-export async function captureCard(node, title) {
+export async function captureCard(node: HTMLElement, title: string): Promise<void> {
 	const extras = node.querySelectorAll('.capture-visible');
 	extras.forEach((el) => el.classList.remove('hidden'));
 	node.classList.add('capturing');

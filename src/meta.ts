@@ -1,15 +1,32 @@
+import type { MetaDescriptor } from 'react-router';
+
+import type { Turn } from './types';
+
 export const SITE = 'https://starfarer.space';
 export const SITE_NAME = 'starfarer.space';
 export const OG_URL = 'https://og.starfarer.space';
 export const DEFAULT_IMAGE = { url: `${SITE}/og-default.jpg`, width: 1200, height: 630 };
 export const DEFAULT_DESCRIPTION = 'Search thousands of answers Star Citizen developers gave in official shows, streams and posts.';
 
-const clip = (text, max) => {
+interface Image {
+	url: string;
+	width?: number;
+	height?: number;
+}
+
+const clip = (text: string, max: number): string => {
 	const flat = text.replace(/\s+/g, ' ').trim();
 	return flat.length > max ? `${flat.slice(0, max - 1).replace(/\s+\S*$/, '')}…` : flat;
 };
 
-export function pageMeta({ title, description = DEFAULT_DESCRIPTION, path = '/', type = 'website', image = DEFAULT_IMAGE, extra = [] }) {
+export function pageMeta({ title, description = DEFAULT_DESCRIPTION, path = '/', type = 'website', image = DEFAULT_IMAGE, extra = [] }: {
+	title: string;
+	description?: string;
+	path?: string;
+	type?: string;
+	image?: Image;
+	extra?: MetaDescriptor[];
+}): MetaDescriptor[] {
 	const url = `${SITE}${path}`;
 	const desc = clip(description, 200);
 	return [
@@ -31,11 +48,14 @@ export function pageMeta({ title, description = DEFAULT_DESCRIPTION, path = '/',
 	];
 }
 
-export const speakers = (answer) => [...new Set(answer.map((t) => t.speaker).filter(Boolean))];
-export const answerText = (answer) => answer.map((t) => t.text).join(' ');
-export const isoTime = (ts) => {
+export const speakers = (answer: Turn[]): string[] => [...new Set(answer.map((t) => t.speaker).filter((s): s is string => Boolean(s)))];
+export const answerText = (answer: Turn[]): string => answer.map((t) => t.text).join(' ');
+export const isoTime = (ts: number | null | undefined): string | null => {
+	if (!ts) {
+		return null;
+	}
 	const d = new Date(ts * 1000);
-	return ts && !Number.isNaN(d.getTime()) ? d.toISOString() : null;
+	return Number.isNaN(d.getTime()) ? null : d.toISOString();
 };
-export const isoDate = (ts) => isoTime(ts)?.slice(0, 10) ?? null;
+export const isoDate = (ts: number | null | undefined): string | null => isoTime(ts)?.slice(0, 10) ?? null;
 export { clip };

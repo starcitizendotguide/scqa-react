@@ -1,12 +1,12 @@
-export const fmt = (n) => n.toLocaleString('en-US');
+export const fmt = (n: number): string => n.toLocaleString('en-US');
 
-export const clock = (s) => {
+export const clock = (s: number): string => {
 	const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = Math.floor(s % 60);
 	return `${h ? `${h}:${String(m).padStart(2, '0')}` : m}:${String(x).padStart(2, '0')}`;
 };
 
 // --- copy to the clipboard; the textarea fallback covers browsers without the async clipboard (or without permission)
-export async function copyText(text) {
+export async function copyText(text: string): Promise<void> {
 	try {
 		await navigator.clipboard.writeText(text);
 	} catch {
@@ -25,13 +25,13 @@ export async function copyText(text) {
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 // --- unix seconds -> "5 Oct 2026" (UTC, so pre-rendered and hydrated pages agree)
-export const shortDate = (timestamp) => {
+export const shortDate = (timestamp: number): string => {
 	const d = new Date(timestamp * 1000);
 	return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 };
 
 // --- "Star Citizen Live: Vehicle Q&A" under the show "Star Citizen Live" is just "Vehicle Q&A"
-export function episodeTitle(show, title) {
+export function episodeTitle(show: string | null | undefined, title: string | null | undefined): string | null | undefined {
 	if (!show || !title) {
 		return title;
 	}
@@ -42,7 +42,7 @@ export function episodeTitle(show, title) {
 	return title.slice(at + show.length).replace(/^[\s:|\-–—.]+/, '') || title;
 }
 
-export const initials = (name) => {
+export const initials = (name: string): string => {
 	const letters = name.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('').slice(0, 2);
 	return letters || name.slice(0, 2).toUpperCase();
 };

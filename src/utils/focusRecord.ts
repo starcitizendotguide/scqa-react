@@ -1,5 +1,7 @@
+const flashTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+
 // --- scroll to an answer card, open it up if it is clamped and flash it briefly (a "read the full answer" link)
-export function focusRecord(id, { scroll = true } = {}) {
+export function focusRecord(id: string, { scroll = true }: { scroll?: boolean | 'instant' } = {}): void {
 	const card = document.getElementById(`rec-${id}`);
 	if (!card) {
 		return;
@@ -15,6 +17,6 @@ export function focusRecord(id, { scroll = true } = {}) {
 	card.classList.remove('flash');
 	void card.offsetWidth;
 	card.classList.add('flash');
-	clearTimeout(card.flashTimer);
-	card.flashTimer = setTimeout(() => card.classList.remove('flash'), 1600);
+	clearTimeout(flashTimers.get(card));
+	flashTimers.set(card, setTimeout(() => card.classList.remove('flash'), 1600));
 }

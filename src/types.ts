@@ -73,3 +73,46 @@ export interface RecordBrief {
 
 /** [value, count] pairs, most frequent first */
 export type Counts<T = string> = [T, number][];
+
+// --- developer pages (archive.ts)
+export interface RosterEntry {
+	slug: string;
+	name: string;
+	count: number;
+	role: string | null;
+	first?: number;
+	last?: number;
+}
+
+export interface DeveloperStats {
+	slug: string;
+	name: string;
+	names: string[];
+	role: string | null;
+	count: number;
+	years: Counts<number>;
+	shows: Counts;
+	topics: Counts;
+	recent: QaRecord[];
+}
+
+// --- the slice of a Meilisearch search the data layer uses
+export interface SearchParams {
+	q: string;
+	filter?: string | (string | string[])[];
+	facets?: string[];
+	sort?: string[];
+	limit?: number;
+	hitsPerPage?: number;
+	page?: number;
+	attributesToRetrieve?: string[];
+}
+
+export interface SearchResponse {
+	hits: QaRecord[];
+	facetDistribution?: Record<string, Record<string, number>>;
+	totalHits?: number;
+	estimatedTotalHits?: number;
+}
+
+export type SearchRun = (params: SearchParams) => Promise<SearchResponse>;

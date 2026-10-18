@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
 // --- run `callback` once the page has loaded and the browser is idle; returns a cancel function
-export function afterLoad(callback) {
-	let timer;
-	let idle;
+export function afterLoad(callback: () => void): () => void {
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	let idle: number | undefined;
 	const schedule = () => {
 		if (window.requestIdleCallback) {
 			idle = window.requestIdleCallback(() => callback(), { timeout: 2000 });
@@ -26,7 +26,7 @@ export function afterLoad(callback) {
 }
 
 // --- false while pre-rendering and hydrating, true once the page has loaded and the browser is idle
-export function useAfterLoad() {
+export function useAfterLoad(): boolean {
 	const [loaded, setLoaded] = useState(false);
 	useEffect(() => afterLoad(() => setLoaded(true)), []);
 	return loaded;

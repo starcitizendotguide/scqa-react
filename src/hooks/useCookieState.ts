@@ -4,16 +4,16 @@ import { useHydrated } from './useHydrated';
 
 const YEAR = 365 * 24 * 60 * 60 * 1000;
 
-function setCookie(name, value) {
+function setCookie(name: string, value: string): void {
 	document.cookie = `${name}=${encodeURIComponent(value)}; expires=${new Date(Date.now() + YEAR).toUTCString()}; path=/; SameSite=Lax; Secure`;
 }
 
-function getCookie(name) {
+function getCookie(name: string): string | null {
 	const found = document.cookie.split('; ').find((cookie) => cookie.split('=')[0] === name);
 	return found ? decodeURIComponent(found.split('=')[1]) : null;
 }
 
-function parse(value) {
+function parse(value: string): unknown {
 	try {
 		return JSON.parse(value);
 	} catch {
@@ -22,9 +22,9 @@ function parse(value) {
 }
 
 // --- `initialValue` until hydration, so the first render matches the pre-rendered page; then the cookie's value
-export function useCookieState(key, initialValue) {
+export function useCookieState<T>(key: string, initialValue: T): [T, (value: T) => void] {
 	const hydrated = useHydrated();
-	const [chosen, setChosen] = useState(undefined);
+	const [chosen, setChosen] = useState<T | undefined>(undefined);
 	const stored = hydrated ? getCookie(key) : null;
 
 	// --- a visit keeps the cookie for another year
@@ -35,10 +35,10 @@ export function useCookieState(key, initialValue) {
 		}
 	}, [key]);
 
-	const update = (value) => {
+	const update = (value: T) => {
 		setCookie(key, JSON.stringify(value));
 		setChosen(value);
 	};
 
-	return [chosen !== undefined ? chosen : stored !== null ? parse(stored) : initialValue, update];
+	return [chosen !== undefined ? chosen : stored !== null ? (parse(stored) as T) : initialValue, update];
 }

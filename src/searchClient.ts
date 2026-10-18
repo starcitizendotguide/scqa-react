@@ -10,9 +10,13 @@ const MEILI_KEY = import.meta.env.VITE_MEILI_KEY || 'a161a5ba126ca5f1523ddbbb44f
 // --- before its first real search instant-meilisearch fetches each index's unfiltered facet counts, one extra round
 // trip that is only used with `keepZeroFacets`. Answer that prefetch locally; it is the only multi-search without a
 // query string (real searches always carry `q` and the highlight settings below).
-const isFacetPrefetch = ({ queries }) => queries.every((query) => query.q === undefined && query.attributesToHighlight === undefined);
+interface MultiSearchRequest {
+	queries: { indexUid: string; q?: string; attributesToHighlight?: string[] }[];
+}
 
-export function createSearchClient(options = {}) {
+const isFacetPrefetch = ({ queries }: MultiSearchRequest): boolean => queries.every((query) => query.q === undefined && query.attributesToHighlight === undefined);
+
+export function createSearchClient(options: Parameters<typeof instantMeiliSearch>[2] = {}) {
 	const client = instantMeiliSearch(MEILI_URL, MEILI_KEY, {
 		primaryKey: 'id',
 		meiliSearchParams: {
@@ -25,9 +29,10 @@ export function createSearchClient(options = {}) {
 	});
 	const { meiliSearchInstance } = client;
 	const multiSearch = meiliSearchInstance.multiSearch.bind(meiliSearchInstance);
-	meiliSearchInstance.multiSearch = (request, ...rest) => (isFacetPrefetch(request)
+	// --- the adapter's generic signature isn't worth reproducing for a pass-through
+	meiliSearchInstance.multiSearch = ((request: MultiSearchRequest, ...rest: unknown[]) => (isFacetPrefetch(request)
 		? Promise.resolve({ results: request.queries.map(({ indexUid }) => ({ indexUid, hits: [], facetDistribution: {} })) })
-		: multiSearch(request, ...rest));
+		: (multiSearch as (...args: unknown[]) => Promise<unknown>)(request, ...rest))) as typeof meiliSearchInstance.multiSearch;
 	return client;
 }
 
