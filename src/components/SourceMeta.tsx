@@ -13,7 +13,7 @@ export default function SourceMeta({ source, id }: { source: Source; id?: string
 	const name = episodeTitle(source.show, source.title);
 	let title: ReactNode = name;
 	if (episode && pathname !== episode) {
-		title = <Link prefetch="intent" to={id ? `${episode}#rec-${id}` : episode}>{name}</Link>;
+		title = <Link prefetch="intent" to={id ? `${episode}?answer=${id}` : episode}>{name}</Link>;
 	} else if (!episode && source.url) {
 		title = <a href={source.url} target="_blank" rel="noopener noreferrer">{name}</a>;
 	}

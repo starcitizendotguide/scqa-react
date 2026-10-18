@@ -43,14 +43,14 @@ function Turn({ turn, developers, children }: { turn: TurnData; developers?: str
 	);
 }
 
-// --- to the episode, opened at this question (the page cues the player there and marks its row)
+// --- to the episode, at this question: its row marked in the log and the player cued there, not playing yet
 function EpisodeLink({ source, id }: { source: Source; id: string }) {
 	const { pathname } = useLocation();
 	if (source.kind !== 'video' || !source.video_id || pathname.startsWith('/episode/')) {
 		return null;
 	}
 	return (
-		<Link prefetch="intent" to={`/episode/${source.video_id}#rec-${id}`} className="act" title={`All Q&As from “${source.title}”`}>
+		<Link prefetch="intent" to={`/episode/${source.video_id}?answer=${id}`} className="act" title={`All Q&As from “${source.title}”`}>
 			<Icon name="hud-list" />Episode
 		</Link>
 	);

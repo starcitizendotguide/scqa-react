@@ -49,7 +49,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 function SourceLink({ source, id }: { source: Source; id: string }) {
 	if (source.kind === 'video' && source.video_id) {
-		return <Link prefetch="intent" to={`/episode/${source.video_id}#rec-${id}`}>{source.title}</Link>;
+		return <Link prefetch="intent" to={`/episode/${source.video_id}?answer=${id}`}>{source.title}</Link>;
 	}
 	return source.url ? <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a> : source.title;
 }

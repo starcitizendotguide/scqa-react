@@ -73,9 +73,13 @@ export default function Episode({ loaderData, params }: Route.ComponentProps) {
 		return () => root.setProperty('--bg-image-opacity', '0');
 	}, [youtube, thumb]);
 
-	// --- a link to one question (#rec-<id>) cues the player there and marks its row; the card below opens by itself
+	// --- a link to one question cues the player there and marks its row: ?answer=<id> (from an answer: the page stays
+	// at the player and the log) or #rec-<id> (the card below also opens and scrolls into view)
 	const hydrated = useHydrated();
-	const linked = useMemo(() => (hydrated ? items.findIndex((i) => window.location.hash === `#rec-${i.id}`) : -1), [hydrated, items]);
+	const linked = useMemo(() => {
+		const answer = hydrated ? new URLSearchParams(window.location.search).get('answer') : null;
+		return hydrated ? items.findIndex((i) => i.id === answer || window.location.hash === `#rec-${i.id}`) : -1;
+	}, [hydrated, items]);
 	// --- ?t=<seconds> (the key-moment links in search results) cues the player there and marks the question running then
 	const at = useMemo(() => {
 		const t = hydrated ? Number(new URLSearchParams(window.location.search).get('t')) : NaN;
