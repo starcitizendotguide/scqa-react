@@ -33,7 +33,8 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	b {
+	b,
+	a.show {
 		font-weight: 400;
 		color: var(--amber);
 	}

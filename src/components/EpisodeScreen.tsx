@@ -6,6 +6,7 @@ import TimeDelta from './TimeDelta';
 import { useHydrated } from '../hooks/useHydrated';
 import { embedUrl, type Embed, type Player } from '../hooks/useYouTubePlayer';
 import { devUrl } from '../slug';
+import { hasShowPage, showUrl } from '../topics';
 import type { ExternalPlayer } from './Actions';
 import type { QaRecord, Source } from '../types';
 
@@ -55,7 +56,7 @@ export default function EpisodeScreen({ source, videoId, thumb, items, summary, 
 					</a>
 				)}
 			</div>
-			<div className="label ep-meta">{source.show} · <TimeDelta timestamp={source.published_at} /> · {items.length} Q&amp;As</div>
+			<div className="label ep-meta">{hasShowPage(source.show) ? <Link to={showUrl(source.show)}>{source.show}</Link> : source.show} · <TimeDelta timestamp={source.published_at} /> · {items.length} Q&amp;As</div>
 			<h1 className="ep-title">{source.title}</h1>
 			{summary && <p className="summary">{summary}</p>}
 			{developers.length > 0 && (

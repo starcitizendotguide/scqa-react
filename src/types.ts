@@ -116,3 +116,53 @@ export interface SearchResponse {
 }
 
 export type SearchRun = (params: SearchParams) => Promise<SearchResponse>;
+
+// --- topic and show pages (archive.ts topicHub/showHub)
+export interface HubLine {
+	id: string;
+	question: string;
+	tldr: string | null;
+	speakers: string[];
+	show: string | null;
+	published_at: number | null;
+}
+
+export interface HubEpisode {
+	id: string;
+	title: string | null;
+	published_at: number | null;
+	count: number;
+}
+
+/** [year, the newest answers of that year, how many there are in that year] */
+export type HubYear = [number, HubLine[], number];
+
+interface HubBase {
+	name: string;
+	slug: string;
+	total: number;
+	intro: string | null;
+	years: Counts<number>;
+	developers: Counts;
+	topics: Counts;
+}
+
+export interface TopicHub extends HubBase {
+	kind: 'topic';
+	shows: Counts;
+	byYear: HubYear[];
+	episodes: HubEpisode[];
+}
+
+export interface ShowHub extends HubBase {
+	kind: 'show';
+	/** every episode, newest first; empty for shows without videos (posts, articles), which list answers by year */
+	episodes: HubEpisode[];
+	byYear: HubYear[];
+}
+
+export interface HubEntry {
+	slug: string;
+	name: string;
+	count: number;
+}

@@ -5,13 +5,13 @@ import { getDeveloper } from '../data.server';
 import { developerFromSearch } from '../archive';
 import { pageMeta } from '../meta';
 import { breadcrumbs, developerProfile } from '../structuredData';
-import { topicLabel } from '../topics';
+import { topicLabel, topicUrl } from '../topics';
 import { fmt, initials } from '../utils/format';
 
 import Hit from '../components/Hit';
 import TopBar from '../components/TopBar';
 import Icon from '../components/Icon';
-import type { Counts } from '../types';
+import { Bars, Stat, YearBars } from '../components/Dossier';
 import type { Route } from './+types/Developer';
 
 const SLUG = /^[a-z0-9-]{1,80}$/;
@@ -55,57 +55,6 @@ export function meta({ loaderData }: Route.MetaArgs) {
 // --- the search filtered by this developer (every spelling of the name)
 const searchUrl = (names: string[]): string => `/?${names.map((n) => `developer=${encodeURIComponent(n)}`).join('&')}`;
 
-function Stat({ value, label }: { value: string; label: string }) {
-	return (
-		<div className="frame stat">
-			<b>{value}</b>
-			<span className="label">{label}</span>
-		</div>
-	);
-}
-
-function TopicBars({ topics }: { topics: Counts }) {
-	const max = Math.max(1, ...topics.map(([, n]) => n));
-	return (
-		<section className="frame panel">
-			<h2 className="panel-title">Topics</h2>
-			<div className="bars">
-				{topics.map(([topic, n]) => (
-					<a key={topic} className="b" href={`/?topic=${encodeURIComponent(topic)}`}>
-						<span>{topicLabel(topic)}</span>
-						<i style={{ width: `${(100 * n) / max}%` }}></i>
-						<b>{fmt(n)}</b>
-					</a>
-				))}
-			</div>
-		</section>
-	);
-}
-
-function YearBars({ years }: { years: Counts<number> }) {
-	const known = new Map(years);
-	const first = years[0]?.[0], last = years[years.length - 1]?.[0];
-	const all = [];
-	for (let y = first; y <= last; y++) {
-		all.push([y, known.get(y) || 0]);
-	}
-	const max = Math.max(1, ...all.map(([, n]) => n));
-	return (
-		<section className="frame panel">
-			<h2 className="panel-title">Answers per year</h2>
-			<div className="years static">
-				{all.map(([year, n]) => (
-					<div key={year} title={`${year}: ${fmt(n)} answers`}>
-						<span>{year} · {fmt(n)}</span>
-						{n > 0 && <i className="on" style={{ height: `${12 + (88 * n) / max}%` }}></i>}
-					</div>
-				))}
-			</div>
-			<div className="yl"><span>{first}</span><span>{last}</span></div>
-		</section>
-	);
-}
-
 export default function Developer({ loaderData }: Route.ComponentProps) {
 	const { dev } = loaderData;
 	const first = dev.years[0]?.[0], last = dev.years[dev.years.length - 1]?.[0];
@@ -130,7 +79,7 @@ export default function Developer({ loaderData }: Route.ComponentProps) {
 				<Stat value={dev.topics[0] ? topicLabel(dev.topics[0][0]) : '—'} label="top topic" />
 			</div>
 			<div className="dev-charts">
-				<TopicBars topics={dev.topics} />
+				<Bars title="Topics" items={dev.topics} label={topicLabel} href={topicUrl} />
 				<YearBars years={dev.years} />
 			</div>
 			<h2 className="panel-title section-title">

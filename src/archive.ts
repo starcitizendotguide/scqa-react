@@ -1,5 +1,6 @@
 import { slugify } from './slug.js';
-import type { Counts, DeveloperStats, QaRecord, RecordBrief, RosterEntry, SearchRun } from './types.js';
+import { hasShowPage } from './topics.js';
+import type { Counts, DeveloperStats, HubEntry, HubEpisode, HubLine, HubYear, QaRecord, RecordBrief, RosterEntry, SearchRun, ShowHub, TopicHub } from './types.js';
 
 // --- aggregates over answer records, shared by the build (all records of the data export) and the browser fallback
 // (search results and facet counts); no imports beyond the slug, so the build can use it without the search client
@@ -128,4 +129,133 @@ export async function relatedFromSearch(run: SearchRun, record: QaRecord): Promi
 		limit: 200,
 	});
 	return rankRelated(record, res.hits);
+}
+
+// --- topic and show pages
+
+/** speakers whose role says "host" in at least half of their turns: they ask more than they answer */
+export function hostNames(records: QaRecord[]): Set<string> {
+	const roles = new Map<string, [number, number]>();
+	for (const record of records) {
+		for (const turn of record.answer) {
+			if (turn.speaker && turn.role) {
+				const [host, all] = roles.get(turn.speaker) || [0, 0];
+				roles.set(turn.speaker, [host + (/\bhost\b/i.test(turn.role) ? 1 : 0), all + 1]);
+			}
+		}
+	}
+	return new Set([...roles].filter(([, [host, all]]) => all >= 5 && host / all >= 0.5).map(([name]) => name));
+}
+
+export const hubLine = (record: QaRecord): HubLine => ({
+	id: record.id,
+	question: record.question,
+	tldr: record.tldr ?? null,
+	speakers: [...new Set(record.answer.map((t) => t.speaker).filter((s): s is string => Boolean(s)))],
+	show: record.source.show,
+	published_at: record.source.published_at,
+});
+
+export const PER_YEAR = 4;
+
+function byYear(records: QaRecord[]): HubYear[] {
+	const years = new Map<number, QaRecord[]>();
+	for (const record of records) {
+		if (record.year) {
+			years.set(record.year, [...(years.get(record.year) || []), record]);
+		}
+	}
+	return [...years].sort((a, b) => b[0] - a[0]).map(([year, list]) => [year, [...list].sort(byDateDesc).slice(0, PER_YEAR).map(hubLine), list.length]);
+}
+
+function episodesOf(records: QaRecord[]): HubEpisode[] {
+	const episodes = new Map<string, HubEpisode>();
+	for (const record of records) {
+		const id = record.source.video_id;
+		if (id) {
+			const known = episodes.get(id);
+			episodes.set(id, known ? { ...known, count: known.count + 1 } : { id, title: record.source.title, published_at: record.source.published_at, count: 1 });
+		}
+	}
+	return [...episodes.values()];
+}
+
+function hubBase(name: string, slug: string, records: QaRecord[], hosts: Set<string>, intro: string | null) {
+	return {
+		name,
+		slug,
+		total: records.length,
+		intro,
+		years: count(records.map((r) => r.year)).sort((a, b) => a[0] - b[0]),
+		developers: count(records.flatMap((r) => (r.developers || []).filter((d) => !hosts.has(d)))).slice(0, 8),
+		topics: count(records.flatMap((r) => r.topics || [])),
+	};
+}
+
+export function topicHub(name: string, slug: string, records: QaRecord[], hosts: Set<string>, intro: string | null): TopicHub {
+	const base = hubBase(name, slug, records, hosts, intro);
+	return {
+		...base,
+		kind: 'topic',
+		topics: base.topics.filter(([t]) => t !== name).slice(0, 12),
+		shows: count(records.map((r) => r.source.show)).slice(0, 6),
+		byYear: byYear(records),
+		episodes: episodesOf(records).sort((a, b) => b.count - a.count || (b.published_at || 0) - (a.published_at || 0)).slice(0, 6),
+	};
+}
+
+export function showHub(name: string, slug: string, records: QaRecord[], hosts: Set<string>, intro: string | null): ShowHub {
+	const episodes = episodesOf(records).sort((a, b) => (b.published_at || 0) - (a.published_at || 0));
+	return {
+		...hubBase(name, slug, records, hosts, intro),
+		kind: 'show',
+		topics: count(records.flatMap((r) => r.topics || [])).slice(0, 12),
+		episodes,
+		byYear: episodes.length ? [] : byYear(records),
+	};
+}
+
+// --- the same from the search endpoint: counts from the facets (complete), answer lines and episode titles from the
+// newest answers
+async function hubFromSearch(run: SearchRun, kind: 'topic' | 'show', slug: string): Promise<TopicHub | ShowHub | null> {
+	const attribute = kind === 'topic' ? 'topics' : 'source.show';
+	const all = await run({ q: '', limit: 0, facets: [attribute] });
+	const name = Object.keys(all.facetDistribution?.[attribute] || {}).find((n) => slugify(n) === slug);
+	if (!name) {
+		return null;
+	}
+	const res = await run({
+		q: '', filter: [`${attribute} = ${JSON.stringify(name)}`], facets: ['developers', 'year', 'source.show', 'topics', 'source.video_id'],
+		sort: ['source.published_at:desc'], limit: 500, attributesToRetrieve: ['id', 'question', 'tldr', 'answer', 'source', 'year', 'topics', 'developers'],
+	});
+	// --- every answer's source, for the complete episode list
+	const sources = await run({ q: '', filter: [`${attribute} = ${JSON.stringify(name)}`], sort: ['source.published_at:desc'], limit: 10000, attributesToRetrieve: ['id', 'source'] });
+	const facets = res.facetDistribution || {};
+	const hosts = hostNames(res.hits);
+	const hub = kind === 'topic' ? topicHub(name, slug, res.hits, hosts, null) : showHub(name, slug, res.hits, hosts, null);
+	const everyEpisode = episodesOf(sources.hits);
+	const videos = new Map(facetPairs(facets['source.video_id']));
+	const yearTotals = new Map(facetPairs(facets.year).map(([y, n]) => [Number(y), n]));
+	return {
+		...hub,
+		total: res.totalHits ?? res.estimatedTotalHits ?? res.hits.length,
+		years: [...yearTotals].sort((a, b) => a[0] - b[0]),
+		developers: facetPairs(facets.developers).filter(([d]) => !hosts.has(d)).slice(0, 8),
+		...(hub.kind === 'topic' ? { shows: facetPairs(facets['source.show']).slice(0, 6) } : {}),
+		byYear: hub.kind === 'show' && everyEpisode.length ? [] : hub.byYear.map(([year, lines]): HubYear => [year, lines, yearTotals.get(year) ?? lines.length]),
+		episodes: (hub.kind === 'topic'
+			? everyEpisode.sort((a, b) => b.count - a.count || (b.published_at || 0) - (a.published_at || 0)).slice(0, 6)
+			: everyEpisode.sort((a, b) => (b.published_at || 0) - (a.published_at || 0))).map((e) => ({ ...e, count: videos.get(e.id) ?? e.count })),
+	} as TopicHub | ShowHub;
+}
+
+export const topicFromSearch = (run: SearchRun, slug: string) => hubFromSearch(run, 'topic', slug) as Promise<TopicHub | null>;
+export const showFromSearch = (run: SearchRun, slug: string) => hubFromSearch(run, 'show', slug) as Promise<ShowHub | null>;
+
+export async function hubsFromSearch(run: SearchRun, kind: 'topic' | 'show'): Promise<HubEntry[]> {
+	const attribute = kind === 'topic' ? 'topics' : 'source.show';
+	const all = await run({ q: '', limit: 0, facets: [attribute] });
+	return facetPairs(all.facetDistribution?.[attribute])
+		.filter(([name]) => kind === 'topic' || hasShowPage(name))
+		.map(([name, n]) => ({ slug: slugify(name), name, count: n }));
 }

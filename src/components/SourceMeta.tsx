@@ -2,6 +2,7 @@ import React, { type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router';
 
 import { episodeTitle } from '../utils/format';
+import { hasShowPage, showUrl } from '../topics';
 import type { Source } from '../types';
 
 // --- show › episode (or post): the episode links to its page here for videos, to the original elsewhere
@@ -18,7 +19,7 @@ export default function SourceMeta({ source }: { source: Source }) {
 	const withTitle = source.title && pathname !== episode && name !== source.show;
 	return (
 		<span className="meta" title={source.title ?? undefined}>
-			{source.show && <b>{source.show}</b>}
+			{source.show && (hasShowPage(source.show) ? <Link to={showUrl(source.show)} className="show">{source.show}</Link> : <b>{source.show}</b>)}
 			{withTitle && <>{source.show && <span className="sep">›</span>}{title}</>}
 		</span>
 	);

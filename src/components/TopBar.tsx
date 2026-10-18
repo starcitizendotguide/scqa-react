@@ -1,7 +1,7 @@
 import React, { type ReactNode } from 'react';
 import { Link } from 'react-router';
 
-export type Section = 'search' | 'devs';
+export type Section = 'search' | 'devs' | 'topics' | 'shows';
 
 // --- on the search page the logo and its tab reload the bare search; elsewhere they navigate back to it
 export default function TopBar({ home = false, active }: { home?: boolean; active?: Section }) {
@@ -15,6 +15,8 @@ export default function TopBar({ home = false, active }: { home?: boolean; activ
 			<nav className="tabs" aria-label="Sections">
 				{toSearch({ ...tab('search'), children: 'Search' })}
 				<Link to="/dev" {...tab('devs')}>Developers</Link>
+				<Link to="/topic" {...tab('topics')}>Topics</Link>
+				<Link to="/show" {...tab('shows')}>Shows</Link>
 			</nav>
 		</header>
 	);
