@@ -4,6 +4,7 @@ import { data } from 'react-router';
 import { getEpisode, getEpisodeSummary } from '../data.server';
 import { VIDEO_ID } from '../ids';
 import { pageMeta } from '../meta';
+import { breadcrumbs, episodeVideo } from '../structuredData';
 import { count } from '../archive';
 
 import Hit from '../components/Hit';
@@ -51,6 +52,7 @@ export function meta({ loaderData, params }: Route.MetaArgs) {
 		path: `/episode/${params.videoId}`,
 		type: 'video.episode',
 		...(source.platform === 'youtube' ? { image: { url: `https://i.ytimg.com/vi/${params.videoId}/hqdefault.jpg`, width: 480, height: 360 } } : {}),
+		jsonLd: [episodeVideo(params.videoId, items, summary), breadcrumbs([['Search', '/'], [source.title ?? 'Episode']])],
 	});
 }
 
@@ -87,11 +89,16 @@ export default function Episode({ loaderData, params }: Route.ComponentProps) {
 	// --- a link to one question (#rec-<id>) cues the player there and marks its row; the card below opens by itself
 	const hydrated = useHydrated();
 	const linked = useMemo(() => (hydrated ? items.findIndex((i) => window.location.hash === `#rec-${i.id}`) : -1), [hydrated, items]);
+	// --- ?t=<seconds> (the key-moment links in search results) cues the player there and marks the question running then
+	const at = useMemo(() => {
+		const t = hydrated ? Number(new URLSearchParams(window.location.search).get('t')) : NaN;
+		return Number.isFinite(t) && t > 0 ? Math.floor(t) : null;
+	}, [hydrated]);
 
 	// --- the marked row: the question playing right now, else the one clicked or linked
 	const playing = useMemo(() => playingIndex(items, player.time), [items, player.time]);
-	const active = playing ?? selected ?? (linked >= 0 ? linked : null);
-	const cue = start ?? (linked >= 0 ? items[linked].source.start || 0 : 0);
+	const active = playing ?? selected ?? (linked >= 0 ? linked : playingIndex(items, at));
+	const cue = start ?? (linked >= 0 ? items[linked].source.start || 0 : at ?? 0);
 
 	const { ready, command } = player;
 	const jump = useCallback((seconds: number | null | undefined, row: number | null = null) => {

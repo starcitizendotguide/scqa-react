@@ -19,13 +19,15 @@ const clip = (text: string, max: number): string => {
 	return flat.length > max ? `${flat.slice(0, max - 1).replace(/\s+\S*$/, '')}…` : flat;
 };
 
-export function pageMeta({ title, description = DEFAULT_DESCRIPTION, path = '/', type = 'website', image = DEFAULT_IMAGE, extra = [] }: {
+export function pageMeta({ title, description = DEFAULT_DESCRIPTION, path = '/', type = 'website', image = DEFAULT_IMAGE, extra = [], jsonLd = [] }: {
 	title: string;
 	description?: string;
 	path?: string;
 	type?: string;
 	image?: Image;
 	extra?: MetaDescriptor[];
+	/** schema.org objects (structuredData.ts), one <script type="application/ld+json"> each */
+	jsonLd?: (Record<string, unknown> | null)[];
 }): MetaDescriptor[] {
 	const url = `${SITE}${path}`;
 	const desc = clip(description, 200);
@@ -45,6 +47,7 @@ export function pageMeta({ title, description = DEFAULT_DESCRIPTION, path = '/',
 		{ name: 'twitter:description', content: desc },
 		{ name: 'twitter:image', content: image.url },
 		...extra,
+		...jsonLd.filter((data) => data !== null).map((data) => ({ 'script:ld+json': data })),
 	];
 }
 

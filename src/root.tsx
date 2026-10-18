@@ -10,6 +10,7 @@ import fontHud from './styles/fonts/jetbrains-mono-latin-400-normal.woff2';
 
 import GenericNotFound from './pages/GenericNotFound';
 import { pageMeta } from './meta';
+import { website } from './structuredData';
 import { IconSprite } from './components/Icon';
 
 // --- every page uses all four fonts above the fold; announcing them here starts them alongside the stylesheet
@@ -44,7 +45,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
 export const meta = ({ error }: Route.MetaArgs) => (error
 	? [{ title: `${isRouteErrorResponse(error) && error.status === 404 ? 'Not found' : 'Error'} | starfarer.space` }, { name: 'robots', content: 'noindex' }]
-	: pageMeta({ title: 'Star Citizen Q&A Search | starfarer.space' }));
+	: pageMeta({ title: 'Star Citizen Q&A Search | starfarer.space', jsonLd: [website()] }));
 
 export default function App() {
 	return <Outlet />;

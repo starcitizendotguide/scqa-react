@@ -4,6 +4,7 @@ import { Link, data } from 'react-router';
 import { getDeveloper } from '../data.server';
 import { developerFromSearch } from '../archive';
 import { pageMeta } from '../meta';
+import { breadcrumbs, developerProfile } from '../structuredData';
 import { topicLabel } from '../topics';
 import { fmt, initials } from '../utils/format';
 
@@ -47,6 +48,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 		description: `${dev.name}${dev.role ? `, ${dev.role}` : ''}: ${fmt(dev.count)} answers about Star Citizen${topics.length ? `, most often on ${topics.join(', ')}` : ''}. Every answer with its source and video timestamp.`,
 		path: `/dev/${dev.slug}`,
 		type: 'profile',
+		jsonLd: [developerProfile(dev), breadcrumbs([['Search', '/'], ['Developers', '/dev'], [dev.name]])],
 	});
 }
 

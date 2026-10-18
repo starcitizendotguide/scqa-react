@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { getRoster } from '../data.server';
 import { rosterFromSearch } from '../archive';
 import { pageMeta } from '../meta';
+import { breadcrumbs } from '../structuredData';
 import { fmt, initials } from '../utils/format';
 import TopBar from '../components/TopBar';
 import type { Route } from './+types/Developers';
@@ -27,6 +28,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 		title: 'Star Citizen developers | starfarer.space',
 		description: `${roster.length} Cloud Imperium developers and the questions they answered: ${roster.slice(0, 5).map((d) => d.name).join(', ')} and more.`,
 		path: '/dev',
+		jsonLd: [breadcrumbs([['Search', '/'], ['Developers']])],
 	});
 }
 
