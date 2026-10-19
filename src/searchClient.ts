@@ -1,6 +1,6 @@
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 
-import { HIGHLIGHT_POST, HIGHLIGHT_PRE, SEMANTIC, SEMANTIC_MAX, SEMANTIC_MIN } from './searchConfig';
+import { HIGHLIGHT_POST, HIGHLIGHT_PRE, SEMANTIC, SEMANTIC_MAX, SEMANTIC_MIN, SEMANTIC_PREFIX } from './searchConfig';
 
 export { INDEX, HIGHLIGHT_PRE, HIGHLIGHT_POST } from './searchConfig';
 
@@ -41,7 +41,7 @@ const asList = (filter?: Filter): (string | string[])[] => (Array.isArray(filter
 // as Meilisearch's own threshold searches the whole index for more and takes a second
 async function nearest(search: Search, queries: Query[]): Promise<string[][]> {
 	const res = (await search({
-		queries: queries.map(({ indexUid, q, filter }) => ({ indexUid, q, filter, hybrid: SEMANTIC, limit: SEMANTIC_MAX, showRankingScore: true, attributesToRetrieve: ['id'] })),
+		queries: queries.map(({ indexUid, q, filter }) => ({ indexUid, q: SEMANTIC_PREFIX + q, filter, hybrid: SEMANTIC, limit: SEMANTIC_MAX, showRankingScore: true, attributesToRetrieve: ['id'] })),
 	})) as { results: { hits: { id: string; _rankingScore: number }[] }[] };
 	return res.results.map(({ hits }) => hits.filter((hit) => hit._rankingScore >= SEMANTIC_MIN).map((hit) => hit.id));
 }
@@ -52,7 +52,7 @@ async function nearest(search: Search, queries: Query[]): Promise<string[][]> {
 async function federated(search: Search, { facets, page = 1, hitsPerPage = 20, ...query }: Query, near: string[]) {
 	const res = (await search({
 		federation: { page, hitsPerPage, ...(facets?.length ? { facetsByIndex: { [query.indexUid]: facets }, mergeFacets: {} } : {}) },
-		queries: [query, ...(near.length ? [{ ...query, hybrid: SEMANTIC, filter: [`id IN ${JSON.stringify(near)}`, ...asList(query.filter)] }] : [])],
+		queries: [query, ...(near.length ? [{ ...query, q: SEMANTIC_PREFIX + query.q, hybrid: SEMANTIC, filter: [`id IN ${JSON.stringify(near)}`, ...asList(query.filter)] }] : [])],
 	})) as Result;
 	return { indexUid: query.indexUid, query: query.q, ...res, facetDistribution: res.facetDistribution ?? {} };
 }
