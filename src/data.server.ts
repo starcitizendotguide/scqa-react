@@ -23,7 +23,7 @@ interface Data {
 
 
 let cache: Data | undefined;
-let episodes: Record<string, { summary?: string }> | undefined;
+let episodes: Record<string, { summary?: string; duration?: number }> | undefined;
 let hubIntros: Record<string, { summary?: string }> | undefined;
 
 async function load(): Promise<Data | null> {
@@ -103,12 +103,14 @@ export async function getEpisode(videoId: string): Promise<QaRecord[]> {
 	return search(`source.video_id = "${videoId}"`, { sort: ['source.start:asc'] });
 }
 
-export async function getEpisodeSummary(videoId: string): Promise<string | null> {
+// --- the episode's summary and the video's length in seconds
+export async function getEpisodeInfo(videoId: string): Promise<{ summary: string | null; duration: number | null }> {
 	if (!process.env.STARFARER_EPISODES) {
-		return null;
+		return { summary: null, duration: null };
 	}
 	episodes ??= JSON.parse(await readFile(process.env.STARFARER_EPISODES, 'utf8'));
-	return episodes?.[videoId]?.summary || null;
+	const episode = episodes?.[videoId];
+	return { summary: episode?.summary || null, duration: episode?.duration || null };
 }
 
 // --- the closest other answers by meaning, for an answer page

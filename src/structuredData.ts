@@ -30,8 +30,12 @@ export const website = (): JsonLd => ({
 
 const clipName = (question: string) => (question.length > 110 ? `${question.slice(0, 109).replace(/\s+\S*$/, '')}…` : question);
 
-// --- the episode's YouTube video, its questions as clips: each runs until the next question starts
-export function episodeVideo(videoId: string, items: QaRecord[], summary: string | null | undefined): JsonLd | null {
+const isoDuration = (seconds: number) =>
+	`PT${Math.floor(seconds / 3600) ? `${Math.floor(seconds / 3600)}H` : ''}${Math.floor((seconds % 3600) / 60)}M${seconds % 60}S`;
+
+// --- the episode's YouTube video, its questions as clips: each runs until its answer ends, else until the next question
+// starts, else until the video ends
+export function episodeVideo(videoId: string, items: QaRecord[], summary: string | null | undefined, duration?: number | null): JsonLd | null {
 	const source = items[0]?.source;
 	const uploaded = isoTime(source?.published_at);
 	if (!source || source.platform !== 'youtube' || !uploaded) {
@@ -43,12 +47,14 @@ export function episodeVideo(videoId: string, items: QaRecord[], summary: string
 		.sort((a, b) => (a.source.start ?? 0) - (b.source.start ?? 0))
 		.map((item) => {
 			const start = item.source.start as number;
-			const end = starts.find((s) => s > start);
+			const own = item.source.end != null && item.source.end > start ? item.source.end : null;
+			const candidate = own ?? starts.find((s) => s > start) ?? duration;
+			const end = candidate && duration ? Math.min(candidate, duration) : candidate;
 			return {
 				'@type': 'Clip',
 				name: clipName(item.question),
 				startOffset: start,
-				...(end ? { endOffset: end } : {}),
+				...(end && end > start ? { endOffset: end } : {}),
 				url: `${SITE}/episode/${videoId}?t=${start}`,
 			};
 		});
@@ -59,6 +65,7 @@ export function episodeVideo(videoId: string, items: QaRecord[], summary: string
 		description: summary || `${items.length} questions answered in ${source.title}.`,
 		thumbnailUrl: [`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`],
 		uploadDate: uploaded,
+		...(duration ? { duration: isoDuration(duration) } : {}),
 		embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}`,
 		...(clips.length ? { hasPart: clips } : {}),
 	};

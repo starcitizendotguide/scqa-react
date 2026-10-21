@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { data } from 'react-router';
 
-import { getEpisode, getEpisodeSummary } from '../data.server';
+import { getEpisode, getEpisodeInfo } from '../data.server';
 import { VIDEO_ID } from '../ids';
 import { pageMeta } from '../meta';
 import { breadcrumbs, episodeVideo } from '../structuredData';
@@ -24,14 +24,14 @@ export async function loader({ params }: Route.LoaderArgs) {
 	if (!items.length) {
 		throw data(null, { status: 404 });
 	}
-	return { items, summary: await getEpisodeSummary(params.videoId) };
+	return { items, ...(await getEpisodeInfo(params.videoId)) };
 }
 
 export function meta({ loaderData, params }: Route.MetaArgs) {
 	if (!loaderData) {
 		return [{ title: 'Not found | starfarer.space' }];
 	}
-	const { items, summary } = loaderData;
+	const { items, summary, duration } = loaderData;
 	const source = items[0].source;
 	return pageMeta({
 		title: `${source.title} | starfarer.space`,
@@ -39,7 +39,7 @@ export function meta({ loaderData, params }: Route.MetaArgs) {
 		path: `/episode/${params.videoId}`,
 		type: 'video.episode',
 		...(source.platform === 'youtube' ? { image: { url: `https://i.ytimg.com/vi/${params.videoId}/hqdefault.jpg`, width: 480, height: 360 } } : {}),
-		jsonLd: [episodeVideo(params.videoId, items, summary), breadcrumbs([['Search', '/'], [source.title ?? 'Episode']])],
+		jsonLd: [episodeVideo(params.videoId, items, summary, duration), breadcrumbs([['Search', '/'], [source.title ?? 'Episode']])],
 	});
 }
 

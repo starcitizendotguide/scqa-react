@@ -10,6 +10,13 @@ const record = (id: string, start: number | null, platform = 'youtube'): QaRecor
 });
 
 describe('episodeVideo', () => {
+	it('ends a clip with its answer, else where the next question starts, else with the video', () => {
+		const answered = { ...record('a', 10), source: { ...record('a', 10).source, end: 120 } };
+		const video = episodeVideo('abcdefghijk', [answered, record('b', 300), record('c', 1974)], null, 2082) as Record<string, unknown>;
+		const clips = video.hasPart as Record<string, unknown>[];
+		expect(clips.map((c) => [c.startOffset, c.endOffset])).toEqual([[10, 120], [300, 1974], [1974, 2082]]);
+		expect(video.duration).toBe('PT34M42S');
+	});
 	it('makes one clip per timed question, ending where the next one starts', () => {
 		const video = episodeVideo('abcdefghijk', [record('b', 300), record('a', 10), record('c', null)], 'A summary.') as Record<string, unknown>;
 		const clips = video.hasPart as Record<string, unknown>[];

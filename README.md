@@ -33,7 +33,7 @@ and pass every other path to the server.
 The server renders answer pages (`/star/vault/<id>`, with related answers), episode pages (`/episode/<video id>`),
 developer pages (`/dev`, `/dev/<slug>`, slug rule in `src/slug.ts`) and topic and show pages (`/topic`, `/show` and
 below) from `STARFARER_DATA`, a JSON export of the search documents (`STARFARER_EPISODES` and `STARFARER_HUBS`
-optionally add episode summaries and topic/show intros). It needs no network. Without the export (the dev server) the
+optionally add episode summaries and video lengths, and topic/show intros). It needs no network. Without the export (the dev server) the
 pages load their data from the public search endpoint.
 
 The home page is pre-rendered with the first page of results for the bare search, fetched from the search endpoint
